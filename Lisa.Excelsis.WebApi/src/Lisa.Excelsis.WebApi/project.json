@@ -7,7 +7,8 @@
     "Microsoft.AspNet.IISPlatformHandler": "1.0.0-beta8",
     "Microsoft.AspNet.Mvc": "6.0.0-beta8",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-beta8",
-    "Microsoft.AspNet.StaticFiles": "1.0.0-beta8"
+    "Microsoft.AspNet.StaticFiles": "1.0.0-beta8",
+    "System.Data.SqlClient": "4.0.0-beta-23409"
   },
 
   "commands": {
