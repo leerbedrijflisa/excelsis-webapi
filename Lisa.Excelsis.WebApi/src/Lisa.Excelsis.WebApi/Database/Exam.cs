@@ -6,17 +6,15 @@ namespace Lisa.Excelsis.WebApi
     {
         public object FetchExam(int id)
         {
-            var query = @"SELECT *
-                          FROM Exam
-                          WHERE Exam.Id = @id";
+            var query = @"SELECT * FROM Exam WHERE Exam.Id = @id";
             var parameters = new { id = id };
-            return _gateway.Execute(query, parameters).Single();
+            return _gateway.SelectSingle(query, parameters);
         }
 
         public IEnumerable<object> FetchExams()
         {
             var query = @"SELECT * FROM Exam";
-            return _gateway.Execute(query).Many();
+            return _gateway.SelectMany(query);
         }
 
         public object AddExam(ExamPost exam)
@@ -24,7 +22,7 @@ namespace Lisa.Excelsis.WebApi
             var query = @"INSERT INTO Exam (Name, Cohort, Crebo, Subject)
                           VALUES (@Name, @Cohort, @Crebo, @subject);";
             var parameters = new { Name = exam.Name, Cohort = exam.Cohort, Crebo = exam.Crebo, Subject = exam.Subject };
-            return _gateway.Execute(query, parameters).Insert();
+            return _gateway.Insert(query, parameters);
         }           
     }
 }
