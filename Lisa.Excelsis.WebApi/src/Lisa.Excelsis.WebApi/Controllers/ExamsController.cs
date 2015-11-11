@@ -23,7 +23,7 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)
         {
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || _db.AnyExam(exam))
             {
                 return new BadRequestResult();
             }

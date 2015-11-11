@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -24,5 +25,17 @@ namespace Lisa.Excelsis.WebApi
             var parameters = new { Name = exam.Name, Cohort = exam.Cohort, Crebo = exam.Crebo, Subject = exam.Subject };
             return _gateway.Insert(query, parameters);
         }           
+        public bool AnyExam(ExamPost exam)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Exam 
+                          WHERE Name LIKE @Name 
+                            AND Subject LIKE @Subject 
+                            AND Cohort LIKE @Cohort 
+                            AND Crebo LIKE @Crebo";
+            var parameters = new { Name = exam.Name, Subject = exam.Subject, Cohort = exam.Cohort, Crebo = exam.Crebo };
+            dynamic result = _gateway.SelectSingle(query, parameters);
+
+            return (result.count > 0) ? true : false;
+        }
     }
 }
