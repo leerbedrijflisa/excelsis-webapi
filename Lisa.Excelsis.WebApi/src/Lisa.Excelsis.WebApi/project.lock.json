@@ -3,6 +3,22 @@
   "version": 2,
   "targets": {
     "DNX,Version=v4.5.1": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "Microsoft.CSharp",
+          "mscorlib",
+          "System",
+          "System.Core",
+          "System.Data"
+        ],
+        "compile": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -1386,6 +1402,23 @@
       }
     },
     "DNXCore,Version=v5.0": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.0.1-beta-23409",
+          "System.Collections": "4.0.11-beta-23409",
+          "System.Data.SqlClient": "4.0.0-beta-23409",
+          "System.Linq": "4.0.1-beta-23409",
+          "System.Runtime": "4.0.21-beta-23409",
+          "System.Threading": "4.0.11-beta-23409"
+        },
+        "compile": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -3598,6 +3631,22 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x86": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "Microsoft.CSharp",
+          "mscorlib",
+          "System",
+          "System.Core",
+          "System.Data"
+        ],
+        "compile": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -4984,6 +5033,22 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x64": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "frameworkAssemblies": [
+          "Microsoft.CSharp",
+          "mscorlib",
+          "System",
+          "System.Core",
+          "System.Data"
+        ],
+        "compile": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnx451/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -6370,6 +6435,23 @@
       }
     },
     "DNXCore,Version=v5.0/win7-x86": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.0.1-beta-23409",
+          "System.Collections": "4.0.11-beta-23409",
+          "System.Data.SqlClient": "4.0.0-beta-23409",
+          "System.Linq": "4.0.1-beta-23409",
+          "System.Runtime": "4.0.21-beta-23409",
+          "System.Threading": "4.0.11-beta-23409"
+        },
+        "compile": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -8887,6 +8969,23 @@
       }
     },
     "DNXCore,Version=v5.0/win7-x64": {
+      "Lisa.Common.Sql/1.0.0-alpha-1": {
+        "type": "package",
+        "dependencies": {
+          "Microsoft.CSharp": "4.0.1-beta-23409",
+          "System.Collections": "4.0.11-beta-23409",
+          "System.Data.SqlClient": "4.0.0-beta-23409",
+          "System.Linq": "4.0.1-beta-23409",
+          "System.Runtime": "4.0.21-beta-23409",
+          "System.Threading": "4.0.11-beta-23409"
+        },
+        "compile": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        },
+        "runtime": {
+          "lib/dnxcore50/Lisa.Common.Sql.dll": {}
+        }
+      },
       "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
         "type": "package",
         "dependencies": {
@@ -11405,6 +11504,19 @@
     }
   },
   "libraries": {
+    "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "type": "package",
+      "sha512": "3cZdnkCbG1EKVsWZFLCcxlSVz0Za1rG8kRiwhQJBWKf4NcLs5bHme/wRxwEQJZnNyVg5n8NSwiiSGBhmh9bKRw==",
+      "files": [
+        "lib/dnx451/Lisa.Common.Sql.dll",
+        "lib/dnx451/Lisa.Common.Sql.xml",
+        "lib/dnxcore50/Lisa.Common.Sql.dll",
+        "lib/dnxcore50/Lisa.Common.Sql.xml",
+        "Lisa.Common.Sql.1.0.0-alpha-1.nupkg",
+        "Lisa.Common.Sql.1.0.0-alpha-1.nupkg.sha512",
+        "Lisa.Common.Sql.nuspec"
+      ]
+    },
     "Microsoft.AspNet.Antiforgery/1.0.0-beta8": {
       "type": "package",
       "serviceable": true,
@@ -15468,6 +15580,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
+      "Lisa.Common.Sql >= 1.0.0-alpha-1",
       "Microsoft.AspNet.Cors >= 6.0.0-beta8",
       "Microsoft.AspNet.IISPlatformHandler >= 1.0.0-beta8",
       "Microsoft.AspNet.Mvc >= 6.0.0-beta8",
