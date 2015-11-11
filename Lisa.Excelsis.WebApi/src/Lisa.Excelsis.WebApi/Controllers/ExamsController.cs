@@ -34,6 +34,21 @@ namespace Lisa.Excelsis.WebApi
             return new CreatedResult("", result);
         }
 
+        [HttpPost("{id}/criterium")]
+        public IActionResult Post([FromBody] CriteriumPost criterium, int id)
+        {
+            if (id == 0 || !ModelState.IsValid || _db.AnyCriterium(id, criterium))
+            {
+                return new BadRequestResult();
+            }
+
+            _db.AddCriterium(id, criterium);
+            var result = _db.FetchExam(Convert.ToInt32(id));
+
+            return new CreatedResult("", result);
+        }
+
+
         private readonly Database _db = new Database();
     }
 }
