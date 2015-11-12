@@ -13,10 +13,10 @@ namespace Lisa.Excelsis.WebApi
             return new ObjectResult(result);
         }
 
-        [HttpGet("{id}")]
-        public IActionResult Get(int id)
+        [HttpGet("{subject}/{name}/{cohort}")]
+        public IActionResult Get(string subject, string name, string cohort)
         {
-            var result = _db.FetchExam(id);
+            var result = _db.FetchExam(subject, name, cohort);
             return new ObjectResult(result);
         }
 
@@ -32,22 +32,7 @@ namespace Lisa.Excelsis.WebApi
             var result = _db.FetchExam(Convert.ToInt32(id));
 
             return new CreatedResult("", result);
-        }
-
-        [HttpPost("{id}/criterium")]
-        public IActionResult Post([FromBody] CriteriumPost criterium, int id)
-        {
-            if (id == 0 || !ModelState.IsValid || _db.AnyCriterium(id, criterium))
-            {
-                return new BadRequestResult();
-            }
-
-            _db.AddCriterium(id, criterium);
-            var result = _db.FetchExam(Convert.ToInt32(id));
-
-            return new CreatedResult("", result);
-        }
-
+        }       
 
         private readonly Database _db = new Database();
     }
