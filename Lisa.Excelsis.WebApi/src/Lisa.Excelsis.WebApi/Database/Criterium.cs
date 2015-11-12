@@ -4,7 +4,7 @@
     {
         public object AddCriterium(int id, CriteriumPost criterium)
         {
-            var query = @"INSERT INTO Criterium ([Order], [Description], [Value], [ExamId])
+            var query = @"INSERT INTO Criterium ([Order], [Description], Value, ExamId)
                           VALUES (@Order, @Description, @Value, @ExamId);";
             var parameters = new { Order = criterium.Order, Description = criterium.Description, Value = criterium.Value, ExamId = id };
             return _gateway.Insert(query, parameters);
