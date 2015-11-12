@@ -1,19 +1,22 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
-        public object FetchExam(int id)
+        public object FetchExam(string subject, string name, string cohort)
         {
-            var query = @"SELECT Exam.Id AS [@], Exam.*, Criterium.Id as #Criterium_@ID, Criterium.[Order] as #Criterium_Order, Criterium.[Description] as #Criterium_Description, Criterium.Value as #Criterium_Value
-                          FROM Exam
-                          LEFT JOIN Criterium ON Criterium.ExamId = @id
-                          WHERE Exam.Id = @id";
-            var parameters = new { id = id };
+            var query = FetchExamQuery + " WHERE Exam.Name = @Name AND Exam.Subject = @Subject AND Exam.Cohort = @Cohort";
+            var parameters = new { Subject = subject, Name = name, Cohort = cohort};
             return _gateway.SelectSingle(query, parameters);
         }
+
+        public object FetchExam(int id)
+        {
+            var query = FetchExamQuery + " WHERE Exam.Id = @Id";
+            var parameters = new { Id = id };
+            return _gateway.SelectSingle(query, parameters);
+        }       
 
         public IEnumerable<object> FetchExams()
         {
@@ -39,6 +42,20 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _gateway.SelectSingle(query, parameters);
 
             return (result.count > 0) ? true : false;
+        }
+
+        private string FetchExamQuery
+        {
+            get
+            {
+                return @"SELECT Exam.Id AS [@], Name, Cohort, Crebo, Subject, 
+                                Criterium.Id as #Criterium_@ID, 
+                                Criterium.[Order] as #Criterium_Order, 
+                                Criterium.[Description] as #Criterium_Description, 
+                                Criterium.Value as #Criterium_Value
+                          FROM Exam
+                          LEFT JOIN Criterium ON Criterium.ExamId = Exam.Id";
+            }
         }
     }
 }
