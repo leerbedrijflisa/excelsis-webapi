@@ -9,7 +9,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = @"SELECT Exam.Id AS [@], Exam.*, Criterium.Id as #Criterium_@ID, Criterium.[Order] as #Criterium_Order, Criterium.[Description] as #Criterium_Description, Criterium.Value as #Criterium_Value
                           FROM Exam
-                          JOIN Criterium ON Criterium.ExamId = @id
+                          LEFT JOIN Criterium ON Criterium.ExamId = @id
                           WHERE Exam.Id = @id";
             var parameters = new { id = id };
             return _gateway.SelectSingle(query, parameters);
