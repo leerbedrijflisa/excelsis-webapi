@@ -12,5 +12,5 @@ namespace Lisa.Excelsis.WebApi
         public string Cohort { get; set; }
         [Required]
         public string Crebo { get; set; }
-    }
+    } 
 }
