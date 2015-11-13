@@ -6,6 +6,19 @@ namespace Lisa.Excelsis.WebApi
     [Route("[controller]")]
     public class AssessmentsController : Controller
     {
+        [HttpGet]
+        public IActionResult Get()
+        {
+            var result = _db.FetchAssessments();
+            return new ObjectResult(result);
+        }
+        [HttpGet("{id}")]
+        public IActionResult Get(int id)
+        {                      
+            var result = _db.FetchAssessment(id);
+            return new ObjectResult(result);
+        }
+
         [HttpPost("{subject}/{name}/{cohort}")]
         public IActionResult Post([FromBody]AssessmentPost assessment, string subject, string name, string cohort)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -66,6 +67,15 @@ namespace Lisa.Excelsis.WebApi
                           WHERE Assessments.Id = @Id";
             var parameters = new { Id = id };
             return _gateway.SelectSingle(query, parameters);
+        }
+
+        public IEnumerable<object> FetchAssessments()
+        {
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
+                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject
+                          FROM Assessments
+                          LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id";
+            return _gateway.SelectMany(query);
         }
     }
 }
