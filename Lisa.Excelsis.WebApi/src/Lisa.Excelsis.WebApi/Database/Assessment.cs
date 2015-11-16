@@ -14,13 +14,18 @@ namespace Lisa.Excelsis.WebApi
 
             dynamic assessorResult = SelectAssessors(assessment);
 
-            dynamic assessmentResult = InsertAssessment(assessment, examResult);
+            if (examResult != null || assessorResult != null)
+            {
+                dynamic assessmentResult = InsertAssessment(assessment, examResult);
 
-            InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
+                InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
 
-            InsertObservations(assessmentResult, examResult);
+                InsertObservations(assessmentResult, examResult);
 
-            return (_errorMessage.Count > 0) ? null : assessmentResult;
+                return (_errorMessage.Count > 0) ? null : assessmentResult;
+            }
+
+            return null;            
         }   
              
         public object FetchAssessment(int id)
