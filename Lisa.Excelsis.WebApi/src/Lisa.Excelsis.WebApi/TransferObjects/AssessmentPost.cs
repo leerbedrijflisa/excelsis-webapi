@@ -9,7 +9,7 @@ namespace Lisa.Excelsis.WebApi
         public string StudentName { get; set; }
         public string StudentNumber { get; set; }
         [Required]
-        public DateTime Assessed { get; set; }
+        public DateTime? Assessed { get; set; }
         [Required]
         public IList<AssessorPost> Assessors { get; set; }
     }
