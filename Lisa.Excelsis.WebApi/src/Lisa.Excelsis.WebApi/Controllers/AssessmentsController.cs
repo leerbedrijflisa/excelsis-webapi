@@ -22,7 +22,7 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{name}/{cohort}")]
         public IActionResult Post([FromBody]AssessmentPost assessment, string subject, string name, string cohort)
         {
-            if (!ModelState.IsValid && subject != null && name != null && cohort != null)
+            if (!ModelState.IsValid || subject == null || name == null && cohort == null || assessment.Assessed.Year == 1)
             {
                 return new BadRequestResult();
             }
