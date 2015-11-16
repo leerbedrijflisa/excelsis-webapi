@@ -48,7 +48,7 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Exams.Id AS [@], Name, Cohort, Crebo, Subject, 
+                return @"SELECT Exams.Id AS [@], Exams.Id, Name, Cohort, Crebo, Subject, 
                                 Criteriums.Id as #Criteriums_@ID, 
                                 Criteriums.[Order] as #Criteriums_Order, 
                                 Criteriums.[Description] as #Criteriums_Description, 
