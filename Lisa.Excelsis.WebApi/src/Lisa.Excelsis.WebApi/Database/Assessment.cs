@@ -26,11 +26,14 @@ namespace Lisa.Excelsis.WebApi
         public object FetchAssessment(int id)
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
-                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject,
+                                 Exams.Id as Exams_@Id, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject,
+                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Observations.Id as #Observations_Id, Observations.Result as #Observations_Result, Observations.Marks as #Observations_Marks,
                                  Criteriums.Id as #Observations_Criterium_@Id, Criteriums.Description as #Observations_Criterium_Description, Criteriums.[Order] as #Observations_Criterium_Order, Criteriums.Value as #Observations_Criterium_Value
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id 
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteriums ON Criteriums.Id = Observations.Criterium_Id
                           WHERE Assessments.Id = @Id";
@@ -41,9 +44,13 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<object> FetchAssessments()
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
-                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject
+                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject,
+                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
-                          LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id";
+                          LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id "
+;
             return _gateway.SelectMany(query);
         }
 
