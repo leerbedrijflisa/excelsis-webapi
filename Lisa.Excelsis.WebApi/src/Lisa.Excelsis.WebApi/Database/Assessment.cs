@@ -1,5 +1,6 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -7,63 +8,31 @@ namespace Lisa.Excelsis.WebApi
     {
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
         {
-            var query = @"SELECT Id FROM Exams WHERE Subject = @Subject AND Name = @Name AND Cohort = @Cohort";
-            var parameters = new { Subject = subject, Name = name, Cohort = cohort };
-            dynamic examResult = _gateway.SelectSingle(query, parameters);
+            _errorMessage = new List<string>();
 
-            if (examResult == null)
-            {
-                return new { error = 422 };
-            }
+            dynamic examResult = SelectExam(subject, name, cohort);
 
-            query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, Exam_Id)
-                          VALUES (@StudentName, @StudentNumber, @Assessed, @ExamId);";
+            dynamic assessorResult = SelectAssessors(assessment);
 
-            if (assessment.StudentName == null)
-            {
-                assessment.StudentName = string.Empty;
-            }
-            if(assessment.StudentNumber == null)
-            {
-                assessment.StudentNumber = string.Empty;
-            }
+            dynamic assessmentResult = InsertAssessment(assessment, examResult);
 
-            var parameters2 = new { StudentName = assessment.StudentName, StudentNumber = assessment.StudentNumber, Assessed = assessment.Assessed, ExamId = examResult.Id };
-            dynamic assessmentResult = _gateway.Insert(query, parameters2);
+            InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
 
-            string assessors = string.Empty;
-            foreach (var assessor in assessment.Assessors)
-            {
-                assessors += ",'" + assessor.UserName + "'";
-            }
+            InsertObservations(assessmentResult, examResult);
 
-            query = @"SELECT Id From Assessors WHERE UserName IN ( " + assessors.Substring(1) + " ) ";
-            dynamic result = _gateway.SelectMany(query);
-
-            if (result.Count != assessment.Assessors.Count)
-            {
-                return new { error = 422 };
-            }
-
-            query = @"INSERT INTO AssessmentsAssessors (Assessment_Id, Assessor_Id) VALUES ";
-            string[] AssessorString = new string[assessment.Assessors.Count];
-            int i = 0;
-            foreach(var assessor in result)
-            {                
-                AssessorString[i] = "(" + assessmentResult + ", " + assessor.Id + ")";
-                i++;
-            }
-            query += string.Join(",", AssessorString);
-            _gateway.Insert(query, null);
-
-            return assessmentResult;
-        }        
+            return (_errorMessage.Count > 0) ? null : assessmentResult;
+        }   
+             
         public object FetchAssessment(int id)
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
-                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject
+                                 Exams.Id as Exams_@ID, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject,
+                                 Observations.Id as #Observations_Id, Observations.Result as #Observations_Result, Observations.Marks as #Observations_Marks,
+                                 Criteriums.Id as #Observations_Criterium_@Id, Criteriums.Description as #Observations_Criterium_Description, Criteriums.[Order] as #Observations_Criterium_Order, Criteriums.Value as #Observations_Criterium_Value
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                          LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
+                          LEFT JOIN Criteriums ON Criteriums.Id = Observations.Criterium_Id
                           WHERE Assessments.Id = @Id";
             var parameters = new { Id = id };
             return _gateway.SelectSingle(query, parameters);
@@ -77,5 +46,74 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id";
             return _gateway.SelectMany(query);
         }
+
+        private dynamic SelectExam(string subject, string name, string cohort)
+        {
+            var query = @"SELECT Exams.Id as [@], Exams.Id, Criteriums.Id as #Criterium_Id FROM Exams 
+                          LEFT JOIN Criteriums ON Criteriums.ExamId = Exams.Id
+                          WHERE Subject = @Subject AND Name = @Name AND Cohort = @Cohort";
+            var parameters = new { Subject = subject, Name = name, Cohort = cohort };
+            dynamic result = _gateway.SelectSingle(query, parameters);
+
+            if (result == null)
+            {
+                _errorMessage.Add("Exam doensn't exist.");
+            }
+
+            return result;
+        }
+
+        private dynamic SelectAssessors(AssessmentPost assessment)
+        {          
+            var assessors = assessment.Assessors.Select(assessor => "'" + assessor.UserName + "'");
+
+            var query = @"SELECT Id From Assessors WHERE UserName IN ( " + string.Join(",", assessors) + " ) ";
+            dynamic result = _gateway.SelectMany(query);
+
+            if (result.Count != assessment.Assessors.Count)
+            {
+                _errorMessage.Add("An assessor doensn't exist.");
+            }
+
+            return result;
+        }
+
+        private dynamic InsertAssessment(AssessmentPost assessment, dynamic examResult)
+        {
+            var query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, Exam_Id)
+                          VALUES (@StudentName, @StudentNumber, @Assessed, @ExamId);";
+
+            if (assessment.StudentName == null)
+            {
+                assessment.StudentName = string.Empty;
+            }
+            if (assessment.StudentNumber == null)
+            {
+                assessment.StudentNumber = string.Empty;
+            }
+
+            var parameters = new { StudentName = assessment.StudentName, StudentNumber = assessment.StudentNumber, Assessed = assessment.Assessed, ExamId = examResult.Id };
+            return _gateway.Insert(query, parameters);
+        }
+
+        private void InsertObservations(dynamic assessmentResult, dynamic examResult)
+        {
+            var observations = ((IEnumerable)examResult.Criterium).Cast<dynamic>().Select(criterium => "(" + criterium.Id + ", " + assessmentResult + ",'','')");
+           
+            var query = @"INSERT INTO Observations (Criterium_Id, Assessment_Id, Result, Marks) VALUES ";
+            query += string.Join(",", observations);
+            _gateway.Insert(query, null);
+        }
+
+        private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
+        {
+            var assessorAssessments = ((IEnumerable)assessorResult).Cast<dynamic>().Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
+            
+            var query = @"INSERT INTO AssessmentsAssessors (Assessment_Id, Assessor_Id) VALUES ";
+            query += string.Join(",", assessorAssessments);
+            _gateway.Insert(query, null);
+        }
+
+        private List<string> _errorMessage { get; set; }
     }
 }
