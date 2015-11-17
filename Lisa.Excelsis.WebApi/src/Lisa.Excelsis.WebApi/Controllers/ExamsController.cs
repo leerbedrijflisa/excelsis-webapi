@@ -8,7 +8,7 @@ namespace Lisa.Excelsis.WebApi
     {
         [HttpGet]
         public IActionResult Get()
-        {          
+        {
             var result = _db.FetchExams();
             return new ObjectResult(result);
         }
@@ -31,16 +31,15 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)
         {
-            if (!ModelState.IsValid || _db.AnyExam(exam))
+            if (!ModelState.IsValid || _db.ExamExists(exam))
             {
                 return new BadRequestResult();
             }
 
             var id = _db.AddExam(exam);
-            var result = _db.FetchExam(Convert.ToInt32(id));
-
+            var result = _db.FetchExam(id);
             return new CreatedResult("", result);
-        }       
+        }
 
         private readonly Database _db = new Database();
     }

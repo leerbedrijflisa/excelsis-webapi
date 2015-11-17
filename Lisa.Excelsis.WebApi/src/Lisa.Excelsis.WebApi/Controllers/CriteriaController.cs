@@ -6,14 +6,14 @@ namespace Lisa.Excelsis.WebApi
     public class CriteriaController : Controller
     {
         [HttpPost("{id}")]
-        public IActionResult Post([FromBody] CriteriumPost criterium, int id)
+        public IActionResult Post([FromBody] CriterionPost criterion, int id)
         {
-            if (id == 0 || !ModelState.IsValid || _db.AnyCriterium(id, criterium))
+            if (!ModelState.IsValid || _db.CriterionExists(id, criterion))
             {
                 return new BadRequestResult();
             }
 
-            _db.AddCriterium(id, criterium);
+            _db.AddCriterion(id, criterion);
             var result = _db.FetchExam(id);
 
             return new CreatedResult("", result);

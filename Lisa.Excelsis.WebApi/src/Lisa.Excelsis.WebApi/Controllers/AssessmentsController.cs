@@ -14,28 +14,28 @@ namespace Lisa.Excelsis.WebApi
         }
         [HttpGet("{id}")]
         public IActionResult Get(int id)
-        {                      
+        {
             var result = _db.FetchAssessment(id);
             return new ObjectResult(result);
         }
 
         [HttpPost("{subject}/{name}/{cohort}")]
-        public IActionResult Post([FromBody]AssessmentPost assessment, string subject, string name, string cohort)
+        public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string name, string cohort)
         {
             string examName = name.Replace("-", " ");
-            if (!ModelState.IsValid || subject == null || examName == null && cohort == null)
+            if (!ModelState.IsValid || subject == null || examName == null || cohort == null)
             {
                 return new BadRequestResult();
             }
 
             var id = _db.AddAssessment(assessment, subject, examName, cohort);
 
-            if( id == null)
+            if (id == null)
             {
                 return new BadRequestResult();
             }
 
-            var result = _db.FetchAssessment(Convert.ToInt32(id));
+            var result = _db.FetchAssessment(id);
 
             return new CreatedResult("", result);
         }
