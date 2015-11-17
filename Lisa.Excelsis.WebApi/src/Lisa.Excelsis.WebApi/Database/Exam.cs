@@ -24,6 +24,13 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectMany(query);
         }
 
+        public IEnumerable<object> FetchExams(string subject, string cohort)
+        {
+            var query = @"SELECT Id, Name, Cohort, Crebo, Subject  FROM Exams WHERE Subject = @Subject and Cohort = @Cohort";
+            var parameters = new { Subject = subject, Cohort = cohort };
+            return _gateway.SelectMany(query, parameters);
+        }
+
         public object AddExam(ExamPost exam)
         {
             var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)

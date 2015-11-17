@@ -13,8 +13,15 @@ namespace Lisa.Excelsis.WebApi
             return new ObjectResult(result);
         }
 
-        [HttpGet("{subject}/{name}/{cohort}")]
-        public IActionResult Get(string subject, string name, string cohort)
+        [HttpGet("{subject}/{cohort}")]
+        public IActionResult Get(string subject, string cohort)
+        {
+            var result = _db.FetchExams(subject, cohort);
+            return new ObjectResult(result);
+        }
+
+        [HttpGet("{subject}/{cohort}/{name}")]
+        public IActionResult Get(string subject, string cohort, string name)
         {
             string examName = name.Replace("-", " ");
             var result = _db.FetchExam(subject, examName, cohort);
