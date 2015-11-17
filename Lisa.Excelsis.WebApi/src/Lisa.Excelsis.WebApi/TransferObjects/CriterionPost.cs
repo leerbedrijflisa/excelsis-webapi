@@ -2,7 +2,7 @@
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class CriteriumPost
+    public class CriterionPost
     {
         [Required]
         public int Order { get; set; }
