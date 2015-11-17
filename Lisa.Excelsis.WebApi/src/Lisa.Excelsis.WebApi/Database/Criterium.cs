@@ -4,9 +4,9 @@
     {
         public object AddCriterium(int id, CriteriumPost criterium)
         {
-            var query = @"INSERT INTO Criteriums ([Order], [Description], Value, ExamId)
-                          VALUES (@Order, @Description, @Value, @ExamId);";
-            var parameters = new { Order = criterium.Order, Description = criterium.Description, Value = criterium.Value, ExamId = id };
+            var query = @"INSERT INTO Criteriums ([Order], Title, [Description], Value, ExamId)
+                          VALUES (@Order, @Title ,@Description, @Value, @ExamId);";
+            var parameters = new { Order = criterium.Order, Title = criterium.Title, Description = criterium.Description, Value = criterium.Value, ExamId = id };
             return _gateway.Insert(query, parameters);
         }
         public bool AnyCriterium(int id, CriteriumPost criterium)
