@@ -16,7 +16,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{name}/{cohort}")]
         public IActionResult Get(string subject, string name, string cohort)
         {
-            var result = _db.FetchExam(subject, name, cohort);
+            string examName = name.Replace("-", " ");
+            var result = _db.FetchExam(subject, examName, cohort);
             return new ObjectResult(result);
         }
 

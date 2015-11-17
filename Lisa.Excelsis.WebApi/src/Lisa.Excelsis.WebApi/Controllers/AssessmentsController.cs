@@ -22,12 +22,13 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{name}/{cohort}")]
         public IActionResult Post([FromBody]AssessmentPost assessment, string subject, string name, string cohort)
         {
-            if (!ModelState.IsValid || subject == null || name == null && cohort == null)
+            string examName = name.Replace("-", " ");
+            if (!ModelState.IsValid || subject == null || examName == null && cohort == null)
             {
                 return new BadRequestResult();
             }
 
-            var id = _db.AddAssessment(assessment, subject, name, cohort);
+            var id = _db.AddAssessment(assessment, subject, examName, cohort);
 
             if( id == null)
             {
