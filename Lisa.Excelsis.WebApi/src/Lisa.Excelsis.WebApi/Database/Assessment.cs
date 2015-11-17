@@ -61,7 +61,7 @@ namespace Lisa.Excelsis.WebApi
 
         private dynamic SelectExam(string subject, string name, string cohort)
         {
-            var query = @"SELECT Exams.Id as [@], Exam.Id,
+            var query = @"SELECT Exams.Id as [@], Exams.Id,
                                  Criteria.Id as #Criteria_Id
                           FROM Exams
                           LEFT JOIN Criteria ON Criteria.ExamId = Exams.Id
