@@ -6,14 +6,14 @@ namespace Lisa.Excelsis.WebApi
     {
         public object FetchExam(string subject, string name, string cohort)
         {
-            var query = FetchExamQuery + " WHERE Exams.Name = @Name AND Exams.Subject = @Subject AND Exams.Cohort = @Cohort";
+            var query = FetchExamQuery + " WHERE Exams.Name = @Name AND Exams.Subject = @Subject AND Exams.Cohort = @Cohort ORDER BY Criteriums.[Order] ASC";
             var parameters = new { Subject = subject, Name = name, Cohort = cohort};
             return _gateway.SelectSingle(query, parameters);
         }
 
         public object FetchExam(int id)
         {
-            var query = FetchExamQuery + " WHERE Exams.Id = @Id";
+            var query = FetchExamQuery + " WHERE Exams.Id = @Id ORDER BY Criteriums.[Order] ASC";
             var parameters = new { Id = id };
             return _gateway.SelectSingle(query, parameters);
         }       
@@ -51,6 +51,7 @@ namespace Lisa.Excelsis.WebApi
                 return @"SELECT Exams.Id AS [@], Exams.Id, Name, Cohort, Crebo, Subject, 
                                 Criteriums.Id as #Criteriums_@ID, 
                                 Criteriums.[Order] as #Criteriums_Order, 
+                                Criteriums.Title as #Criteriums_Title,
                                 Criteriums.[Description] as #Criteriums_Description, 
                                 Criteriums.Value as #Criteriums_Value
                           FROM Exams
