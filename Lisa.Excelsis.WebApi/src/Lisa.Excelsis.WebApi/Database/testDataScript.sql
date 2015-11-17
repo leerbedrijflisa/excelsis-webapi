@@ -65,8 +65,7 @@ INSERT INTO Assessors (UserName, Email)
     ('joostronkesagerbeek', 'joostronkesagerbeek@davinci.nl'),
     ('petersnoek', 'petersnoek@davinci.nl'),
     ('fritssilano', 'fritssilano@davinci.nl'),
-    ('chantaltouw', 'chantaltouw@davinci.nl'),
-    ('fritssilano', 'fritssilano@davinci.nl');
+    ('chantaltouw', 'chantaltouw@davinci.nl');
 
 INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
     VALUES 
