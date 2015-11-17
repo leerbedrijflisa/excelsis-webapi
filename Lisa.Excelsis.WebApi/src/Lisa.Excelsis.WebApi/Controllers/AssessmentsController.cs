@@ -19,8 +19,8 @@ namespace Lisa.Excelsis.WebApi
             return new ObjectResult(result);
         }
 
-        [HttpPost("{subject}/{name}/{cohort}")]
-        public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string name, string cohort)
+        [HttpPost("{subject}/{cohort}/{name}")]
+        public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
             string examName = name.Replace("-", " ");
             if (!ModelState.IsValid || subject == null || examName == null || cohort == null)
