@@ -14,7 +14,7 @@ namespace Lisa.Excelsis.WebApi
 
             dynamic assessorResult = SelectAssessors(assessment);
 
-            if (examResult != null || assessorResult != null)
+            if (examResult != null && assessorResult != null && _errorMessage.Count == 0)
             {
                 dynamic assessmentResult = InsertAssessment(assessment, examResult);
 
@@ -34,7 +34,7 @@ namespace Lisa.Excelsis.WebApi
                                  Exams.Id as Exams_@Id, Exams.Name as Exams_Name, Exams.Cohort as Exams_Cohort, Exams.Crebo as Exams_Crebo, Exams.Subject as Exams_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Observations.Id as #Observations_Id, Observations.Result as #Observations_Result, Observations.Marks as #Observations_Marks,
-                                 Criteriums.Id as #Observations_Criterium_@Id, Criteriums.Description as #Observations_Criterium_Description, Criteriums.[Order] as #Observations_Criterium_Order, Criteriums.Value as #Observations_Criterium_Value
+                                 Criteriums.Id as #Observations_Criterium_@Id, Criteriums.Title as #Observations_Criterium_Title, Criteriums.Description as #Observations_Criterium_Description, Criteriums.[Order] as #Observations_Criterium_Order, Criteriums.Value as #Observations_Criterium_Value
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
