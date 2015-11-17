@@ -53,15 +53,22 @@ CREATE TABLE [dbo].[Observations] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [Criterion_Id]  INT            NULL,
     [Result]        NVARCHAR (MAX) NULL,
-    [Marks]         DATETIME       NULL,
+    [Marks]         NVARCHAR (MAX) NULL,
     [Assessment_Id] INT            NULL,
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 GO
+INSERT INTO Assessors (UserName, Email)
+    VALUES
+    ('joostronkesagerbeek', 'joostronkesagerbeek@davinci.nl'),
+    ('petersnoek', 'petersnoek@davinci.nl'),
+    ('fritssilano', 'fritssilano@davinci.nl'),
+    ('chantaltouw', 'chantaltouw@davinci.nl'),
+    ('fritssilano', 'fritssilano@davinci.nl');
 
-INSERT INTO Exams (Name, Cohort, Crebo, Subject)
+INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
     VALUES 
     ('Spreken','2015','','Nederlands'),
     ('Lezen & Luisteren','2015','','Nederlands'),
@@ -118,7 +125,7 @@ INSERT INTO Exams (Name, Cohort, Crebo, Subject)
     ('Realiseren van een applicatie','2012','246859','Applicatieontwikkeling'),
     ('Opleveren van een applicatie','2012','246859','Applicatieontwikkeling'),
     ('Hoofdrekenen','2012','','Rekenen'),
-    ('Getallen','2012','','Rekenen');    
+    ('Getallen','2012','','Rekenen');
 
     DECLARE @timesToLoop INT
     DECLARE @innerLoopCount INT
