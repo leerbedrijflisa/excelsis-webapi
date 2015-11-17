@@ -12,6 +12,7 @@ namespace Lisa.Excelsis.WebApi
             var result = _db.FetchAssessments();
             return new ObjectResult(result);
         }
+
         [HttpGet("{id}")]
         public IActionResult Get(int id)
         {
