@@ -37,7 +37,8 @@ namespace Lisa.Excelsis.WebApi
                           VALUES (@Name, @Cohort, @Crebo, @subject);";
             var parameters = new { Name = exam.Name, Cohort = exam.Cohort, Crebo = exam.Crebo, Subject = exam.Subject };
             return _gateway.Insert(query, parameters);
-        }           
+        }     
+              
         public bool AnyExam(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams

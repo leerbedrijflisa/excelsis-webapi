@@ -9,6 +9,7 @@
             var parameters = new { Order = criterium.Order, Title = criterium.Title, Description = criterium.Description, Value = criterium.Value, ExamId = id };
             return _gateway.Insert(query, parameters);
         }
+
         public bool AnyCriterium(int id, CriteriumPost criterium)
         {
             var query = @"SELECT COUNT(*) as count FROM Criteriums
