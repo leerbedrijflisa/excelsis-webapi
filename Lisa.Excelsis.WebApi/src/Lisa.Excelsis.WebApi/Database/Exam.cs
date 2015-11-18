@@ -34,23 +34,30 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectSingle(query, parameters);
         }
 
-        public IEnumerable<object> FetchExams()
+        public IEnumerable<object> FetchExams(Filter filter)
         {
-            var query = @"SELECT Id, Name, Cohort, Crebo, Subject
-                          FROM Exams";
-            return _gateway.SelectMany(query);
+            var query = FetchExamsQuery + 
+                        @" ORDER BY Assessed desc";
+
+            var parameters = new
+            {
+                Assessor = filter.Assessor ?? string.Empty
+            };
+
+            return _gateway.SelectMany(query, parameters);
         }
 
-        public IEnumerable<object> FetchExams(string subject, string cohort)
+        public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
         {
-            var query = @"SELECT Id, Name, Cohort, Crebo, Subject
-                          FROM Exams
-                          WHERE Subject = @Subject 
-                            AND Cohort = @Cohort";
+            var query = FetchExamsQuery +
+                        @" WHERE Subject = @Subject 
+                             AND Cohort = @Cohort
+                           ORDER BY Assessed desc";
 
             var parameters = new {
                 Subject = subject,
-                Cohort = cohort
+                Cohort = cohort,
+                Assessor = filter.Assessor ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
@@ -86,6 +93,23 @@ namespace Lisa.Excelsis.WebApi
                                 Criteria.Value as #Criteria_Value
                           FROM Exams
                           LEFT JOIN Criteria ON Criteria.ExamId = Exams.Id";
+            }
+        }
+        private string FetchExamsQuery
+        {
+            get
+            {
+                return @"SELECT Id, Name, Cohort, Crebo, Subject
+                          FROM Exams
+                          LEFT JOIN (	
+	                          SELECT TOP 10 Exam_Id, MAX(Assessments.Assessed) as Assessed
+	                          FROM Assessments	
+	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+	                          WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
+	                          AND Assessors.UserName = @Assessor
+	                          GROUP BY Exam_Id
+                          ) Assessments ON Exams.Id = Assessments.Exam_Id";
             }
         }
     }

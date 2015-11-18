@@ -7,16 +7,16 @@ namespace Lisa.Excelsis.WebApi
     public class ExamsController : Controller
     {
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchExams();
+            var result = _db.FetchExams(filter);
             return new HttpOkObjectResult(result);
         }
 
         [HttpGet("{subject}/{cohort}")]
-        public IActionResult Get(string subject, string cohort)
+        public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
-            var result = _db.FetchExams(subject, cohort);
+            var result = _db.FetchExams(filter, subject, cohort);
             return new HttpOkObjectResult(result);
         }
 
