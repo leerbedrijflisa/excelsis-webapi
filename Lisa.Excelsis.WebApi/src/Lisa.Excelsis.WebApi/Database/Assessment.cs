@@ -10,7 +10,7 @@ namespace Lisa.Excelsis.WebApi
         {
             _errorMessages = new List<string>();
 
-            dynamic examResult = SelectExam(subject, name, cohort);
+            dynamic examResult = FetchExam(subject, name, cohort);
             dynamic assessorResult = SelectAssessors(assessment);
 
             if (examResult != null && assessorResult != null && _errorMessages.Count == 0)
@@ -59,31 +59,6 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectMany(query);
         }
 
-        private dynamic SelectExam(string subject, string name, string cohort)
-        {
-            var query = @"SELECT Exams.Id as [@], Exams.Id,
-                                 Criteria.Id as #Criteria_Id
-                          FROM Exams
-                          LEFT JOIN Criteria ON Criteria.ExamId = Exams.Id
-                          WHERE Subject = @Subject
-                            AND Name = @Name
-                            AND Cohort = @Cohort";
-
-            var parameters = new {
-                Subject = subject,
-                Name = name,
-                Cohort = cohort
-            };
-
-            dynamic result = _gateway.SelectSingle(query, parameters);
-            if (result == null)
-            {
-                _errorMessages.Add("Exam doensn't exist.");
-            }
-
-            return result;
-        }
-
         private dynamic SelectAssessors(AssessmentPost assessment)
         {
             var assessors = assessment.Assessors.Select(assessor => "'" + assessor.UserName + "'");
@@ -119,7 +94,7 @@ namespace Lisa.Excelsis.WebApi
         private void InsertObservations(dynamic assessmentResult, dynamic examResult)
         {
             var observations = ((IEnumerable)examResult.Criteria).Cast<dynamic>().Select(criterion => "(" + criterion.Id + ", " + assessmentResult + ",'','')");
-           
+
             var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
             query += string.Join(",", observations);
             _gateway.Insert(query, null);
@@ -128,7 +103,7 @@ namespace Lisa.Excelsis.WebApi
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
         {
             var assessorAssessments = ((IEnumerable)assessorResult).Cast<dynamic>().Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
-            
+
             var query = @"INSERT INTO AssessmentsAssessors (Assessment_Id, Assessor_Id) VALUES ";
             query += string.Join(",", assessorAssessments);
             _gateway.Insert(query, null);
