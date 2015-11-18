@@ -69,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _gateway.SelectMany(query);
             if (result.Count != assessment.Assessors.Count)
             {
-                _errorMessages.Add("An assessor doensn't exist.");
+                _errorMessages.Add("An assessor doesn't exist.");
             }
 
             return result;
