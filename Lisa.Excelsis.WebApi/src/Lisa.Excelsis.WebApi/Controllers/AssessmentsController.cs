@@ -10,14 +10,14 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get()
         {
             var result = _db.FetchAssessments();
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id}", Name = "assessment")]
         public IActionResult Get(int id)
         {
             var result = _db.FetchAssessment(id);
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
         [HttpPost("{subject}/{cohort}/{name}")]
@@ -26,19 +26,19 @@ namespace Lisa.Excelsis.WebApi
             string examName = name.Replace("-", " ");
             if (!ModelState.IsValid || subject == null || examName == null || cohort == null)
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(new { errorMessage = "Invalid json or url." });
             }
 
             var id = _db.AddAssessment(assessment, subject, examName, cohort);
 
             if (id == null)
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(_db.ErrorMessages);
             }
 
             var result = _db.FetchAssessment(id);
-
-            return new CreatedResult("", result);
+            string location = Url.RouteUrl("assessment", new { id = id }, Request.Scheme);
+            return new CreatedResult(location, result);
         }
 
         private readonly Database _db = new Database();

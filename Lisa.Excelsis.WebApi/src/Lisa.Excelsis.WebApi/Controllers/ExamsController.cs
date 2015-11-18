@@ -10,22 +10,22 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get()
         {
             var result = _db.FetchExams();
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
         [HttpGet("{subject}/{cohort}")]
         public IActionResult Get(string subject, string cohort)
         {
             var result = _db.FetchExams(subject, cohort);
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
-        [HttpGet("{subject}/{cohort}/{name}")]
+        [HttpGet("{subject}/{cohort}/{name}", Name = "exam")]
         public IActionResult Get(string subject, string cohort, string name)
         {
             string examName = name.Replace("-", " ");
             var result = _db.FetchExam(subject, examName, cohort);
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
         [HttpPost]
@@ -33,12 +33,13 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!ModelState.IsValid || _db.ExamExists(exam))
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(new { errorMessage = "Invalid json or exam already exists." });
             }
 
             var id = _db.AddExam(exam);
             var result = _db.FetchExam(id);
-            return new CreatedResult("", result);
+            string location = Url.RouteUrl("exam", new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name }, Request.Scheme);
+            return new CreatedResult(location, result);
         }
 
         private readonly Database _db = new Database();

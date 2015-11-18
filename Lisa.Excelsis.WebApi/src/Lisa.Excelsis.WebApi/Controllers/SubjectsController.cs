@@ -9,7 +9,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get()
         {
             var result = _db.FetchSubjects();
-            return new ObjectResult(result);
+            return new HttpOkObjectResult(result);
         }
 
         private readonly Database _db = new Database();

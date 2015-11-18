@@ -10,13 +10,13 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!ModelState.IsValid || _db.CriterionExists(id, criterion))
             {
-                return new BadRequestResult();
+                return new BadRequestObjectResult(new { errorMessage = "Invalid json or url." });
             }
 
             _db.AddCriterion(id, criterion);
-            var result = _db.FetchExam(id);
-
-            return new CreatedResult("", result);
+            dynamic result = _db.FetchExam(id);
+            string location = Url.RouteUrl("exam", new { subject = result.Subject, cohort = result.Cohort, name = result.Name }, Request.Scheme);
+            return new CreatedResult(location, result);
         }
 
         private readonly Database _db = new Database();
