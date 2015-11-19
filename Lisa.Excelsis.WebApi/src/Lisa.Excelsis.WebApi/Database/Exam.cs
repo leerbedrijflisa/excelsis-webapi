@@ -81,20 +81,6 @@ namespace Lisa.Excelsis.WebApi
             return (result.count > 0);
         }
 
-        public bool ExamExists(int id)
-        {
-            var query = @"SELECT COUNT(*) as count FROM Exams
-                          WHERE Id = @Id";
-
-            var parameters = new
-            {
-                Id = id
-            };
-
-            dynamic result = _gateway.SelectSingle(query, parameters);
-            return (result.count > 0);
-        }
-
         private string FetchExamQuery
         {
             get

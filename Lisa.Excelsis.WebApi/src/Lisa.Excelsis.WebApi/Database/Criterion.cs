@@ -20,8 +20,8 @@
 
         public bool CriterionExists(int id, CriterionPost criterion)
         {
-            bool exam = ExamExists(id);
-            if (exam)
+            var exam = FetchExam(id);
+            if (exam != null)
             {
                 var query = @"SELECT COUNT(*) as count FROM Criteria
                           WHERE [Order] = @Order
