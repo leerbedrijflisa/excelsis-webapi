@@ -30,30 +30,31 @@ namespace Lisa.Excelsis.WebApi
 
         public IEnumerable<object> FetchAssessments(Filter filter)
         {
+            List<string> queryList = new List<string>();
+
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                          WHERE 1 = 1";
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id";
 
             if (filter.Assessor != null)
             {
-                query += @" AND Assessments.Id IN(
-                                SELECT Assessments.Id
-                                FROM Assessments
-                                LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                                LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                                LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                                WHERE Assessors.UserName = @Assessor
-                            )";
+                queryList.Add( @" Assessments.Id IN(
+                                      SELECT Assessments.Id
+                                      FROM Assessments
+                                      LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                                      LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                                      LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                                      WHERE Assessors.UserName = @Assessor
+                                  )");
             }
 
             if (filter.StudentNumber != null)
             {
-                query += " AND Assessments.StudentNumber = @StudentNumber";
+                queryList.Add(" Assessments.StudentNumber = @StudentNumber");
             }
 
             var parameters = new
@@ -62,6 +63,7 @@ namespace Lisa.Excelsis.WebApi
                 StudentNumber = filter.StudentNumber ?? string.Empty
             };
 
+            query += (queryList.Count > 0) ? " WHERE " + string.Join(" AND ", queryList) : string.Join(" AND ", queryList); 
             return _gateway.SelectMany(query, parameters);
         }
 
