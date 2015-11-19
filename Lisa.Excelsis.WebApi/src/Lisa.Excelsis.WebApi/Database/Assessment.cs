@@ -6,25 +6,6 @@ namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
-        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
-        {
-            _errorMessages = new List<string>();
-
-            dynamic examResult = FetchExam(subject, name, cohort);
-            dynamic assessorResult = SelectAssessors(assessment);
-
-            if (examResult != null && assessorResult != null && _errorMessages.Count == 0)
-            {
-                dynamic assessmentResult = InsertAssessment(assessment, examResult);
-                InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
-                InsertObservations(assessmentResult, examResult);
-
-                return (_errorMessages.Count > 0) ? null : assessmentResult;
-            }
-
-            return null;
-        }
-
         public object FetchAssessment(object id)
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
@@ -47,7 +28,7 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectSingle(query, parameters);
         }
 
-        public IEnumerable<object> FetchAssessments()
+        public IEnumerable<object> FetchAssessments(Filter filter)
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
@@ -55,8 +36,52 @@ namespace Lisa.Excelsis.WebApi
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id ";
-            return _gateway.SelectMany(query);
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                          WHERE 1 = 1";
+
+            if (filter.Assessor != null)
+            {
+                query += @" AND Assessments.Id IN(
+                                SELECT Assessments.Id
+                                FROM Assessments
+                                LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                                LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                                LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                                WHERE Assessors.UserName = @Assessor
+                            )";
+            }
+
+            if (filter.StudentNumber != null)
+            {
+                query += " AND Assessments.StudentNumber = @StudentNumber";
+            }
+
+            var parameters = new
+            {
+                Assessor = filter.Assessor ?? string.Empty,
+                StudentNumber = filter.StudentNumber ?? string.Empty
+            };
+
+            return _gateway.SelectMany(query, parameters);
+        }
+
+        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
+        {
+            _errorMessages = new List<string>();
+
+            dynamic examResult = FetchExam(subject, name, cohort);
+            dynamic assessorResult = SelectAssessors(assessment);
+
+            if (examResult != null && assessorResult != null && _errorMessages.Count == 0)
+            {
+                dynamic assessmentResult = InsertAssessment(assessment, examResult);
+                InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
+                InsertObservations(assessmentResult, examResult);
+
+                return (_errorMessages.Count > 0) ? null : assessmentResult;
+            }
+
+            return null;
         }
 
         private dynamic SelectAssessors(AssessmentPost assessment)

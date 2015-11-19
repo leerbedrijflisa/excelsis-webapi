@@ -3,6 +3,7 @@
     public class Filter
     {
         public string Assessor { get; set; }
-        public string Student { get; set; }
+        public string StudentName { get; set; }
+        public string StudentNumber { get; set; }
     }
 }

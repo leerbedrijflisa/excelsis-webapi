@@ -7,9 +7,9 @@ namespace Lisa.Excelsis.WebApi
     public class AssessmentsController : Controller
     {
         [HttpGet]
-        public IActionResult Get()
+        public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchAssessments();
+            var result = _db.FetchAssessments(filter);
             return new HttpOkObjectResult(result);
         }
 
