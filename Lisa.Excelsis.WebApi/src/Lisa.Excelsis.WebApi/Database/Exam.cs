@@ -37,7 +37,7 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<object> FetchExams(Filter filter)
         {
             var query = FetchExamsQuery + 
-                        @" ORDER BY Assessed desc";
+                        @" ORDER BY Assessed DESC";
 
             var parameters = new
             {
@@ -52,7 +52,7 @@ namespace Lisa.Excelsis.WebApi
             var query = FetchExamsQuery +
                         @" WHERE Subject = @Subject 
                              AND Cohort = @Cohort
-                           ORDER BY Assessed desc";
+                           ORDER BY Assessed DESC";
 
             var parameters = new {
                 Subject = subject,
@@ -81,6 +81,20 @@ namespace Lisa.Excelsis.WebApi
             return (result.count > 0);
         }
 
+        public bool ExamExists(int id)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Exams
+                          WHERE Id = @Id";
+
+            var parameters = new
+            {
+                Id = id
+            };
+
+            dynamic result = _gateway.SelectSingle(query, parameters);
+            return (result.count > 0);
+        }
+
         private string FetchExamQuery
         {
             get
@@ -95,6 +109,7 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN Criteria ON Criteria.ExamId = Exams.Id";
             }
         }
+
         private string FetchExamsQuery
         {
             get
