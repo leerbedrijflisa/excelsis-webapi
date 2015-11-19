@@ -20,24 +20,25 @@
 
         public bool CriterionExists(int id, CriterionPost criterion)
         {
-            if (id == 0)
+            bool exam = ExamExists(id);
+            if (exam)
             {
-                return true;
+                var query = @"SELECT COUNT(*) as count FROM Criteria
+                          WHERE [Order] = @Order
+                            AND ExamId = @ExamId";
+
+                var parameters = new
+                {
+                    Order = criterion.Order,
+                    Description = criterion.Description,
+                    Value = criterion.Value,
+                    ExamId = id
+                };
+
+                dynamic result = _gateway.SelectSingle(query, parameters);
+                return (result.count > 0);
             }
-
-            var query = @"SELECT COUNT(*) as count FROM Criteria
-                          WHERE [Order] LIKE @Order
-                            AND ExamId LIKE @ExamId";
-
-            var parameters = new {
-                Order = criterion.Order,
-                Description = criterion.Description,
-                Value = criterion.Value,
-                ExamId = id
-            };
-
-            dynamic result = _gateway.SelectSingle(query, parameters);
-            return (result.count > 0);
+            return true;
         }
     }
 }
