@@ -36,8 +36,8 @@ namespace Lisa.Excelsis.WebApi
 
         public IEnumerable<object> FetchExams(Filter filter)
         {
-            var query = FetchExamsQuery + 
-                        @" ORDER BY Assessed DESC";
+            var query = FetchExamsQuery +
+                        @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
             var parameters = new
             {
@@ -52,7 +52,7 @@ namespace Lisa.Excelsis.WebApi
             var query = FetchExamsQuery +
                         @" WHERE Subject = @Subject 
                              AND Cohort = @Cohort
-                           ORDER BY Assessed DESC";
+                           ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
             var parameters = new {
                 Subject = subject,
