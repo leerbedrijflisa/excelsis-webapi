@@ -8,7 +8,7 @@ namespace Lisa.Excelsis.WebApi
     {
         public object FetchAssessment(object id)
         {
-            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed,
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Observations.Id as #Observations_Id, Observations.Result as #Observations_Result, Observations.Marks as #Observations_Marks,
@@ -16,7 +16,7 @@ namespace Lisa.Excelsis.WebApi
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id 
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           WHERE Assessments.Id = @Id";
@@ -32,7 +32,7 @@ namespace Lisa.Excelsis.WebApi
         {
             List<string> queryList = new List<string>();
 
-            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed, 
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
@@ -63,7 +63,7 @@ namespace Lisa.Excelsis.WebApi
                 StudentNumber = filter.StudentNumber ?? string.Empty
             };
 
-            query += (queryList.Count > 0) ? " WHERE " + string.Join(" AND ", queryList) : string.Join(" AND ", queryList); 
+            query += (queryList.Count > 0) ? " WHERE " + string.Join(" AND ", queryList) : string.Join(" AND ", queryList);
             return _gateway.SelectMany(query, parameters);
         }
 
