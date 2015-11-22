@@ -10,7 +10,7 @@ namespace Lisa.Excelsis.WebApi
                         @" WHERE Exams.Name = @Name
                              AND Exams.Subject = @Subject
                              AND Exams.Cohort = @Cohort
-                           ORDER BY Criteria.[Order] ASC";
+                           ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
 
             var parameters = new {
                 Subject = subject,
@@ -25,7 +25,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = FetchExamQuery +
                         @" WHERE Exams.Id = @Id
-                           ORDER BY Criteria.[Order] ASC";
+                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
 
             var parameters = new {
                 Id = id
@@ -85,14 +85,20 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Exams.Id AS [@], Exams.Id, Name, Cohort, Crebo, Subject,
-                                Criteria.Id as #Criteria_Id,
-                                Criteria.[Order] as #Criteria_Order,
-                                Criteria.Title as #Criteria_Title,
-                                Criteria.[Description] as #Criteria_Description,
-                                Criteria.Value as #Criteria_Value
+                return @"SELECT Exams.Id AS [@], Exams.Id, Exams.Name, Cohort, Crebo, Subject,
+                                Categories.Id as #Categories_@Id,
+                                Categories.Id as #Categories_Id,
+                                Categories.[Order] as #Categories_Order,
+                                Categories.Name as #Categories_Name,
+                                Criteria.Id as #Categories_#Criteria_@Id,
+                                Criteria.Id as #Categories_#Criteria_Id,
+                                Criteria.[Order] as #Categories_#Criteria_Order,
+                                Criteria.Title as #Categories_#Criteria_Title,
+                                Criteria.[Description] as #Categories_#Criteria_Description,
+                                Criteria.Value as #Categories_#Criteria_Value
                           FROM Exams
-                          LEFT JOIN Criteria ON Criteria.ExamId = Exams.Id";
+                LEFT JOIN Categories ON Categories.ExamId = Exams.Id
+                LEFT JOIN Criteria ON Criteria.CategoryId = Categories.Id";
             }
         }
 

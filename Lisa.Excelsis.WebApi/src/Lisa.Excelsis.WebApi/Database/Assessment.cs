@@ -11,13 +11,15 @@ namespace Lisa.Excelsis.WebApi
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed,
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
-                                 Observations.Id as #Observations_Id, Observations.Result as #Observations_Result, Observations.Marks as #Observations_Marks,
-                                 Criteria.Id as #Observations_Criterion_@Id, Criteria.Title as #Observations_Criterion_Title, Criteria.Description as #Observations_Criterion_Description, Criteria.[Order] as #Observations_Criterion_Order, Criteria.Value as #Observations_Criterion_Value
+                                 Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
+                                 Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result, Observations.Marks as #Categories_#Observations_Marks,
+                                 Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Value as #Categories_#Observations_Criterion_Value
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                          LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
+                          LEFT JOIN Categories ON Categories.ExamId = Exams.Id
+                          LEFT JOIN Observations ON Observations.CategoryId = Categories.Id AND Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           WHERE Assessments.Id = @Id";
 
@@ -120,9 +122,9 @@ namespace Lisa.Excelsis.WebApi
 
         private void InsertObservations(dynamic assessmentResult, dynamic examResult)
         {
-            var observations = ((IEnumerable)examResult.Criteria).Cast<dynamic>().Select(criterion => "(" + criterion.Id + ", " + assessmentResult + ",'','')");
+            var observations = ((IEnumerable)examResult.Criteria).Cast<dynamic>().Select(criterion => "(" + criterion.Id + ", " + assessmentResult + ", " + criterion.CategoryId + ",'','')");
 
-            var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
+            var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, CategoryId, Result, Marks) VALUES ";
             query += string.Join(",", observations);
             _gateway.Insert(query, null);
         }
