@@ -17,10 +17,10 @@ namespace Lisa.Excelsis.WebApi
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                          LEFT JOIN Categories ON Categories.ExamId = Exams.Id
-                          LEFT JOIN Observations ON Observations.CategoryId = Categories.Id AND Observations.Assessment_Id = Assessments.Id
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id                         
+                          LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
+                          LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
                           WHERE Assessments.Id = @Id";
 
             var parameters = new {
@@ -122,16 +122,23 @@ namespace Lisa.Excelsis.WebApi
 
         private void InsertObservations(dynamic assessmentResult, dynamic examResult)
         {
-            var observations = ((IEnumerable)examResult.Criteria).Cast<dynamic>().Select(criterion => "(" + criterion.Id + ", " + assessmentResult + ", " + criterion.CategoryId + ",'','')");
-
-            var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, CategoryId, Result, Marks) VALUES ";
+            List<string> observations = new List<string>();
+            foreach(var category in examResult.Categories)
+            {
+                foreach(var criterion in category.Criteria)
+                {
+                    observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'','')");
+                }
+            }
+            
+            var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
             query += string.Join(",", observations);
             _gateway.Insert(query, null);
         }
 
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
         {
-            var assessorAssessments = ((IEnumerable)assessorResult).Cast<dynamic>().Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
+            var assessorAssessments = ((IEnumerable<dynamic>)assessorResult).Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
 
             var query = @"INSERT INTO AssessmentsAssessors (Assessment_Id, Assessor_Id) VALUES ";
             query += string.Join(",", assessorAssessments);
