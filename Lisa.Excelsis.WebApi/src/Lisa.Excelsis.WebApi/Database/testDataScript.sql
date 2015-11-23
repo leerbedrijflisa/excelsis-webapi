@@ -1,5 +1,4 @@
 CREATE DATABASE ExcelsisDb;
-PRINT N'ExcelsisDb created.';
 GO
 
 USE ExcelsisDb;
@@ -14,8 +13,6 @@ CREATE TABLE [dbo].[Exams] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-PRINT N'Exams table created.';
-
 CREATE TABLE [dbo].[Criteria] (
     [Id]          INT            IDENTITY (1, 1) NOT NULL,
     [Order]       INT            NULL,
@@ -28,8 +25,6 @@ CREATE TABLE [dbo].[Criteria] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-PRINT N'Criteria table created.';
-
 CREATE TABLE [dbo].[Assessors] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [UserName]      NVARCHAR (MAX) NULL,
@@ -38,16 +33,12 @@ CREATE TABLE [dbo].[Assessors] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-PRINT N'Assessors table created.';
-
 CREATE TABLE [dbo].[AssessmentsAssessors] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [Assessment_Id] INT            NULL,
     [Assessor_Id]   INT            NULL,
     CONSTRAINT [PK_AssessmentsAssessors] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
-
-PRINT N'AssessmentsAssessors table created.';
 
 CREATE TABLE [dbo].[Assessments] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
@@ -59,30 +50,24 @@ CREATE TABLE [dbo].[Assessments] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-PRINT N'Assessments table created.';
-
 CREATE TABLE [dbo].[Observations] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [Criterion_Id]  INT            NULL,
     [Result]        NVARCHAR (MAX) NULL,
     [Marks]         NVARCHAR (MAX) NULL,
     [Assessment_Id] INT            NULL,
-	[CategoryId]	INT			   NULL,
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
-
-PRINT N'Observations table created.';
 
 CREATE TABLE [dbo].[Categories]
 (
     [Id]            INT            NOT NULL PRIMARY KEY IDENTITY, 
     [Order]         INT            NULL, 
     [Name]          NVARCHAR (MAX) NULL,
-	[ExamId]        INT            NULL
+	[ExamId]        INT            NULL,
+	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
 )
-
-PRINT N'Categories table created.';
 
 GO
 INSERT INTO Assessors (UserName, Email)
@@ -91,8 +76,6 @@ INSERT INTO Assessors (UserName, Email)
     ('petersnoek', 'petersnoek@davinci.nl'),
     ('fritssilano', 'fritssilano@davinci.nl'),
     ('chantaltouw', 'chantaltouw@davinci.nl');
-
-	PRINT N'Inserted assessors.';
 
 INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
     VALUES 
@@ -153,8 +136,6 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
     ('Hoofdrekenen','2012','','Rekenen'),
     ('Getallen','2012','','Rekenen');
 
-	PRINT N'Inserted exams.';
-
 	GO
 
 	DECLARE @ExamLoopCount INT;
@@ -167,7 +148,7 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
 
     SET @ExamLoopCount = 0;
     SET @CategoryLoopCount = 0;
-    SET @CriteriaLoopCount = 5;
+    SET @CriteriaLoopCount = 0;
 
     SET @ExamLoopCountMAX = 56;
     SET @CategoryLoopCountMAX = 3;
@@ -188,7 +169,6 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
 		    SET @CategoryId = (
 				SELECT @@IDENTITY
 			)
-			PRINT N'Inserted category.';
 
             WHILE @CriteriaLoopCount < @CriteriaLoopCountMAX
             BEGIN
@@ -196,7 +176,6 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
 
 				INSERT INTO Criteria ([Order], [Title], [Description], [Value], [ExamId], [CategoryId])
 				VALUES (@CriteriaLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','Goed', @ExamLoopCount, @CategoryId)
-				PRINT N'Inserted criteria.';
             END
 			SET @CriteriaLoopCount = 0
         END
