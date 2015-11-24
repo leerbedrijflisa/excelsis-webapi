@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNet.Mvc;
-using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -19,6 +20,19 @@ namespace Lisa.Excelsis.WebApi
             var result = _db.FetchAssessment(id);
             return new HttpOkObjectResult(result);
         }
+
+        [HttpPatch("{id}")]
+        public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
+        {
+            _db.PatchAssessment(patches, id);
+            if (_db.ErrorMessages != null && _db.ErrorMessages.Any())
+            {
+                return new BadRequestObjectResult(_db.ErrorMessages);
+            }
+            //return new HttpOkObjectResult(result);
+            return new HttpOkResult();
+        }
+
 
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
