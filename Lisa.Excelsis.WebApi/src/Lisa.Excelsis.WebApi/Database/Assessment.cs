@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -20,7 +21,6 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           WHERE Assessments.Id = @Id";
-
             var parameters = new {
                 Id = id
             };
@@ -84,6 +84,52 @@ namespace Lisa.Excelsis.WebApi
             }
 
             return null;
+        }
+
+        public void PatchAssessment(IEnumerable<Patch> patches, int id)
+        {
+            _errorMessages = new List<string>();
+            foreach (Patch patch in patches)
+            {
+                switch (patch.Action)
+                {
+                    case "replace":
+                        var fieldString = patch.Field.Split('/');
+                        if(fieldString.ElementAt(0).ToLower() == "observations")
+                        {
+                            int observationId = Convert.ToInt32(fieldString.ElementAt(1));
+                            PatchObservation(id, observationId, fieldString.ElementAt(2), patch.Value);
+                        }
+                        else
+                        {
+                            _errorMessages.Add("The fields you are trying to patch are not patchable.");
+                        }
+                        break;
+                }
+            }
+        }
+
+        private void PatchObservation(int id, int observationId, string field, object value)
+        {
+            if (field.ToLower() == "result" || field.ToLower() == "marks")
+            {
+                var query = @"UPDATE Observations
+                              SET " + field + @" = @Value
+                              WHERE Assessment_Id = @Id AND Id = @ObservationId";
+
+                var parameters = new
+                {
+                    value = value,
+                    Id = id,
+                    ObservationId = observationId
+                };
+
+                _gateway.Insert(query, parameters);
+            }
+            else
+            {
+                _errorMessages.Add("The fields you are trying to patch are not patchable.");
+            }
         }
 
         private dynamic SelectAssessors(AssessmentPost assessment)
