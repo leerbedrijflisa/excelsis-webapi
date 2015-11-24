@@ -109,8 +109,8 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                StudentName = assessment.StudentName ?? string.Empty,
-                StudentNumber = assessment.StudentNumber ?? string.Empty,
+                StudentName = assessment.Student.Name ?? string.Empty,
+                StudentNumber = assessment.Student.Number ?? string.Empty,
                 Assessed = assessment.Assessed,
                 ExamId = examResult.Id
             };
