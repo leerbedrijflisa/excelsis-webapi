@@ -23,13 +23,14 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
-            string examName = name.Replace("-", " ");
-            if (!ModelState.IsValid || subject == null || examName == null || cohort == null)
+            subject = subject.Replace("-", " ");
+            name = name.Replace("-", " ");
+            if (!ModelState.IsValid || subject == null || name == null || cohort == null)
             {
                 return new BadRequestObjectResult(new { errorMessage = "Invalid json or url." });
             }
 
-            var id = _db.AddAssessment(assessment, subject, examName, cohort);
+            var id = _db.AddAssessment(assessment, subject, name, cohort);
 
             if (id == null)
             {
