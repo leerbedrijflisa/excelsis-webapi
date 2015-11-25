@@ -15,7 +15,7 @@ namespace Lisa.Excelsis.WebApi
 
             _db.AddCriterion(id, criterion);
             dynamic result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = result.Subject, cohort = result.Cohort, name = result.Name }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = result.Subject.Replace(" ", "-"), cohort = result.Cohort, name = result.Name.Replace(" ", "-") }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 
