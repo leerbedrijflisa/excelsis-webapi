@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -71,18 +72,45 @@ namespace Lisa.Excelsis.WebApi
 
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
         {
-            _errorMessages = new List<string>();
+            _errors = new List<Error>();
+            var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
+            if (!regexName.IsMatch(assessment.StudentName))
+            {
+                _errors.Add(new Error(1101, string.Format("The student name '{0}' may only contain characters", assessment.StudentName), new
+                {
+                    StudentName = assessment.StudentName
+                }));
+            }
 
+            var regexNumber = new Regex(@"^\d{8}$");
+            if (!regexNumber.IsMatch(assessment.StudentNumber))
+            {
+                _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.StudentNumber), new
+                {
+                    StudentNumber = assessment.StudentNumber
+                }));
+            }
+                        
             dynamic examResult = FetchExam(subject, name, cohort);
+            if (examResult == null)
+            {
+                _errors.Add(new Error(1103, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
+                {
+                    Subject = subject,
+                    Cohort = cohort,
+                    Name = name
+                }));
+            }
+
             dynamic assessorResult = SelectAssessors(assessment);
 
-            if (examResult != null && assessorResult != null && _errorMessages.Count == 0)
+            if (_errors.Count() == 0)
             {
                 dynamic assessmentResult = InsertAssessment(assessment, examResult);
                 InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
                 InsertObservations(assessmentResult, examResult);
 
-                return (_errorMessages.Count > 0) ? null : assessmentResult;
+                return (_errors.Count() > 0) ? null : assessmentResult;
             }
 
             return null;
@@ -90,7 +118,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchAssessment(IEnumerable<Patch> patches, int id)
         {
-            _errorMessages = new List<string>();
+            _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
                 switch (patch.Action)
@@ -104,7 +132,10 @@ namespace Lisa.Excelsis.WebApi
                         }
                         else
                         {
-                            _errorMessages.Add("The fields you are trying to patch are not patchable.");
+                            _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", fieldString.ElementAt(0)), new
+                            {
+                                FieldName = fieldString.ElementAt(0)
+                            }));
                         }
                         break;
                 }
@@ -130,7 +161,10 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errorMessages.Add("The fields you are trying to patch are not patchable.");
+                _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
+                {
+                    FieldName = field
+                }));
             }
         }
 
@@ -138,13 +172,24 @@ namespace Lisa.Excelsis.WebApi
         {
             var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
-            var query = @"SELECT Id
+            var query = @"SELECT Id, UserName
                           FROM Assessors
                           WHERE UserName IN ( " + string.Join(",", assessors) + " ) ";
             dynamic result = _gateway.SelectMany(query);
+
+           
             if (result.Count != assessment.Assessors.Count())
             {
-                _errorMessages.Add("An assessor doesn't exist.");
+                foreach(var assessor in assessment.Assessors)
+                {
+                    if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result.UserName).Any(a => a == assessment.Assessors)))
+                    {
+                        _errors.Add(new Error(1103, string.Format("The assessor with username '{0}' is not found.", assessor), new
+                        {
+                            Assessor = assessor
+                        }));
+                    }
+                }
             }
 
             return result;
