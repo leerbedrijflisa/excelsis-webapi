@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -65,6 +66,26 @@ namespace Lisa.Excelsis.WebApi
 
         public object AddExam(ExamPost exam)
         {
+            _errors = new List<Error>();
+
+            var regexCrebo = new Regex(@"^$|^\d{5}$");
+            if (!regexCrebo.IsMatch(exam.Crebo))
+            {
+                _errors.Add(new Error(1106, string.Format("The crebo number '{0}' doesn't meet the requirements of 5 digits", exam.Crebo), new
+                {
+                    Crebo = exam.Crebo
+                }));
+            }
+
+            var regexCohort = new Regex(@"^(19|20)\d{2}$");
+            if (!regexCohort.IsMatch(exam.Cohort))
+            {
+                _errors.Add(new Error(1107, string.Format("The cohort year '{0}' doesn't meet the requirements of 4 digits", exam.Cohort), new
+                {
+                    Cohort = exam.Cohort
+                }));
+            }
+
             var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
                           VALUES (@Name, @Cohort, @Crebo, @subject);";
             return _gateway.Insert(query, exam);
@@ -72,13 +93,27 @@ namespace Lisa.Excelsis.WebApi
 
         public bool ExamExists(ExamPost exam)
         {
+            _errors = new List<Error>();
+
             var query = @"SELECT COUNT(*) as count FROM Exams
-                          WHERE Name LIKE @Name
-                            AND Subject LIKE @Subject
-                            AND Cohort LIKE @Cohort
-                            AND Crebo LIKE @Crebo";
+                          WHERE Name = @Name
+                            AND Subject = @Subject
+                            AND Cohort = @Cohort
+                            AND Crebo = @Crebo";
             dynamic result = _gateway.SelectSingle(query, exam);
-            return (result.count > 0);
+
+            if(result.count > 0)
+            {
+                _errors.Add(new Error(1201, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
+                {
+                    Subject = exam.Subject,
+                    Cohort = exam.Cohort,
+                    Name = exam.Name,
+                    Crebo = exam.Crebo
+                }));
+                return true;
+            }
+            return false;
         }
 
         private string FetchExamQuery
