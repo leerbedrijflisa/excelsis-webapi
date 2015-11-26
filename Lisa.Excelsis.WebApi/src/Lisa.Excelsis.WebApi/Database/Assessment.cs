@@ -34,7 +34,7 @@ namespace Lisa.Excelsis.WebApi
         {
             List<string> queryList = new List<string>();
 
-            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
