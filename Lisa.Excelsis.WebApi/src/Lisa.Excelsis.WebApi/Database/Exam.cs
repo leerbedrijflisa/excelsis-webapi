@@ -86,9 +86,15 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
+            if (_errors.Count > 0)
+            {
+                return null;
+            }
+
             var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
-                          VALUES (@Name, @Cohort, @Crebo, @subject);";
+                        VALUES (@Name, @Cohort, @Crebo, @subject);";
             return _gateway.Insert(query, exam);
+           
         }
 
         public bool ExamExists(ExamPost exam)
