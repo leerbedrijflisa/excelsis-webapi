@@ -11,6 +11,8 @@ namespace Lisa.Excelsis.WebApi
         [Required]
         public string Description { get; set; }
         [Required]
+        public int CategoryId { get; set; }
+        [Required]
         public string Value { get; set; }
     }
 }

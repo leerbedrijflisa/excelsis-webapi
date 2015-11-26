@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -19,7 +18,7 @@ namespace Lisa.Excelsis.WebApi
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id                         
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
@@ -90,7 +89,7 @@ namespace Lisa.Excelsis.WebApi
                     StudentNumber = assessment.Student.Number
                 }));
             }
-                        
+
             dynamic examResult = FetchExam(subject, name, cohort);
             if (examResult == null)
             {

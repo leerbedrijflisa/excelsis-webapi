@@ -38,7 +38,7 @@ namespace Lisa.Excelsis.WebApi
             List<Error> errors = new List<Error>();
 
             if (!ModelState.IsValid)
-            {               
+            {
                 errors.Add(new Error(1110, "The json is invalid.", new { }));
                 return new BadRequestObjectResult(errors);
             }
