@@ -9,7 +9,7 @@ namespace Lisa.Excelsis.WebApi
     {
         public object FetchAssessment(object id)
         {
-            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed,
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@Number, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
@@ -34,7 +34,7 @@ namespace Lisa.Excelsis.WebApi
         {
             List<string> queryList = new List<string>();
 
-            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName, StudentNumber, Assessed,
+            var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
@@ -157,8 +157,8 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                StudentName = assessment.StudentName ?? string.Empty,
-                StudentNumber = assessment.StudentNumber ?? string.Empty,
+                StudentName = assessment.Student.Name ?? string.Empty,
+                StudentNumber = assessment.Student.Number ?? string.Empty,
                 Assessed = assessment.Assessed,
                 ExamId = examResult.Id
             };
