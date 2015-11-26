@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace Lisa.Excelsis.WebApi
@@ -11,11 +10,6 @@ namespace Lisa.Excelsis.WebApi
         [Required]
         public DateTime? Assessed { get; set; }
         [Required]
-        public IList<AssessorPost> Assessors { get; set; }
-    }
-    public class AssessorPost
-    {
-        [Required]
-        public string UserName { get; set; }
+        public string[] Assessors { get; set; }
     }
 }

@@ -136,13 +136,13 @@ namespace Lisa.Excelsis.WebApi
 
         private dynamic SelectAssessors(AssessmentPost assessment)
         {
-            var assessors = assessment.Assessors.Select(assessor => "'" + assessor.UserName + "'");
+            var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
             var query = @"SELECT Id
                           FROM Assessors
                           WHERE UserName IN ( " + string.Join(",", assessors) + " ) ";
             dynamic result = _gateway.SelectMany(query);
-            if (result.Count != assessment.Assessors.Count)
+            if (result.Count != assessment.Assessors.Count())
             {
                 _errorMessages.Add("An assessor doesn't exist.");
             }
