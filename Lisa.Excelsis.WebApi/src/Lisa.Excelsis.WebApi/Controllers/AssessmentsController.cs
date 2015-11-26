@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Mvc;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -43,14 +44,16 @@ namespace Lisa.Excelsis.WebApi
         {
             List<Error> errors = new List<Error>();
 
-            string examName = name.Replace("-", " ");
+            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
+            name = Uri.UnescapeDataString(name.Replace("-", " "));
+
             if (!ModelState.IsValid)
             {
                 errors.Add(new Error(1110, "The json is invalid.", new { }));
                 return new BadRequestObjectResult(errors);
             }
 
-            var id = _db.AddAssessment(assessment, subject, examName, cohort);
+            var id = _db.AddAssessment(assessment, subject, name, cohort);
 
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
