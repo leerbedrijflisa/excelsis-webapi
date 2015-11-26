@@ -1,3 +1,8 @@
+USE master
+
+IF EXISTS(select * from sys.databases where name='ExcelsisDb')
+DROP DATABASE ExcelsisDb;
+
 CREATE DATABASE ExcelsisDb;
 GO
 
