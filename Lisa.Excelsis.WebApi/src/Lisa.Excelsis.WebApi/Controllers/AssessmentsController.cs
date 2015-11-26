@@ -24,10 +24,14 @@ namespace Lisa.Excelsis.WebApi
         [HttpPatch("{id}")]
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
+            List<Error> errors = new List<Error>();
+            
             _db.PatchAssessment(patches, id);
-            if (_db.ErrorMessages != null && _db.ErrorMessages.Any())
+
+            errors.AddRange(_db.Errors);
+            if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(_db.ErrorMessages);
+                return new BadRequestObjectResult(errors);
             }
             //return new HttpOkObjectResult(result);
             return new HttpOkResult();
@@ -37,17 +41,21 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
+            List<Error> errors = new List<Error>();
+
             string examName = name.Replace("-", " ");
-            if (!ModelState.IsValid || subject == null || examName == null || cohort == null)
+            if (!ModelState.IsValid)
             {
-                return new BadRequestObjectResult(new { errorMessage = "Invalid json or url." });
+                errors.Add(new Error(1110, "The json is invalid.", new { }));
+                return new BadRequestObjectResult(errors);
             }
 
             var id = _db.AddAssessment(assessment, subject, examName, cohort);
 
-            if (id == null)
+            errors.AddRange(_db.Errors);
+            if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(_db.ErrorMessages);
+                return new BadRequestObjectResult(errors);
             }
 
             var result = _db.FetchAssessment(id);
