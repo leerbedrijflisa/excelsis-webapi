@@ -19,6 +19,7 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}")]
         public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
+            subject = subject.Replace("-", " ");
             var result = _db.FetchExams(filter, subject, cohort);
             return new HttpOkObjectResult(result);
         }
@@ -59,7 +60,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             var result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = exam.Subject.Replace(" ", "-"), cohort = exam.Cohort, name = exam.Name.Replace(" ", "-") }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 
