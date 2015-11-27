@@ -25,7 +25,13 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             List<Error> errors = new List<Error>();
-            
+            if (!ModelState.IsValid || patches == null)
+            {
+                errors.Add(new Error(1110, "The json is malformed.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
+
+
             _db.PatchAssessment(patches, id);
 
             errors.AddRange(_db.Errors);
@@ -46,7 +52,7 @@ namespace Lisa.Excelsis.WebApi
             string examName = name.Replace("-", " ");
             if (!ModelState.IsValid || assessment == null)
             {
-                errors.Add(new Error(1110, "The json is invalid.", new { }));
+                errors.Add(new Error(1110, "The json is malformed.", new { }));
                 return new BadRequestObjectResult(errors);
             }
 
