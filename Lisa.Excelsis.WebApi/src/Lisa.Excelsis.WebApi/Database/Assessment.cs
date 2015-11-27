@@ -181,7 +181,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 foreach(var assessor in assessment.Assessors)
                 {
-                    if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result.UserName).Any(a => a == assessment.Assessors)))
+                    if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
                     {
                         _errors.Add(new Error(1103, string.Format("The assessor with username '{0}' is not found.", assessor), new
                         {
