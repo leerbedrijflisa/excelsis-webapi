@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNet.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -19,7 +19,13 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
             subject = subject.Replace("-", " ");
-            var result = _db.FetchExams(filter, subject, cohort);
+
+            IEnumerable<object> result = _db.FetchExams(filter, subject, cohort);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
@@ -28,7 +34,13 @@ namespace Lisa.Excelsis.WebApi
         {
             subject = Uri.UnescapeDataString(subject.Replace("-", " "));
             name = Uri.UnescapeDataString(name.Replace("-", " "));
+
             var result = _db.FetchExam(subject, name, cohort);
+            if(result == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
