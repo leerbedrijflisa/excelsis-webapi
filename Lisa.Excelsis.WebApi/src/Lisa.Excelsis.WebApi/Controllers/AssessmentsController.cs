@@ -10,7 +10,12 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet]
         public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchAssessments(filter);
+            IEnumerable<object> result = _db.FetchAssessments(filter);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
@@ -18,6 +23,11 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get(int id)
         {
             var result = _db.FetchAssessment(id);
+            if (result == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
