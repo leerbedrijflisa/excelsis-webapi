@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System;
 
-
 namespace Lisa.Excelsis.WebApi
 {
     [Route("[controller]")]
@@ -12,7 +11,11 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet]
         public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchExams(filter);
+            IEnumerable<object> result = _db.FetchExams(filter);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
             return new HttpOkObjectResult(result);
         }
 
