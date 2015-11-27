@@ -34,8 +34,9 @@ namespace Lisa.Excelsis.WebApi
             {
                 return new BadRequestObjectResult(errors);
             }
-            //return new HttpOkObjectResult(result);
-            return new HttpOkResult();
+
+            var result = _db.FetchAssessment(id);
+            return new HttpOkObjectResult(result);
         }
 
 
