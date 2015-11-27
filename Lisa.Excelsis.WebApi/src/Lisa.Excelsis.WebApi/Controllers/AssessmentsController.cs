@@ -11,7 +11,12 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet]
         public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchAssessments(filter);
+            IEnumerable<object> result = _db.FetchAssessments(filter);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
@@ -19,6 +24,11 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get(int id)
         {
             var result = _db.FetchAssessment(id);
+            if (result == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
@@ -26,7 +36,13 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             List<Error> errors = new List<Error>();
-            
+            if (!ModelState.IsValid || patches == null)
+            {
+                errors.Add(new Error(1110, "The json is malformed.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
+
+
             _db.PatchAssessment(patches, id);
 
             errors.AddRange(_db.Errors);
@@ -48,9 +64,9 @@ namespace Lisa.Excelsis.WebApi
             subject = Uri.UnescapeDataString(subject.Replace("-", " "));
             name = Uri.UnescapeDataString(name.Replace("-", " "));
 
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || assessment == null)
             {
-                errors.Add(new Error(1110, "The json is invalid.", new { }));
+                errors.Add(new Error(1110, "The json is malformed.", new { }));
                 return new BadRequestObjectResult(errors);
             }
 
