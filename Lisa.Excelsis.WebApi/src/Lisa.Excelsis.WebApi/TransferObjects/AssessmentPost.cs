@@ -5,14 +5,14 @@ namespace Lisa.Excelsis.WebApi
 {
     public class AssessmentPost
     {
-        public student Student { get; set; }
+        public Student Student { get; set; }
         [Required]
         public DateTime? Assessed { get; set; }
         [Required]
         public string[] Assessors { get; set; }
     }
 
-    public class student
+    public class Student
     {
         public string Name { get; set; }
         public string Number { get; set; }
