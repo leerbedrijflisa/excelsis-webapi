@@ -53,11 +53,30 @@ namespace Lisa.Excelsis.WebApi
         {
             List<Error> errors = new List<Error>();
 
-            if (!ModelState.IsValid || exam == null)
+            if (!ModelState.IsValid)
             {
-                errors.Add(new Error(1110, "The json is invalid.", new { }));
+                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                foreach(var property in modelStateErrors)
+                {
+                    if(property.Exception == null)
+                    {
+                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(new { property.Exception.Message });
+                    }
+                }
+                
                 return new BadRequestObjectResult(errors);
             }
+
+            if (exam == null)
+            {
+                errors.Add(new Error(1110, "The body is empty.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
+
             _db.ExamExists(exam);
 
             errors.AddRange(_db.Errors);

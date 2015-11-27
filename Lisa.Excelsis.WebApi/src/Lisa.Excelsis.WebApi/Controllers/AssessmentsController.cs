@@ -36,12 +36,30 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             List<Error> errors = new List<Error>();
-            if (!ModelState.IsValid || patches == null)
+
+            if (!ModelState.IsValid)
             {
-                errors.Add(new Error(1110, "The json is malformed.", new { }));
+                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                foreach (var property in modelStateErrors)
+                {
+                    if (property.Exception == null)
+                    {
+                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(new { property.Exception.Message });
+                    }
+                }
+
                 return new BadRequestObjectResult(errors);
             }
 
+            if (patches == null)
+            {
+                errors.Add(new Error(1110, "The body is empty.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
 
             _db.PatchAssessment(patches, id);
 
@@ -61,14 +79,32 @@ namespace Lisa.Excelsis.WebApi
         {
             List<Error> errors = new List<Error>();
 
-            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
-            name = Uri.UnescapeDataString(name.Replace("-", " "));
-
-            if (!ModelState.IsValid || assessment == null)
+            if (!ModelState.IsValid)
             {
-                errors.Add(new Error(1110, "The json is malformed.", new { }));
+                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                foreach (var property in modelStateErrors)
+                {
+                    if (property.Exception == null)
+                    {
+                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(new { property.Exception.Message });
+                    }
+                }
+
                 return new BadRequestObjectResult(errors);
             }
+
+            if (assessment == null)
+            {
+                errors.Add(new Error(1110, "The body is empty.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
+
+            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
+            name = Uri.UnescapeDataString(name.Replace("-", " "));
 
             var id = _db.AddAssessment(assessment, subject, name, cohort);
 
