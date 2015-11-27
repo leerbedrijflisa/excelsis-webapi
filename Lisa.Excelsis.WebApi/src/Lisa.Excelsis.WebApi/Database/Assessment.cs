@@ -213,17 +213,20 @@ namespace Lisa.Excelsis.WebApi
         private void InsertObservations(dynamic assessmentResult, dynamic examResult)
         {
             List<string> observations = new List<string>();
-            foreach(var category in examResult.Categories)
+            if (examResult.Categories.Count > 0)
             {
-                foreach(var criterion in category.Criteria)
+                foreach (var category in examResult.Categories)
                 {
-                    observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'','')");
+                    foreach (var criterion in category.Criteria)
+                    {
+                        observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'','')");
+                    }
                 }
+
+                var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
+                query += string.Join(",", observations);
+                _gateway.Insert(query, null);
             }
-            
-            var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
-            query += string.Join(",", observations);
-            _gateway.Insert(query, null);
         }
 
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
