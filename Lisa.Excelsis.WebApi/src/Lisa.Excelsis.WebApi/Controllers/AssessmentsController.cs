@@ -44,7 +44,7 @@ namespace Lisa.Excelsis.WebApi
             List<Error> errors = new List<Error>();
 
             string examName = name.Replace("-", " ");
-            if (!ModelState.IsValid)
+            if (!ModelState.IsValid || assessment == null)
             {
                 errors.Add(new Error(1110, "The json is invalid.", new { }));
                 return new BadRequestObjectResult(errors);
