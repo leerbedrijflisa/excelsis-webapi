@@ -156,7 +156,7 @@ namespace Lisa.Excelsis.WebApi
                     ObservationId = observationId
                 };
 
-                _gateway.Insert(query, parameters);
+                _gateway.Update(query, parameters);
             }
             else
             {

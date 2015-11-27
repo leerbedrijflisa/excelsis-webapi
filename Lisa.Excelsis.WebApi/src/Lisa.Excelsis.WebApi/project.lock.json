@@ -3,7 +3,7 @@
   "version": 2,
   "targets": {
     "DNX,Version=v4.5.1": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "frameworkAssemblies": [
           "Microsoft.CSharp",
@@ -1402,7 +1402,7 @@
       }
     },
     "DNXCore,Version=v5.0": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.0.1-beta-23409",
@@ -3631,7 +3631,7 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x86": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "frameworkAssemblies": [
           "Microsoft.CSharp",
@@ -5033,7 +5033,7 @@
       }
     },
     "DNX,Version=v4.5.1/win7-x64": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "frameworkAssemblies": [
           "Microsoft.CSharp",
@@ -6435,7 +6435,7 @@
       }
     },
     "DNXCore,Version=v5.0/win7-x86": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.0.1-beta-23409",
@@ -8969,7 +8969,7 @@
       }
     },
     "DNXCore,Version=v5.0/win7-x64": {
-      "Lisa.Common.Sql/1.0.0-alpha-1": {
+      "Lisa.Common.Sql/1.0.0-alpha-2": {
         "type": "package",
         "dependencies": {
           "Microsoft.CSharp": "4.0.1-beta-23409",
@@ -11504,16 +11504,16 @@
     }
   },
   "libraries": {
-    "Lisa.Common.Sql/1.0.0-alpha-1": {
+    "Lisa.Common.Sql/1.0.0-alpha-2": {
       "type": "package",
-      "sha512": "3cZdnkCbG1EKVsWZFLCcxlSVz0Za1rG8kRiwhQJBWKf4NcLs5bHme/wRxwEQJZnNyVg5n8NSwiiSGBhmh9bKRw==",
+      "sha512": "qI20mc05BjuKGNfA9CwpRbBXh3OmdACsnMNn9gwKP493j63DRgxz/7/0wV48WJkWMmSCOojqScYESwfSDxvSNA==",
       "files": [
         "lib/dnx451/Lisa.Common.Sql.dll",
         "lib/dnx451/Lisa.Common.Sql.xml",
         "lib/dnxcore50/Lisa.Common.Sql.dll",
         "lib/dnxcore50/Lisa.Common.Sql.xml",
-        "Lisa.Common.Sql.1.0.0-alpha-1.nupkg",
-        "Lisa.Common.Sql.1.0.0-alpha-1.nupkg.sha512",
+        "Lisa.Common.Sql.1.0.0-alpha-2.nupkg",
+        "Lisa.Common.Sql.1.0.0-alpha-2.nupkg.sha512",
         "Lisa.Common.Sql.nuspec"
       ]
     },
@@ -15580,7 +15580,7 @@
   },
   "projectFileDependencyGroups": {
     "": [
-      "Lisa.Common.Sql >= 1.0.0-alpha-1",
+      "Lisa.Common.Sql >= 1.0.0-alpha-2",
       "Microsoft.AspNet.Cors >= 6.0.0-beta8",
       "Microsoft.AspNet.IISPlatformHandler >= 1.0.0-beta8",
       "Microsoft.AspNet.Mvc >= 6.0.0-beta8",
