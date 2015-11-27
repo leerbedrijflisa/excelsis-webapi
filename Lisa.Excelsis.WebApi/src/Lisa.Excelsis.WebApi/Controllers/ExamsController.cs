@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNet.Mvc;
 using System.Collections.Generic;
 using System.Linq;
+using System;
+
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -24,8 +26,9 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}/{name}", Name = "exam")]
         public IActionResult Get(string subject, string cohort, string name)
         {
-            string examName = name.Replace("-", " ");
-            var result = _db.FetchExam(subject, examName, cohort);
+            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
+            name = Uri.UnescapeDataString(name.Replace("-", " "));
+            var result = _db.FetchExam(subject, name, cohort);
             return new HttpOkObjectResult(result);
         }
 
