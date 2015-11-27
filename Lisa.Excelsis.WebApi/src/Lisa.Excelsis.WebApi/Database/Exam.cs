@@ -68,6 +68,8 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
 
+            exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
+
             var regexCrebo = new Regex(@"^$|^\d{5}$");
             if (!regexCrebo.IsMatch(exam.Crebo))
             {
@@ -100,6 +102,8 @@ namespace Lisa.Excelsis.WebApi
         public bool ExamExists(ExamPost exam)
         {
             _errors = new List<Error>();
+
+            exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
 
             var query = @"SELECT COUNT(*) as count FROM Exams
                           WHERE Name = @Name
