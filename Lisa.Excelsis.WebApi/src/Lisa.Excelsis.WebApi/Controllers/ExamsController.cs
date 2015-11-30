@@ -55,19 +55,23 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
-                foreach(var property in modelStateErrors)
+                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
+                foreach (var property in modelStateErrors)
                 {
-                    if(property.Exception == null)
+                    var propertyName = property.Key;
+                    foreach (var error in property.Value.Errors)
                     {
-                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
-                    }
-                    else
-                    {
-                        return new BadRequestObjectResult(property.Exception.Message);
+                        if (error.Exception == null)
+                        {
+                            errors.Add(new Error(1111, error.ErrorMessage, new { field = propertyName }));
+                        }
+                        else
+                        {
+                            return new BadRequestObjectResult(error.Exception.Message);
+                        }
                     }
                 }
-                
+
                 return new BadRequestObjectResult(errors);
             }
 

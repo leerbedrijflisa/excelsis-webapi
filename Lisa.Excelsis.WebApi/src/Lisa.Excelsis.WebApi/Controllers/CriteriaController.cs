@@ -12,9 +12,29 @@ namespace Lisa.Excelsis.WebApi
         {
             List<Error> errors = new List<Error>();
 
-            if (!ModelState.IsValid || criterion == null)
+            if (!ModelState.IsValid)
             {
-                errors.Add(new Error(1110, "The json is invalid.", new { }));
+                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
+                foreach (var property in modelStateErrors)
+                {
+                    var propertyName = property.Key;
+                    foreach (var error in property.Value.Errors)
+                    {
+                        if (error.Exception == null)
+                        {
+                            errors.Add(new Error(1111, error.ErrorMessage, new { field = propertyName }));
+                        }
+                        else
+                        {
+                            return new BadRequestObjectResult(error.Exception.Message);
+                        }
+                    }
+                }
+            }
+            
+            if (criterion == null)
+            {
+                errors.Add(new Error(1110, "The body is empty.", new { }));
                 return new BadRequestObjectResult(errors);
             }
 
