@@ -48,7 +48,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        return new BadRequestObjectResult(new { property.Exception.Message });
+                        return new BadRequestObjectResult(property.Exception.Message);
                     }
                 }
 
@@ -90,7 +90,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        return new BadRequestObjectResult(new { property.Exception.Message });
+                        return new BadRequestObjectResult(property.Exception.Message);
                     }
                 }
 
