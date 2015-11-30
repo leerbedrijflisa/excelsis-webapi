@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNet.Mvc;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -8,7 +10,12 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet]
         public IActionResult Get()
         {
-            var result = _db.FetchSubjects();
+            IEnumerable<object> result = _db.FetchSubjects();
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 

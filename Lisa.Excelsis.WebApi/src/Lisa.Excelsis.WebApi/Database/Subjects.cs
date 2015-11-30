@@ -6,7 +6,7 @@ namespace Lisa.Excelsis.WebApi
     {
         public IEnumerable<object> FetchSubjects()
         {
-            var query = @"SELECT DISTINCT subject
+            var query = @"SELECT DISTINCT subject as Name
                           FROM Exams";
             return _gateway.SelectMany(query);
         }

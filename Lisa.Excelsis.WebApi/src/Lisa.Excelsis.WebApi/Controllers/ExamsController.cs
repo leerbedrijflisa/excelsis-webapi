@@ -1,4 +1,7 @@
 ﻿using Microsoft.AspNet.Mvc;
+using System.Collections.Generic;
+using System.Linq;
+using System;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -8,36 +11,90 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet]
         public IActionResult Get([FromQuery] Filter filter)
         {
-            var result = _db.FetchExams(filter);
+            IEnumerable<object> result = _db.FetchExams(filter);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
             return new HttpOkObjectResult(result);
         }
 
         [HttpGet("{subject}/{cohort}")]
         public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
-            var result = _db.FetchExams(filter, subject, cohort);
+            subject = subject.Replace("-", " ");
+
+            IEnumerable<object> result = _db.FetchExams(filter, subject, cohort);
+            if (result.Count() == 0)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
         [HttpGet("{subject}/{cohort}/{name}", Name = "exam")]
         public IActionResult Get(string subject, string cohort, string name)
         {
-            string examName = name.Replace("-", " ");
-            var result = _db.FetchExam(subject, examName, cohort);
+            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
+            name = Uri.UnescapeDataString(name.Replace("-", " "));
+
+            var result = _db.FetchExam(subject, name, cohort);
+            if(result == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
             return new HttpOkObjectResult(result);
         }
 
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)
         {
-            if (!ModelState.IsValid || _db.ExamExists(exam))
+            List<Error> errors = new List<Error>();
+
+            if (!ModelState.IsValid)
             {
-                return new BadRequestObjectResult(new { errorMessage = "Invalid json or exam already exists." });
+                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                foreach(var property in modelStateErrors)
+                {
+                    if(property.Exception == null)
+                    {
+                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(new { property.Exception.Message });
+                    }
+                }
+                
+                return new BadRequestObjectResult(errors);
+            }
+
+            if (exam == null)
+            {
+                errors.Add(new Error(1110, "The body is empty.", new { }));
+                return new BadRequestObjectResult(errors);
+            }
+
+            _db.ExamExists(exam);
+
+            errors.AddRange(_db.Errors);
+            if (errors != null && errors.Any())
+            {
+                return new BadRequestObjectResult(errors);
             }
 
             var id = _db.AddExam(exam);
+
+            errors.AddRange(_db.Errors);
+            if (errors != null && errors.Any())
+            {
+                return new BadRequestObjectResult(errors);
+            }
+
             var result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = exam.Subject.Replace(" ", "-"), cohort = exam.Cohort, name = exam.Name.Replace(" ", "-") }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 

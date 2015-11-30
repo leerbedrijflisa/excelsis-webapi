@@ -1,3 +1,8 @@
+USE master
+
+IF EXISTS(select * from sys.databases where name='ExcelsisDb')
+DROP DATABASE ExcelsisDb;
+
 CREATE DATABASE ExcelsisDb;
 GO
 
@@ -14,13 +19,14 @@ CREATE TABLE [dbo].[Exams] (
 );
 
 CREATE TABLE [dbo].[Criteria] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Order]         INT            NULL,
-	[Title]	        NVARCHAR(MAX)  NULL,
-    [Description]   NVARCHAR (MAX) NULL,
-    [Value]         NVARCHAR (MAX) NULL,
-    [ExamId]        INT            NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]          INT            IDENTITY (1, 1) NOT NULL,
+    [Order]       INT            NULL,
+    [Title]       NVARCHAR (MAX) NULL,
+    [Description] NVARCHAR (MAX) NULL,
+    [Value]       NVARCHAR (MAX) NULL,
+    [ExamId]      INT            NULL,
+    [CategoryId]  INT            NULL,
+    [Created]     DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
@@ -58,6 +64,15 @@ CREATE TABLE [dbo].[Observations] (
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
+
+CREATE TABLE [dbo].[Categories]
+(
+    [Id]            INT            NOT NULL PRIMARY KEY IDENTITY, 
+    [Order]         INT            NULL, 
+    [Name]          NVARCHAR (MAX) NULL,
+	[ExamId]        INT            NULL,
+	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+)
 
 GO
 INSERT INTO Assessors (UserName, Email)
@@ -126,21 +141,49 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
     ('Hoofdrekenen','2012','','Rekenen'),
     ('Getallen','2012','','Rekenen');
 
-    DECLARE @timesToLoop INT
-    DECLARE @innerLoopCount INT
+	GO
 
-    SET @timesToLoop = 0;
-    SET @innerLoopCount = 0;
+	DECLARE @ExamLoopCount INT;
+    DECLARE @CategoryLoopCount INT;
+    DECLARE @CriteriaLoopCount INT;
+    DECLARE @ExamLoopCountMAX INT;
+    DECLARE @CategoryLoopCountMAX INT;
+    DECLARE @CriteriaLoopCountMAX INT;
+	DECLARE @CategoryId INT;
 
-    WHILE @timesToLoop < 56
+    SET @ExamLoopCount = 0;
+    SET @CategoryLoopCount = 0;
+    SET @CriteriaLoopCount = 0;
+
+    SET @ExamLoopCountMAX = 56;
+    SET @CategoryLoopCountMAX = 3;
+    SET @CriteriaLoopCountMAX = 5;
+
+	
+
+    WHILE @ExamLoopCount < @ExamLoopCountMAX
     BEGIN
-		SET @timesToLoop = @timesToLoop + 1
-        WHILE @innerLoopCount < 15
+        SET @ExamLoopCount = @ExamLoopCount + 1
+
+        WHILE @CategoryLoopCount < @CategoryLoopCountMAX
         BEGIN
-            SET @innerLoopCount = @innerLoopCount + 1
-            INSERT INTO Criteria ([Order], Title,[Description], Value, ExamId)
-            VALUES (@innerLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','Goed', @timesToLoop)
+			SET @CategoryLoopCount = @CategoryLoopCount + 1
+
+			INSERT INTO Categories ([Order], [Name], [ExamId])
+			VALUES (@CategoryLoopCount, 'categorie ' + CAST ( @CategoryLoopCount AS nvarchar(max) ) + '..............', @ExamLoopCount)
+		    SET @CategoryId = (
+				SELECT @@IDENTITY
+			)
+
+            WHILE @CriteriaLoopCount < @CriteriaLoopCountMAX
+            BEGIN
+				SET @CriteriaLoopCount = @CriteriaLoopCount + 1
+
+				INSERT INTO Criteria ([Order], [Title], [Description], [Value], [ExamId], [CategoryId])
+				VALUES (@CriteriaLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','Goed', @ExamLoopCount, @CategoryId)
+            END
+			SET @CriteriaLoopCount = 0
         END
-        SET @innerLoopCount = 0
+        SET @CategoryLoopCount = 0
     END;
     GO
