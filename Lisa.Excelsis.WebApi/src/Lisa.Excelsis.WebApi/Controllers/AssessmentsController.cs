@@ -106,7 +106,13 @@ namespace Lisa.Excelsis.WebApi
             subject = Uri.UnescapeDataString(subject.Replace("-", " "));
             name = Uri.UnescapeDataString(name.Replace("-", " "));
 
-            var id = _db.AddAssessment(assessment, subject, name, cohort);
+            dynamic examResult = _db.FetchExam(subject, name, cohort);
+            if(examResult == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
+            var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);
 
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())

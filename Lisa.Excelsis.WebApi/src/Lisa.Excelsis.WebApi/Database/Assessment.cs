@@ -69,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectMany(query, parameters);
         }
 
-        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
+        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)
         {
             _errors = new List<Error>();
             var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
@@ -87,17 +87,6 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.Student.Number), new
                 {
                     StudentNumber = assessment.Student.Number
-                }));
-            }
-
-            dynamic examResult = FetchExam(subject, name, cohort);
-            if (examResult == null)
-            {
-                _errors.Add(new Error(1103, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
-                {
-                    Subject = subject,
-                    Cohort = cohort,
-                    Name = name
                 }));
             }
 
