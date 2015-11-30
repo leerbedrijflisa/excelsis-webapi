@@ -13,6 +13,6 @@ namespace Lisa.Excelsis.WebApi
         [Required]
         public int CategoryId { get; set; }
         [Required]
-        public string Value { get; set; }
+        public string Weight { get; set; }
     }
 }
