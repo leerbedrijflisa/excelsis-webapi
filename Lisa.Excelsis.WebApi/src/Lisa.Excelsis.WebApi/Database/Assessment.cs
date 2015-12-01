@@ -73,7 +73,7 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
             var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
-            if (!regexName.IsMatch(assessment.Student.Name))
+            if (assessment.Student.Name != null && !regexName.IsMatch(assessment.Student.Name))
             {
                 _errors.Add(new Error(1101, string.Format("The student name '{0}' may only contain characters", assessment.Student.Name), new
                 {
@@ -82,7 +82,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             var regexNumber = new Regex(@"^\d{8}$");
-            if (!regexNumber.IsMatch(assessment.Student.Number))
+            if (assessment.Student.Number != null && !regexNumber.IsMatch(assessment.Student.Number))
             {
                 _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.Student.Number), new
                 {
