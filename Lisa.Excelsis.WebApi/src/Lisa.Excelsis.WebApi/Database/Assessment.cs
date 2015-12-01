@@ -90,7 +90,7 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
-            dynamic examResult = FetchExam(subject, name, cohort);
+            object examResult = FetchExam(subject, name, cohort);
             if (examResult == null)
             {
                 _errors.Add(new Error(1103, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
@@ -101,11 +101,11 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
-            dynamic assessorResult = SelectAssessors(assessment);
+            object assessorResult = SelectAssessors(assessment);
 
             if (_errors.Count() == 0)
             {
-                dynamic assessmentResult = InsertAssessment(assessment, examResult);
+                object assessmentResult = InsertAssessment(assessment, examResult);
                 InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
                 InsertObservations(assessmentResult, examResult);
 
@@ -167,7 +167,7 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        private dynamic SelectAssessors(AssessmentPost assessment)
+        private object SelectAssessors(AssessmentPost assessment)
         {
             var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
@@ -194,7 +194,7 @@ namespace Lisa.Excelsis.WebApi
             return result;
         }
 
-        private dynamic InsertAssessment(AssessmentPost assessment, dynamic examResult)
+        private object InsertAssessment(AssessmentPost assessment, dynamic examResult)
         {
             var query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, Exam_Id)
                           VALUES (@StudentName, @StudentNumber, @Assessed, @ExamId);";
