@@ -77,8 +77,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (exam == null)
             {
-                errors.Add(new Error(1110, "The body is empty.", new { }));
-                return new BadRequestObjectResult(errors);
+                return new BadRequestResult();
             }
 
             _db.ExamExists(exam);

@@ -107,8 +107,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (assessment == null)
             {
-                errors.Add(new Error(1110, "The body is empty.", new { }));
-                return new BadRequestObjectResult(errors);
+                return new BadRequestResult();
             }
 
             subject = Uri.UnescapeDataString(subject.Replace("-", " "));
