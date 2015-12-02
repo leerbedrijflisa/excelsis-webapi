@@ -1,0 +1,18 @@
+{
+  "profiles": {
+    "IIS Express": {
+      "commandName": "IISExpress",
+      "launchBrowser": true,
+      "environmentVariables": {
+        "ASPNET_ENV": "Development",
+        "ConnectionString": "Data Source=(localdb)\\v11.0;Initial Catalog=ExcelsisDb;Integrated Security=True"
+      }
+    },
+    "web": {
+      "commandName": "web",
+      "environmentVariables": {
+        "ASPNET_ENV": "Development"
+      }
+    }
+  }
+}
