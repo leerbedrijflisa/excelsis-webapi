@@ -18,11 +18,18 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
+            var criterionLower = criterion.Value.ToLower();
+            if (criterionLower != "fail" && criterionLower != "pass" && criterionLower != "excellent")
+            {
+                _errors.Add(new Error(1105, string.Format("The value {0} can only contain 'pass', 'excellent' or 'fail'.", criterionLower), new { value = criterionLower }));
+
+            }
+
             dynamic category = FetchCategory(criterion.CategoryId, id);
 
             if (category == null)
             {
-                _errors.Add(new Error(1103, string.Format("The category with id '{0}' was not found by exam id {1}.",criterion.CategoryId, id), new
+                _errors.Add(new Error(1104, string.Format("The category with id '{0}' was not found by exam id {1}.",criterion.CategoryId, id), new
                 {
                     CategoryId = criterion.CategoryId,
                     ExamId = id
