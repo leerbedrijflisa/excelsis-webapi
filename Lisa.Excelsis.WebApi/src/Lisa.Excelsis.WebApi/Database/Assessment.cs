@@ -93,7 +93,7 @@ namespace Lisa.Excelsis.WebApi
             object examResult = FetchExam(subject, name, cohort);
             if (examResult == null)
             {
-                _errors.Add(new Error(1103, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
+                _errors.Add(new Error(1106, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
                 {
                     Subject = subject,
                     Cohort = cohort,
@@ -131,7 +131,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         else
                         {
-                            _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", fieldString.ElementAt(0)), new
+                            _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", fieldString.ElementAt(0)), new
                             {
                                 FieldName = fieldString.ElementAt(0)
                             }));
@@ -160,7 +160,7 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
+                _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", field), new
                 {
                     FieldName = field
                 }));
@@ -183,7 +183,7 @@ namespace Lisa.Excelsis.WebApi
                 {
                     if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
                     {
-                        _errors.Add(new Error(1103, string.Format("The assessor with username '{0}' is not found.", assessor), new
+                        _errors.Add(new Error(1108, string.Format("The assessor with username '{0}' is not found.", assessor), new
                         {
                             Assessor = assessor
                         }));

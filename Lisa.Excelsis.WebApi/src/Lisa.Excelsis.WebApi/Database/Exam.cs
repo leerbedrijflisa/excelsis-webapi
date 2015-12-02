@@ -73,7 +73,7 @@ namespace Lisa.Excelsis.WebApi
             var regexCrebo = new Regex(@"^$|^\d{5}$");
             if (!regexCrebo.IsMatch(exam.Crebo))
             {
-                _errors.Add(new Error(1106, string.Format("The crebo number '{0}' doesn't meet the requirements of 5 digits", exam.Crebo), new
+                _errors.Add(new Error(1109, string.Format("The crebo number '{0}' doesn't meet the requirements of 5 digits.", exam.Crebo), new
                 {
                     Crebo = exam.Crebo
                 }));
@@ -82,7 +82,7 @@ namespace Lisa.Excelsis.WebApi
             var regexCohort = new Regex(@"^(19|20)\d{2}$");
             if (!regexCohort.IsMatch(exam.Cohort))
             {
-                _errors.Add(new Error(1107, string.Format("The cohort year '{0}' doesn't meet the requirements of 4 digits", exam.Cohort), new
+                _errors.Add(new Error(1110, string.Format("The cohort year '{0}' doesn't meet the requirements of 4 digits.", exam.Cohort), new
                 {
                     Cohort = exam.Cohort
                 }));
@@ -114,7 +114,7 @@ namespace Lisa.Excelsis.WebApi
 
             if(result.count > 0)
             {
-                _errors.Add(new Error(1201, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
+                _errors.Add(new Error(1111, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
                 {
                     Subject = exam.Subject,
                     Cohort = exam.Cohort,
