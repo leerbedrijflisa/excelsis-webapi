@@ -140,7 +140,7 @@ namespace Lisa.Excelsis.WebApi
                                 Criteria.[Order] as #Categories_#Criteria_Order,
                                 Criteria.Title as #Categories_#Criteria_Title,
                                 Criteria.[Description] as #Categories_#Criteria_Description,
-                                Criteria.Value as #Categories_#Criteria_Value
+                                Criteria.Weight as #Categories_#Criteria_Weight
                           FROM Exams
                 LEFT JOIN Categories ON Categories.ExamId = Exams.Id
                 LEFT JOIN Criteria ON Criteria.CategoryId = Categories.Id";

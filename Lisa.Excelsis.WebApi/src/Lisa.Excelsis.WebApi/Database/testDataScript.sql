@@ -23,7 +23,7 @@ CREATE TABLE [dbo].[Criteria] (
     [Order]       INT            NULL,
     [Title]       NVARCHAR (MAX) NULL,
     [Description] NVARCHAR (MAX) NULL,
-    [Value]       NVARCHAR (MAX) NULL,
+    [Weight]       NVARCHAR (MAX) NULL,
     [ExamId]      INT            NULL,
     [CategoryId]  INT            NULL,
     [Created]     DATETIME       DEFAULT (getutcdate()) NULL,
@@ -179,7 +179,7 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
             BEGIN
 				SET @CriteriaLoopCount = @CriteriaLoopCount + 1
 
-				INSERT INTO Criteria ([Order], [Title], [Description], [Value], [ExamId], [CategoryId])
+				INSERT INTO Criteria ([Order], [Title], [Description], [Weight], [ExamId], [CategoryId])
 				VALUES (@CriteriaLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','Goed', @ExamLoopCount, @CategoryId)
             END
 			SET @CriteriaLoopCount = 0

@@ -38,15 +38,15 @@ namespace Lisa.Excelsis.WebApi
 
             if (_errors.Count == 0)
             {
-                var query = @"INSERT INTO Criteria ([Order], Title, [Description], Value, ExamId, CategoryId)
-                          VALUES (@Order, @Title ,@Description, @Value, @ExamId, @CategoryId);";
+                var query = @"INSERT INTO Criteria ([Order], Title, [Description], Weight, ExamId, CategoryId)
+                          VALUES (@Order, @Title ,@Description, @Weight, @ExamId, @CategoryId);";
 
                 var parameters = new
                 {
                     Order = criterion.Order,
                     Title = criterion.Title,
                     Description = criterion.Description,
-                    Value = criterion.Value,
+                    Weight = criterion.Weight,
                     CategoryId = criterion.CategoryId,
                     ExamId = id
                 };
