@@ -188,7 +188,7 @@ INSERT INTO Exams (Name, Cohort, Crebo, [Subject])
 				SET @CriteriaLoopCount = @CriteriaLoopCount + 1
 
 				INSERT INTO Criteria ([Order], [Title], [Description], [Weight], [ExamId], [CategoryId])
-				VALUES (@CriteriaLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','Goed', @ExamLoopCount, @CategoryId)
+				VALUES (@CriteriaLoopCount, 'De kandidaat moet voldoen aan:', 'Beschrijving van de vraag','excellent', @ExamLoopCount, @CategoryId)
             END
 			SET @CriteriaLoopCount = 0
         END
