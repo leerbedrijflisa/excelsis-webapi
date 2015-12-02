@@ -18,7 +18,7 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
-            var criterionLower = criterion.Value.ToLower();
+            var criterionLower = criterion.Weight.ToLower();
             if (criterionLower != "fail" && criterionLower != "pass" && criterionLower != "excellent")
             {
                 _errors.Add(new Error(1105, string.Format("The value {0} can only contain 'pass', 'excellent' or 'fail'.", criterionLower), new { value = criterionLower }));

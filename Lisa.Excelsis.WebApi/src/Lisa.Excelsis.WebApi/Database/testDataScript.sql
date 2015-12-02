@@ -19,7 +19,6 @@ CREATE TABLE [dbo].[Exams] (
 );
 
 CREATE TABLE [dbo].[Criteria] (
-<<<<<<< HEAD
     [Id]          INT            IDENTITY (1, 1) NOT NULL,
     [Order]       INT            NULL,
     [Title]       NVARCHAR (MAX) NULL,
