@@ -30,7 +30,10 @@ namespace Lisa.Excelsis.WebApi
             };
 
             dynamic result = _gateway.SelectSingle(query, parameters);
-           
+            if (result != null)
+            {
+                return null;
+            }
             foreach(dynamic category in result.Categories)
             {
                 foreach(dynamic observation in category.Observations)
