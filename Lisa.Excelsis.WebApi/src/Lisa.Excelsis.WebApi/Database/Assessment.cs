@@ -69,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectMany(query, parameters);
         }
 
-        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
+        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)
         {
             _errors = new List<Error>();
             if (assessment.Student != null)
@@ -95,17 +95,6 @@ namespace Lisa.Excelsis.WebApi
             else
             {
                 assessment.Student = new Student();
-            }
-
-            object examResult = FetchExam(subject, name, cohort);
-            if (examResult == null)
-            {
-                _errors.Add(new Error(1106, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
-                {
-                    Subject = subject,
-                    Cohort = cohort,
-                    Name = name
-                }));
             }
 
             object assessorResult = SelectAssessors(assessment);
