@@ -19,6 +19,7 @@ CREATE TABLE [dbo].[Exams] (
 );
 
 CREATE TABLE [dbo].[Criteria] (
+<<<<<<< HEAD
     [Id]          INT            IDENTITY (1, 1) NOT NULL,
     [Order]       INT            NULL,
     [Title]       NVARCHAR (MAX) NULL,
@@ -59,11 +60,19 @@ CREATE TABLE [dbo].[Observations] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [Criterion_Id]  INT            NULL,
     [Result]        NVARCHAR (MAX) NULL,
-    [Marks]         NVARCHAR (MAX) NULL,
     [Assessment_Id] INT            NULL,
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
+
+CREATE TABLE [dbo].[Marks] (
+    [Id]            INT            IDENTITY (1, 1) NOT NULL,
+	[Observation_Id]INT            NULL,
+	[Name]          NVARCHAR (MAX) NULL,
+	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    PRIMARY KEY CLUSTERED ([Id] ASC)
+);
+
 
 CREATE TABLE [dbo].[Categories]
 (

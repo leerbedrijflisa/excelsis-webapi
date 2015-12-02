@@ -13,13 +13,15 @@ namespace Lisa.Excelsis.WebApi
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
-                                 Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result, Observations.Marks as #Categories_#Observations_Marks,
-                                 Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Weight as #Categories_#Observations_Criterion_Weight
+                                 Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result,
+                                 Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
+                                 Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Value as #Categories_#Observations_Criterion_Value
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
+                          LEFT JOIN Marks ON Marks.Observation_Id = Observations.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
                           WHERE Assessments.Id = @Id";
@@ -27,7 +29,21 @@ namespace Lisa.Excelsis.WebApi
                 Id = id
             };
 
-            return _gateway.SelectSingle(query, parameters);
+            dynamic result = _gateway.SelectSingle(query, parameters);
+           
+            foreach(dynamic category in result.Categories)
+            {
+                foreach(dynamic observation in category.Observations)
+                {
+                    List<string> marks = new List<string>();
+                    foreach (dynamic mark in observation.Marks)
+                    {
+                        marks.Add(mark.Name);
+                    }
+                    observation.Marks = marks.GroupBy(m => m).Select(g => g.First()).ToArray();
+                }
+            }
+            return result;
         }
 
         public IEnumerable<object> FetchAssessments(Filter filter)
@@ -103,7 +119,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 object assessmentResult = InsertAssessment(assessment, examResult);
                 InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
-                InsertObservations(assessmentResult, examResult);
+                AddObservations(assessmentResult, examResult);
 
                 return (_errors.Count() > 0) ? null : assessmentResult;
             }
@@ -116,50 +132,22 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
+                var fieldString = patch.Field.Split('/');
+                if (fieldString.ElementAt(0).ToLower() == "observations")
+                {
+                    int observationId = Convert.ToInt32(fieldString.ElementAt(1));
+                    PatchObservation(patch.Action, id, observationId, fieldString.ElementAt(2), patch.Value);
+                }
+
                 switch (patch.Action)
                 {
+                    case "add":
+                        break;
                     case "replace":
-                        var fieldString = patch.Field.Split('/');
-                        if(fieldString.ElementAt(0).ToLower() == "observations")
-                        {
-                            int observationId = Convert.ToInt32(fieldString.ElementAt(1));
-                            PatchObservation(id, observationId, fieldString.ElementAt(2), patch.Value);
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", fieldString.ElementAt(0)), new
-                            {
-                                FieldName = fieldString.ElementAt(0)
-                            }));
-                        }
+                        break;
+                    case "remove":
                         break;
                 }
-            }
-        }
-
-        private void PatchObservation(int id, int observationId, string field, object value)
-        {
-            if (field.ToLower() == "result" || field.ToLower() == "marks")
-            {
-                var query = @"UPDATE Observations
-                              SET " + field + @" = @Value
-                              WHERE Assessment_Id = @Id AND Id = @ObservationId";
-
-                var parameters = new
-                {
-                    value = value,
-                    Id = id,
-                    ObservationId = observationId
-                };
-
-                _gateway.Update(query, parameters);
-            }
-            else
-            {
-                _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", field), new
-                {
-                    FieldName = field
-                }));
             }
         }
 
@@ -206,24 +194,7 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.Insert(query, parameters);
         }
 
-        private void InsertObservations(dynamic assessmentResult, dynamic examResult)
-        {
-            List<string> observations = new List<string>();
-            if (examResult.Categories.Count > 0)
-            {
-                foreach (var category in examResult.Categories)
-                {
-                    foreach (var criterion in category.Criteria)
-                    {
-                        observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'','')");
-                    }
-                }
-
-                var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
-                query += string.Join(",", observations);
-                _gateway.Insert(query, null);
-            }
-        }
+       
 
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
         {
