@@ -72,22 +72,29 @@ namespace Lisa.Excelsis.WebApi
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
         {
             _errors = new List<Error>();
-            var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
-            if (!regexName.IsMatch(assessment.Student.Name))
+            if (assessment.Student != null)
             {
-                _errors.Add(new Error(1101, string.Format("The student name '{0}' may only contain characters", assessment.Student.Name), new
+                var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
+                if (assessment.Student.Name != null && !regexName.IsMatch(assessment.Student.Name))
                 {
-                    StudentName = assessment.Student.Name
-                }));
-            }
+                    _errors.Add(new Error(1101, string.Format("The student name '{0}' may only contain characters", assessment.Student.Name), new
+                    {
+                        StudentName = assessment.Student.Name
+                    }));
+                }
 
-            var regexNumber = new Regex(@"^\d{8}$");
-            if (!regexNumber.IsMatch(assessment.Student.Number))
-            {
-                _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.Student.Number), new
+                var regexNumber = new Regex(@"^\d{8}$");
+                if (assessment.Student.Number != null && !regexNumber.IsMatch(assessment.Student.Number))
                 {
-                    StudentNumber = assessment.Student.Number
-                }));
+                    _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.Student.Number), new
+                    {
+                        StudentNumber = assessment.Student.Number
+                    }));
+                }
+            }
+            else
+            {
+                assessment.Student = new Student();
             }
 
             object examResult = FetchExam(subject, name, cohort);
