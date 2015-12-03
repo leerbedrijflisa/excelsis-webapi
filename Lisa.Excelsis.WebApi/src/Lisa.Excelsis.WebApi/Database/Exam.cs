@@ -56,7 +56,7 @@ namespace Lisa.Excelsis.WebApi
                            ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
             var parameters = new {
-                SubjectId = subject,
+                Subject = subject,
                 Cohort = cohort,
                 Assessor = filter.Assessor ?? string.Empty
             };
