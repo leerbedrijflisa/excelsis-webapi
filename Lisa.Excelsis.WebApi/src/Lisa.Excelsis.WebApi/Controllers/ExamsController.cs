@@ -66,7 +66,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         else
                         {
-                            return new BadRequestObjectResult(error.Exception.Message);
+                            return new BadRequestObjectResult("\"" + error.Exception.Message + "\"");
                         }
                     }
                 }
