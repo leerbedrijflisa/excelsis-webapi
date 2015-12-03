@@ -8,8 +8,8 @@ namespace Lisa.Excelsis.WebApi
         public object FetchExam(string subject, string name, string cohort)
         {
             var query = FetchExamQuery +
-                        @" WHERE Exams.Name = @Name
-                             AND Exams.Subject = @Subject
+                        @" WHERE Exams.NameId = @Name
+                             AND Exams.SubjectId = @Subject
                              AND Exams.Cohort = @Cohort
                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
 
