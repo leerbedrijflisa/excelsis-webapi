@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNet.Mvc;
 using System.Collections.Generic;
 using System.Linq;
-using System;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -22,7 +21,7 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}")]
         public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
-            subject = subject.Replace("-", " ");
+            subject = _db.CleanParam(subject);
 
             IEnumerable<object> result = _db.FetchExams(filter, subject, cohort);
             if (result.Count() == 0)
@@ -36,8 +35,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}/{name}", Name = "exam")]
         public IActionResult Get(string subject, string cohort, string name)
         {
-            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
-            name = Uri.UnescapeDataString(name.Replace("-", " "));
+            subject = _db.CleanParam(subject);
+            name = _db.CleanParam(name);
 
             var result = _db.FetchExam(subject, name, cohort);
             if(result == null)
@@ -97,7 +96,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             var result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = exam.Subject.Replace(" ", "-"), cohort = exam.Cohort, name = exam.Name.Replace(" ", "-") }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = _db.CleanParam(exam.Subject), cohort = exam.Cohort, name = _db.CleanParam(exam.Name) }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 

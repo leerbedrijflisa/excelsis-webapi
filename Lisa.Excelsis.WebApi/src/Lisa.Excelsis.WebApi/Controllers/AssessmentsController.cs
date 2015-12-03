@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -82,6 +81,8 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
             List<Error> errors = new List<Error>();
+            subject = _db.CleanParam(subject);
+            name = _db.CleanParam(name);
 
             if (!ModelState.IsValid)
             {
@@ -109,9 +110,6 @@ namespace Lisa.Excelsis.WebApi
             {
                 return new BadRequestResult();
             }
-
-            subject = Uri.UnescapeDataString(subject.Replace("-", " "));
-            name = Uri.UnescapeDataString(name.Replace("-", " "));
 
             dynamic examResult = _db.FetchExam(subject, name, cohort);
             if(examResult == null)
