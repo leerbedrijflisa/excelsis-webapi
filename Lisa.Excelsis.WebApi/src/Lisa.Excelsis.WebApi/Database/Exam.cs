@@ -114,7 +114,7 @@ namespace Lisa.Excelsis.WebApi
 
             if(result.count > 0)
             {
-                _errors.Add(new Error(1111, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
+                _errors.Add(new Error(1109, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
                 {
                     Subject = exam.Subject,
                     Cohort = exam.Cohort,
