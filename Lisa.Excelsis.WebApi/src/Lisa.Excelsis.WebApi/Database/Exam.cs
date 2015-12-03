@@ -51,12 +51,12 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
         {
             var query = FetchExamsQuery +
-                        @" WHERE Subject = @Subject 
+                        @" WHERE SubjectId = @Subject 
                              AND Cohort = @Cohort
                            ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
             var parameters = new {
-                Subject = subject,
+                SubjectId = subject,
                 Cohort = cohort,
                 Assessor = filter.Assessor ?? string.Empty
             };
@@ -93,9 +93,21 @@ namespace Lisa.Excelsis.WebApi
                 return null;
             }
 
-            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
-                        VALUES (@Name, @Cohort, @Crebo, @subject);";
-            return _gateway.Insert(query, exam);
+            string subjectId = CleanParam(exam.Subject);
+            string nameId = CleanParam(exam.Name);
+
+            var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId)
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId);";
+            var parameters = new
+            {
+                Name = exam.Name,
+                NameId = nameId,
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo,
+                Subject = exam.Subject,
+                SubjectId = subjectId
+            };
+            return _gateway.Insert(query, parameters);
            
         }
 
@@ -103,22 +115,31 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
 
+            string subject = CleanParam(exam.Subject);
+            string name = CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
 
             var query = @"SELECT COUNT(*) as count FROM Exams
-                          WHERE Name = @Name
-                            AND Subject = @Subject
+                          WHERE NameId = @Name
+                            AND SubjectId = @Subject
                             AND Cohort = @Cohort
                             AND Crebo = @Crebo";
-            dynamic result = _gateway.SelectSingle(query, exam);
+            var parameters = new
+            {
+                Name = name,
+                Subject = subject,
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo
+            };
+            dynamic result = _gateway.SelectSingle(query, parameters);
 
             if(result.count > 0)
             {
                 _errors.Add(new Error(1201, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
                 {
-                    Subject = exam.Subject,
+                    Subject = subject,
                     Cohort = exam.Cohort,
-                    Name = exam.Name,
+                    Name = name,
                     Crebo = exam.Crebo
                 }));
                 return true;
