@@ -135,23 +135,113 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
-                var fieldString = patch.Field.Split('/');
-                if (fieldString.ElementAt(0).ToLower() == "observations")
-                {
-                    int observationId = Convert.ToInt32(fieldString.ElementAt(1));
-                    PatchObservation(patch.Action, id, observationId, fieldString.ElementAt(2), patch.Value);
-                }
+                patch.Action.ToLower();
+                patch.Field.ToLower();
+                var field = patch.Field.Split('/');
 
                 switch (patch.Action)
                 {
                     case "add":
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks*$"))
+                        {
+                            if (ObservationExists(Convert.ToInt32(field[1])))
+                            {
+                                AddMark(patch);
+                            }
+                            else
+                            {
+                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                        }
                         break;
                     case "replace":
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/result*$"))
+                        {
+                            if (ObservationExists(Convert.ToInt32(field[1])))
+                            {
+                                ReplaceResult(id, patch);
+                            }
+                            else
+                            {
+                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
+                            }
+                        }
+                        else if(Regex.IsMatch(patch.Field, @"^studentnumber*$"))
+                        {
+                            ReplaceStudent(id, patch);
+                        }
+                        else if (Regex.IsMatch(patch.Field, @"^studentname*$"))
+                        {
+                            ReplaceStudent(id, patch);
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                        }
                         break;
                     case "remove":
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks*$"))
+                        {
+                            if (ObservationExists(Convert.ToInt32(field[1])))
+                            {
+                                RemoveMark(patch);
+                            }
+                            else
+                            {
+                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                        }
+                        break;
+                    default:
+                        _errors.Add( new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
                         break;
                 }
             }
+        }
+
+        private void ReplaceStudent(int id, Patch patch)
+        {
+            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z\s]*$"))
+            {
+                var field = patch.Field.Split('/');
+                var query = @"UPDATE Assessments
+                              SET " + field + @" = @Value
+                              WHERE Assessment_Id = @Id";
+                var parameters = new
+                {
+                    value = patch.Value,
+                    Id = id
+                };
+                _gateway.Update(query, parameters);
+            }
+            else
+            {
+                _errors.Add(new Error(0, string.Format("The value '{0}' is not alphanumeric.", patch.Value), new
+                {
+                    Value = patch.Value
+                }));
+            }
+        }
+
+        public bool AssessmentExists(int id)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Assessments
+                          WHERE Id = @id";
+            var parameters = new
+            {
+               Id = id
+            };
+            dynamic result = _gateway.SelectSingle(query, parameters);
+
+            return (result.count > 0);
         }
 
         private object SelectAssessors(AssessmentPost assessment)
@@ -196,8 +286,6 @@ namespace Lisa.Excelsis.WebApi
 
             return _gateway.Insert(query, parameters);
         }
-
-       
 
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
         {

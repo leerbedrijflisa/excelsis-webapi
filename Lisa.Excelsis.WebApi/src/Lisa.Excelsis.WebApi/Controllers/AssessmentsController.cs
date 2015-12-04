@@ -64,6 +64,11 @@ namespace Lisa.Excelsis.WebApi
                 return new BadRequestObjectResult(errors);
             }
 
+            if (!_db.AssessmentExists(id))
+            {
+                return new HttpNotFoundResult();
+            }
+
             _db.PatchAssessment(patches, id);
 
             errors.AddRange(_db.Errors);
