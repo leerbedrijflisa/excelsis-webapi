@@ -8,8 +8,8 @@ namespace Lisa.Excelsis.WebApi
         public object FetchExam(string subject, string name, string cohort)
         {
             var query = FetchExamQuery +
-                        @" WHERE Exams.Name = @Name
-                             AND Exams.Subject = @Subject
+                        @" WHERE Exams.NameId = @Name
+                             AND Exams.SubjectId = @Subject
                              AND Exams.Cohort = @Cohort
                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
 
@@ -51,7 +51,7 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
         {
             var query = FetchExamsQuery +
-                        @" WHERE Subject = @Subject 
+                        @" WHERE SubjectId = @Subject 
                              AND Cohort = @Cohort
                            ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
@@ -93,9 +93,21 @@ namespace Lisa.Excelsis.WebApi
                 return null;
             }
 
-            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
-                        VALUES (@Name, @Cohort, @Crebo, @subject);";
-            return _gateway.Insert(query, exam);
+            string subjectId = CleanParam(exam.Subject);
+            string nameId = CleanParam(exam.Name);
+
+            var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId)
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId);";
+            var parameters = new
+            {
+                Name = exam.Name,
+                NameId = nameId,
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo,
+                Subject = exam.Subject,
+                SubjectId = subjectId
+            };
+            return _gateway.Insert(query, parameters);
            
         }
 
@@ -103,14 +115,23 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
 
+            string subject = CleanParam(exam.Subject);
+            string name = CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
 
             var query = @"SELECT COUNT(*) as count FROM Exams
-                          WHERE Name = @Name
-                            AND Subject = @Subject
+                          WHERE NameId = @Name
+                            AND SubjectId = @Subject
                             AND Cohort = @Cohort
                             AND Crebo = @Crebo";
-            dynamic result = _gateway.SelectSingle(query, exam);
+            var parameters = new
+            {
+                Name = name,
+                Subject = subject,
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo
+            };
+            dynamic result = _gateway.SelectSingle(query, parameters);
 
             if(result.count > 0)
             {

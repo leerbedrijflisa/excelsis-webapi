@@ -26,7 +26,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         else
                         {
-                            return new BadRequestObjectResult(error.Exception.Message);
+                            return new BadRequestObjectResult("\"" + error.Exception.Message + "\"");
                         }
                     }
                 }
@@ -54,7 +54,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             dynamic result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = result.Subject.Replace(" ", "-"), cohort = result.Cohort, name = result.Name.Replace(" ", "-") }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = _db.CleanParam(result.Subject), cohort = result.Cohort, name = _db.CleanParam(result.Subject) }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 
