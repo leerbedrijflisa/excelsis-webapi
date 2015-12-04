@@ -8,21 +8,10 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
 
-            dynamic exam = FetchExam(id);
-
-            if (exam == null)
-            {
-                _errors.Add(new Error(1103, string.Format("The exam with id '{0}' was not found.", id), new
-                {
-                   Id = id
-                }));
-            }
-
             var criterionLower = criterion.Weight.ToLower();
             if (criterionLower != "fail" && criterionLower != "pass" && criterionLower != "excellent")
             {
                 _errors.Add(new Error(1105, string.Format("The value {0} can only contain 'pass', 'excellent' or 'fail'.", criterionLower), new { value = criterionLower }));
-
             }
 
             dynamic category = FetchCategory(criterion.CategoryId, id);

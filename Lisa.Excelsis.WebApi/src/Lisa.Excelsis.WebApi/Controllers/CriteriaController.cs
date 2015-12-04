@@ -38,6 +38,13 @@ namespace Lisa.Excelsis.WebApi
                 return new BadRequestObjectResult(errors);
             }
 
+            dynamic exam = _db.FetchExam(id);
+
+            if (exam == null)
+            {
+                return new HttpNotFoundResult();
+            }
+
             _db.AddCriterion(id, criterion);
 
             errors.AddRange(_db.Errors);
