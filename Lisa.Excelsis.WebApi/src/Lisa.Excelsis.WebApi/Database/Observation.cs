@@ -86,7 +86,7 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(0, string.Format("The value '{0}' has to be 'fail', 'pass' or 'excellent'.", patch.Value), new
+                _errors.Add(new Error(0, string.Format("The value '{0}' has to be 'seen' or 'unseen'.", patch.Value), new
                 {
                     Value = patch.Value
                 }));
