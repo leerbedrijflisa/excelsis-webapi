@@ -40,7 +40,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
+                        _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", field), new
                         {
                             FieldName = field
                         }));
@@ -64,7 +64,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
+                        _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", field), new
                         {
                             FieldName = field
                         }));
@@ -83,7 +83,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
+                        _errors.Add(new Error(1107, string.Format("The field '{0}' is not patchable.", field), new
                         {
                             FieldName = field
                         }));
