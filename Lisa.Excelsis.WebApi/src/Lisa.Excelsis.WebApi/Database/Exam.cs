@@ -88,13 +88,23 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
+            string subjectId = CleanParam(exam.Subject);
+            string nameId = CleanParam(exam.Name);
+
+            if (subjectId == string.Empty)
+            {
+                _errors.Add(new Error(1103, "The 'subject' may not be empty.", new { field = "Subject"}));
+            }
+
+            if (nameId == string.Empty)
+            {
+                _errors.Add(new Error(1103, "The 'name' may not be empty.", new { field = "Name" }));
+            }
+
             if (_errors.Count > 0)
             {
                 return null;
             }
-
-            string subjectId = CleanParam(exam.Subject);
-            string nameId = CleanParam(exam.Name);
 
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId)
                         VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId);";
@@ -108,7 +118,6 @@ namespace Lisa.Excelsis.WebApi
                 SubjectId = subjectId
             };
             return _gateway.Insert(query, parameters);
-           
         }
 
         public bool ExamExists(ExamPost exam)
