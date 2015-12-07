@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Mvc;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi.Controllers
 {
@@ -6,9 +7,10 @@ namespace Lisa.Excelsis.WebApi.Controllers
     public class ValuesController : Controller
     {
         [HttpGet("marks")]
-        public string GetMarks()
+        public IActionResult GetMarks()
         {
-            return "marks";
+            string[] marks = new string[] { "maybe", "maybe not", "skip", "unclear", "change" };
+            return new HttpOkObjectResult(marks);
         }
     }
 }
