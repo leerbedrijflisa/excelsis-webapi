@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNet.Mvc;
+using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -26,7 +27,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         else
                         {
-                            return new BadRequestObjectResult("\"" + error.Exception.Message + "\"");
+                            return new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
                         }
                     }
                 }
