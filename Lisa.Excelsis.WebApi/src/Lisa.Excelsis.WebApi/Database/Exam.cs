@@ -142,18 +142,7 @@ namespace Lisa.Excelsis.WebApi
             };
             dynamic result = _gateway.SelectSingle(query, parameters);
 
-            if(result.count > 0)
-            {
-                _errors.Add(new Error(1109, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
-                {
-                    Subject = exam.Subject,
-                    Cohort = exam.Cohort,
-                    Name = exam.Name,
-                    Crebo = exam.Crebo
-                }));
-                return true;
-            }
-            return false;
+            return (result != null);
         }
 
         private string FetchExamQuery

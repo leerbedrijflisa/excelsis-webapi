@@ -24,7 +24,7 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        public void AddMark (Patch patch)
+        public void AddMark(Patch patch)
         {
             if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
             {
@@ -70,7 +70,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void ReplaceResult(int id, Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^seen|unseen*$"))
+            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^seen$|^unseen$"))
             {
                 var field = patch.Field.Split('/');
                 var query = @"UPDATE Observations

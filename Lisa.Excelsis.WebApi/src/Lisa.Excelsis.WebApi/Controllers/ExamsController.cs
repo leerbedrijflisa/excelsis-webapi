@@ -79,7 +79,17 @@ namespace Lisa.Excelsis.WebApi
                 return new BadRequestResult();
             }
 
-            _db.ExamExists(exam);
+            if (_db.ExamExists(exam))
+            {
+                errors.Add(new Error(1109, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
+                {
+                    Subject = exam.Subject,
+                    Cohort = exam.Cohort,
+                    Name = exam.Name,
+                    Crebo = exam.Crebo
+                }));
+            }
+
 
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())

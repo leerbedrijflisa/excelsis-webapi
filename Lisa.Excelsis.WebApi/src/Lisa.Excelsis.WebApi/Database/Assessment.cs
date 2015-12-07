@@ -142,7 +142,7 @@ namespace Lisa.Excelsis.WebApi
                 switch (patch.Action)
                 {
                     case "add":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks*$"))
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
                         {
                             if (ObservationExists(Convert.ToInt32(field[1])))
                             {
@@ -159,7 +159,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         break;
                     case "replace":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/result*$"))
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
                         {
                             if (ObservationExists(Convert.ToInt32(field[1])))
                             {
@@ -170,11 +170,11 @@ namespace Lisa.Excelsis.WebApi
                                 _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
                             }
                         }
-                        else if(Regex.IsMatch(patch.Field, @"^studentnumber*$"))
+                        else if(Regex.IsMatch(patch.Field, @"^studentnumber$"))
                         {
                             ReplaceStudent(id, patch);
                         }
-                        else if (Regex.IsMatch(patch.Field, @"^studentname*$"))
+                        else if (Regex.IsMatch(patch.Field, @"^studentname$"))
                         {
                             ReplaceStudent(id, patch);
                         }
@@ -184,7 +184,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         break;
                     case "remove":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks*$"))
+                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
                         {
                             if (ObservationExists(Convert.ToInt32(field[1])))
                             {
