@@ -142,7 +142,7 @@ namespace Lisa.Excelsis.WebApi
             };
             dynamic result = _gateway.SelectSingle(query, parameters);
 
-            return (result != null);
+            return (result.count > 0);
         }
 
         private string FetchExamQuery
