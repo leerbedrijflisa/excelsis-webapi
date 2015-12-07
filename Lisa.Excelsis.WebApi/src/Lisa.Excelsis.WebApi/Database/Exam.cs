@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -96,14 +97,51 @@ namespace Lisa.Excelsis.WebApi
             var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
                         VALUES (@Name, @Cohort, @Crebo, @subject);";
             return _gateway.Insert(query, exam);
-           
         }
 
+        public void PatchExam(IEnumerable<Patch> patches, int id)
+        {
+            _errors = new List<Error>();
+            foreach (Patch patch in patches)
+            {
+                patch.Action.ToLower();
+                patch.Field.ToLower();
+                var field = patch.Field.Split('/');
+
+                switch (patch.Action)
+                {
+                    case "add":
+                        if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria*$"))
+                        {
+                            if (CategoryExists(id, Convert.ToInt32(field[1])))
+                            {
+                                AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                            }
+                            else
+                            {
+                                _errors.Add(new Error(0, string.Format("The category with id '{0}' doesn't exist.", Convert.ToInt32(field[1])), new { id = Convert.ToInt32(field[1]) }));
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                        }
+                        break;
+                    case "replace":
+                        break;
+                    case "remove":
+                        break;
+                    default:
+                        _errors.Add(new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
+                        break;
+                }
+            }
+        }
         public bool ExamExists(ExamPost exam)
         {
             _errors = new List<Error>();
 
-            exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
+            exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
 
             var query = @"SELECT COUNT(*) as count FROM Exams
                           WHERE Name = @Name
@@ -112,7 +150,7 @@ namespace Lisa.Excelsis.WebApi
                             AND Crebo = @Crebo";
             dynamic result = _gateway.SelectSingle(query, exam);
 
-            if(result.count > 0)
+            if (result.count > 0)
             {
                 _errors.Add(new Error(1201, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
                 {
@@ -124,6 +162,17 @@ namespace Lisa.Excelsis.WebApi
                 return true;
             }
             return false;
+        }
+
+        public bool ExamExists(int id)
+        {
+            _errors = new List<Error>();
+
+            var query = @"SELECT COUNT(*) as count FROM Exams
+                          WHERE Id = @Id";
+            dynamic result = _gateway.SelectSingle(query, new { Id = id });
+
+            return (result.count > 0);
         }
 
         private string FetchExamQuery

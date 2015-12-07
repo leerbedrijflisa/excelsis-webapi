@@ -47,6 +47,50 @@ namespace Lisa.Excelsis.WebApi
 
             return new HttpOkObjectResult(result);
         }
+        [HttpPatch("{id}")]
+        public IActionResult Patch([FromBody] List<Patch> patches, int id)
+        {
+            List<Error> errors = new List<Error>();
+
+            if (!ModelState.IsValid)
+            {
+                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                foreach (var property in modelStateErrors)
+                {
+                    if (property.Exception == null)
+                    {
+                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
+                    }
+                    else
+                    {
+                        return new BadRequestObjectResult(new { property.Exception.Message });
+                    }
+                }
+
+                return new BadRequestObjectResult(errors);
+            }
+
+            if (patches == null)
+            {
+                return new BadRequestResult();
+            }
+
+            if (!_db.ExamExists(id))
+            {
+                return new HttpNotFoundResult();
+            }
+
+            _db.PatchExam(patches, id);
+
+            errors.AddRange(_db.Errors);
+            if (errors != null && errors.Any())
+            {
+                return new BadRequestObjectResult(errors);
+            }
+
+            var result = _db.FetchExam(id);
+            return new HttpOkObjectResult(result);
+        }
 
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)

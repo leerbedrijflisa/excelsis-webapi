@@ -1,4 +1,6 @@
-﻿namespace Lisa.Excelsis.WebApi
+﻿using System.Collections.Generic;
+
+namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
@@ -15,6 +17,17 @@
             };
 
             return _gateway.SelectSingle(query, parameters);
+        }
+
+        public bool CategoryExists(int examId, int id)
+        {
+            _errors = new List<Error>();
+
+            var query = @"SELECT COUNT(*) as count FROM Categories
+                          WHERE ExamId = @ExamId AND Id = @Id";
+            dynamic result = _gateway.SelectSingle(query, new { ExamId = examId, Id = id });
+
+            return (result.count > 0);
         }
     }
 }
