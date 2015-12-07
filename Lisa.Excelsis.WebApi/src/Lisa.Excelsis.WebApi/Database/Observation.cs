@@ -26,7 +26,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void AddMark(Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
+            if (patch.Value != null && Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
             {
                 var field = patch.Field.Split('/');
                 var query = @"INSERT INTO Marks ([Observation_Id], [Name]) 
@@ -40,16 +40,16 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(0, string.Format("The value '{0}' is not a word.", patch.Value), new
+                _errors.Add(new Error(0, string.Format("The value '{0}' is not a word.", patch.Value ?? string.Empty), new
                 {
-                    Value = patch.Value
+                    Value = patch.Value ?? string.Empty
                 }));
             }
         }
 
         public void RemoveMark(Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
+            if (patch.Value != null && Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
             {
                 var query = @"DELETE FROM Marks
                               WHERE Name = @Name";
@@ -61,16 +61,16 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(0, string.Format("The value '{0}' is not a word.", patch.Value), new
+                _errors.Add(new Error(0, string.Format("The value '{0}' is not a word.", patch.Value ?? string.Empty), new
                 {
-                    Value = patch.Value
+                    Value = patch.Value ?? string.Empty
                 }));
             }
         }
 
         public void ReplaceResult(int id, Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^seen$|^unseen$"))
+            if (patch.Value != null && Regex.IsMatch(patch.Value.ToString().ToLower(), @"^seen$|^unseen$"))
             {
                 var field = patch.Field.Split('/');
                 var query = @"UPDATE Observations
@@ -86,9 +86,9 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(0, string.Format("The value '{0}' has to be 'seen' or 'unseen'.", patch.Value), new
+                _errors.Add(new Error(0, string.Format("The value '{0}' has to be 'seen' or 'unseen'.", patch.Value ?? string.Empty), new
                 {
-                    Value = patch.Value
+                    Value = patch.Value ?? string.Empty
                 }));
             }
         }

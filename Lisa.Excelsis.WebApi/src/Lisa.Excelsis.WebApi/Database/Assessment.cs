@@ -135,74 +135,88 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
-                patch.Action.ToLower();
-                patch.Field.ToLower();
-                var field = patch.Field.Split('/');
-
-                switch (patch.Action)
+                if (patch.Action != null)
                 {
-                    case "add":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+                    patch.Action.ToLower();
+                    if (patch.Field != null)
+                    {
+                        patch.Field.ToLower();
+                        var field = patch.Field.Split('/');
+
+                        switch (patch.Action)
                         {
-                            if (ObservationExists(Convert.ToInt32(field[1])))
-                            {
-                                AddMark(patch);
-                            }
-                            else
-                            {
-                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
-                            }
+                            case "add":
+                                if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+                                {
+                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    {
+                                        AddMark(patch);
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", Convert.ToInt32(field[1])), new { observationId = field[1] }));
+                                    }
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                                }
+                                break;
+                            case "replace":
+                                if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
+                                {
+                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    {
+                                        ReplaceResult(id, patch);
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", Convert.ToInt32(field[1])), new { observationId = field[1] }));
+                                    }
+                                }
+                                else if (Regex.IsMatch(patch.Field, @"^studentnumber$"))
+                                {
+                                    ReplaceStudent(id, patch);
+                                }
+                                else if (Regex.IsMatch(patch.Field, @"^studentname$"))
+                                {
+                                    ReplaceStudent(id, patch);
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                                }
+                                break;
+                            case "remove":
+                                if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+                                {
+                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    {
+                                        RemoveMark(patch);
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
+                                    }
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                                }
+                                break;
+                            default:
+                                _errors.Add(new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
+                                break;
                         }
-                        else
-                        {
-                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
-                        }
-                        break;
-                    case "replace":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
-                        {
-                            if (ObservationExists(Convert.ToInt32(field[1])))
-                            {
-                                ReplaceResult(id, patch);
-                            }
-                            else
-                            {
-                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
-                            }
-                        }
-                        else if(Regex.IsMatch(patch.Field, @"^studentnumber$"))
-                        {
-                            ReplaceStudent(id, patch);
-                        }
-                        else if (Regex.IsMatch(patch.Field, @"^studentname$"))
-                        {
-                            ReplaceStudent(id, patch);
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
-                        }
-                        break;
-                    case "remove":
-                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
-                        {
-                            if (ObservationExists(Convert.ToInt32(field[1])))
-                            {
-                                RemoveMark(patch);
-                            }
-                            else
-                            {
-                                _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
-                            }
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
-                        }
-                        break;
-                    default:
-                        _errors.Add( new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
-                        break;
+                    }
+                    else
+                    {
+                        _errors.Add(new Error(1111, "The field 'field' is required.", new { field = "field" }));
+                    }
+                }
+                else
+                {
+                    _errors.Add(new Error(1111, "The field 'action' is required.", new { field = "action" }));
                 }
             }
         }
