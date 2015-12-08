@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -17,6 +19,69 @@ namespace Lisa.Excelsis.WebApi
             };
 
             return _gateway.SelectSingle(query, parameters);
+        }
+
+        public void AddCategory(int examId, Patch patch)
+        {
+            _errors = new List<Error>();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
+            if (patch.Value != null)
+            {
+
+                foreach (var propPatch in (JObject)patch.Value)
+                {
+                    if (Regex.IsMatch(propPatch.Key.ToLower(), @"^order")
+                     || Regex.IsMatch(propPatch.Key.ToLower(), @"^name"))
+                    {
+                        dict.Add(propPatch.Key.ToLower(), propPatch.Value.ToString());
+                    }
+                    else
+                    {
+                        _errors.Add(new Error(0, string.Format("The field '{0}' with value '{1}' is not patchable", propPatch.Key, propPatch.Value.ToString()), new
+                        {
+                            Key = propPatch.Key,
+                            Value = propPatch.Value.ToString()
+                        }));
+                    }
+                }
+
+                if (!dict.ContainsKey("order"))
+                {
+                    _errors.Add(new Error(1111, "The field 'Order' is required.", new { field = "Order" }));
+                }
+
+                if (!dict.ContainsKey("name"))
+                {
+                    _errors.Add(new Error(1111, "The field 'name' is required.", new { field = "Name" }));
+                }
+
+                if (_errors.Count > 0)
+                {
+                    return;
+                }
+
+                if (!Regex.IsMatch(dict["order"].ToString(), @"^\d+$"))
+                {
+                    _errors.Add(new Error(0, "The field 'order' may only contain digits.", new { field = "order", value = dict["order"].ToString() }));
+                }
+
+                if (_errors.Count == 0)
+                {
+                    var query = @"INSERT INTO Categories ([Order], Name, ExamId)
+                            VALUES (@Order, @Name ,@ExamId);";
+                    var parameters = new
+                    {
+                        Order = dict["order"],
+                        Name = dict["name"],
+                        ExamId = examId
+                    };
+                    _gateway.Insert(query, parameters);
+                }
+            }
+            else
+            {
+                _errors.Add(new Error(1111, "The field 'value' is required", new { field = "value" }));
+            }
         }
 
         public bool CategoryExists(int examId, int id)

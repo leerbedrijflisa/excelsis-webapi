@@ -148,6 +148,10 @@ namespace Lisa.Excelsis.WebApi
                                         _errors.Add(new Error(0, string.Format("The category with id '{0}' doesn't exist.", field[1]), new { CategoryId = field[1] }));
                                     }
                                 }
+                                else if (Regex.IsMatch(patch.Field, @"^categories$"))
+                                {
+                                    AddCategory(id, patch);
+                                }
                                 else
                                 {
                                     _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
