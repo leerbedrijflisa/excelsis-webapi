@@ -174,11 +174,7 @@ namespace Lisa.Excelsis.WebApi
                                         _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", Convert.ToInt32(field[1])), new { observationId = field[1] }));
                                     }
                                 }
-                                else if (Regex.IsMatch(patch.Field, @"^studentnumber$"))
-                                {
-                                    ReplaceStudent(id, patch);
-                                }
-                                else if (Regex.IsMatch(patch.Field, @"^studentname$"))
+                                else if (Regex.IsMatch(patch.Field, @"^(studentnumber|studentname)$"))
                                 {
                                     ReplaceStudent(id, patch);
                                 }
