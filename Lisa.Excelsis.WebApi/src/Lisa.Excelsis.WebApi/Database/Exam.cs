@@ -137,7 +137,7 @@ namespace Lisa.Excelsis.WebApi
                         switch (patch.Action)
                         {
                             case "add":
-                                if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria*$"))
+                                if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                 {
                                     if (CategoryExists(id, Convert.ToInt32(field[1])))
                                     {
