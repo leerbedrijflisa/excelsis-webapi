@@ -1,48 +1,74 @@
-﻿using System.Collections.Generic;
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
-        public object AddCriterion(int id, CriterionPost criterion)
+        public void AddCriterion(int id, int categoryId, Patch patch)
         {
             _errors = new List<Error>();
+            CriterionPost criterion = new CriterionPost();
+            Dictionary<string, string> dict = new Dictionary<string, string>();
 
-            var criterionLower = criterion.Weight.ToLower();
-            if (criterionLower != "fail" && criterionLower != "pass" && criterionLower != "excellent")
+            foreach (var propPatch in (JObject)patch.Value)
             {
-                _errors.Add(new Error(1105, string.Format("The weight '{0}' can only contain 'pass', 'excellent' or 'fail'.", criterionLower), new { weight = criterionLower }));
-            }
-
-            dynamic category = FetchCategory(criterion.CategoryId, id);
-
-            if (category == null)
-            {
-                _errors.Add(new Error(1104, string.Format("The category with id '{0}' was not found by exam id {1}.",criterion.CategoryId, id), new
+                if ((propPatch.Key.ToLower() == "order" && Regex.IsMatch(propPatch.Value.ToString(), @"^\d+$"))
+                 || (propPatch.Key.ToLower() == "value" && Regex.IsMatch(propPatch.Value.ToString(), @"^fail$|^pass$|^excellent$"))
+                 || (propPatch.Key.ToLower() == "title")
+                 || (propPatch.Key.ToLower() == "description"))
                 {
-                    CategoryId = criterion.CategoryId,
-                    ExamId = id
-                }));
+                    dict.Add(propPatch.Key.ToLower(), propPatch.Value.ToString());
+                }
+                else
+                {
+                    _errors.Add(new Error(0, string.Format("The field '{0}' with value '{1}' is not patchable", propPatch.Key, propPatch.Value.ToString()), new
+                    {
+                        Key = propPatch.Key,
+                        Value = propPatch.Value.ToString()
+                    }));
+                }
             }
+
+            if (!dict.ContainsKey("order"))
+            {
+                _errors.Add(new Error(1111, "The field 'Order' is required.", new { field = "Order" }));
+            }
+
+            if (!dict.ContainsKey("title"))
+            {
+                _errors.Add(new Error(1111, "The field 'Title' is required.", new { field = "Title" }));
+            }
+
+            if (!dict.ContainsKey("description"))
+            {
+                _errors.Add(new Error(1111, "The field 'Description' is required.", new { field = "Description" }));
+            }
+
+            if (!dict.ContainsKey("value"))
+            {
+                _errors.Add(new Error(1111, "The field 'Value' is required.", new { field = "Value" }));
+            }
+
 
             if (_errors.Count == 0)
             {
-                var query = @"INSERT INTO Criteria ([Order], Title, [Description], Weight, ExamId, CategoryId)
-                          VALUES (@Order, @Title ,@Description, @Weight, @ExamId, @CategoryId);";
-
+                var query = @"INSERT INTO Criteria ([Order], Title, [Description], Value, ExamId, CategoryId)
+                            VALUES (@Order, @Title ,@Description, @Value, @ExamId, @CategoryId);";
+                
                 var parameters = new
                 {
-                    Order = criterion.Order,
-                    Title = criterion.Title,
-                    Description = criterion.Description,
-                    Weight = criterion.Weight,
-                    CategoryId = criterion.CategoryId,
+                    Order = dict["order"],
+                    Title = dict["title"],
+                    Description = dict["description"],
+                    Value = dict["value"],
+                    CategoryId = categoryId,
                     ExamId = id
                 };
 
-                return _gateway.Insert(query, parameters);
+                _gateway.Insert(query, parameters);
             }
-            return null;
         }
     }
 }

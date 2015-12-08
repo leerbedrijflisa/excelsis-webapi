@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -106,6 +107,7 @@ namespace Lisa.Excelsis.WebApi
                 return null;
             }
 
+<<<<<<< HEAD
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId)
                         VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId);";
             var parameters = new
@@ -118,12 +120,54 @@ namespace Lisa.Excelsis.WebApi
                 SubjectId = subjectId
             };
             return _gateway.Insert(query, parameters);
+=======
+            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
+                        VALUES (@Name, @Cohort, @Crebo, @subject);";
+            return _gateway.Insert(query, exam);
+>>>>>>> feature/#23-change-criteria-post-to-exam-patch
         }
 
+        public void PatchExam(IEnumerable<Patch> patches, int id)
+        {
+            _errors = new List<Error>();
+            foreach (Patch patch in patches)
+            {
+                patch.Action.ToLower();
+                patch.Field.ToLower();
+                var field = patch.Field.Split('/');
+
+                switch (patch.Action)
+                {
+                    case "add":
+                        if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria*$"))
+                        {
+                            if (CategoryExists(id, Convert.ToInt32(field[1])))
+                            {
+                                AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                            }
+                            else
+                            {
+                                _errors.Add(new Error(0, string.Format("The category with id '{0}' doesn't exist.", Convert.ToInt32(field[1])), new { id = Convert.ToInt32(field[1]) }));
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
+                        }
+                        break;
+                    case "replace":
+                        break;
+                    case "remove":
+                        break;
+                    default:
+                        _errors.Add(new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
+                        break;
+                }
+            }
+        }
         public bool ExamExists(ExamPost exam)
         {
             _errors = new List<Error>();
-
             string subject = CleanParam(exam.Subject);
             string name = CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
@@ -133,6 +177,7 @@ namespace Lisa.Excelsis.WebApi
                             AND SubjectId = @Subject
                             AND Cohort = @Cohort
                             AND Crebo = @Crebo";
+
             var parameters = new
             {
                 Name = name,
@@ -141,6 +186,17 @@ namespace Lisa.Excelsis.WebApi
                 Crebo = exam.Crebo
             };
             dynamic result = _gateway.SelectSingle(query, parameters);
+
+            return (result.count > 0);
+        }
+
+        public bool ExamExists(int id)
+        {
+            _errors = new List<Error>();
+
+            var query = @"SELECT COUNT(*) as count FROM Exams
+                          WHERE Id = @Id";
+            dynamic result = _gateway.SelectSingle(query, new { Id = id });
 
             return (result.count > 0);
         }
