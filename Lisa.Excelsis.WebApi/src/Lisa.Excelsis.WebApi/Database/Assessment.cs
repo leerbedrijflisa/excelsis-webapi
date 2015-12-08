@@ -148,7 +148,7 @@ namespace Lisa.Excelsis.WebApi
                             case "add":
                                 if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
                                 {
-                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    if (ObservationExists(id, Convert.ToInt32(field[1])))
                                     {
                                         AddMark(patch);
                                     }
@@ -165,7 +165,7 @@ namespace Lisa.Excelsis.WebApi
                             case "replace":
                                 if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
                                 {
-                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    if (ObservationExists(id, Convert.ToInt32(field[1])))
                                     {
                                         ReplaceResult(id, patch);
                                     }
@@ -186,7 +186,7 @@ namespace Lisa.Excelsis.WebApi
                             case "remove":
                                 if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
                                 {
-                                    if (ObservationExists(Convert.ToInt32(field[1])))
+                                    if (ObservationExists(id, Convert.ToInt32(field[1])))
                                     {
                                         RemoveMark(patch);
                                     }

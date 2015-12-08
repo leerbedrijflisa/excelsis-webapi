@@ -93,12 +93,13 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        private bool ObservationExists(int id)
+        private bool ObservationExists(int assessmentId, int id)
         {
             var query = @"SELECT COUNT(*) as count FROM Observations
-                          WHERE Id = @id";
+                          WHERE Assessment_Id = @AssessmentId AND Id = @id";
             var parameters = new
             {
+                AssessmentId = assessmentId,
                 Id = id
             };
             dynamic result = _gateway.SelectSingle(query, parameters);
