@@ -196,7 +196,7 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value), new { id = Convert.ToInt32(field[1]) }));
+                                        _errors.Add(new Error(0, string.Format("The observation with id '{0}' does not exist.", patch.Value.ToString()), new { id = Convert.ToInt32(field[1]) }));
                                     }
                                 }
                                 else
@@ -223,7 +223,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ReplaceStudent(int id, Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z\s]*$"))
+            if (Regex.IsMatch(patch.Value.ToString().ToString().ToLower(), @"^[a-zA-Z\s]*$"))
             {
                 var field = patch.Field.Split('/');
                 var query = @"UPDATE Assessments
@@ -231,16 +231,16 @@ namespace Lisa.Excelsis.WebApi
                               WHERE Assessment_Id = @Id";
                 var parameters = new
                 {
-                    value = patch.Value,
+                    value = patch.Value.ToString().ToString(),
                     Id = id
                 };
                 _gateway.Update(query, parameters);
             }
             else
             {
-                _errors.Add(new Error(0, string.Format("The value '{0}' is not alphanumeric.", patch.Value), new
+                _errors.Add(new Error(0, string.Format("The value '{0}' is not alphanumeric.", patch.Value.ToString()), new
                 {
-                    Value = patch.Value
+                    Value = patch.Value.ToString()
                 }));
             }
         }
@@ -260,29 +260,31 @@ namespace Lisa.Excelsis.WebApi
 
         private object SelectAssessors(AssessmentPost assessment)
         {
-            var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
+            if (assessment.Assessors.Count() > 0)
+            {
+                var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
-            var query = @"SELECT Id, UserName
+                var query = @"SELECT Id, UserName
                           FROM Assessors
                           WHERE UserName IN ( " + string.Join(",", assessors) + " ) ";
-            dynamic result = _gateway.SelectMany(query);
+                dynamic result = _gateway.SelectMany(query);
 
-           
-            if (result.Count != assessment.Assessors.Count())
-            {
-                foreach(var assessor in assessment.Assessors)
+
+                if (result.Count != assessment.Assessors.Count())
                 {
-                    if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
+                    foreach (var assessor in assessment.Assessors)
                     {
-                        _errors.Add(new Error(1108, string.Format("The assessor with username '{0}' is not found.", assessor), new
+                        if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
                         {
-                            Assessor = assessor
-                        }));
+                            _errors.Add(new Error(1108, string.Format("The assessor with username '{0}' is not found.", assessor), new { Assessor = assessor }));
+                        }
                     }
                 }
-            }
 
-            return result;
+                return result;
+            }
+            _errors.Add(new Error(1111, "The field 'assessors' required.", new { field = "Assessors"}));
+            return null;
         }
 
         private object InsertAssessment(AssessmentPost assessment, dynamic examResult)

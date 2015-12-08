@@ -34,7 +34,7 @@ namespace Lisa.Excelsis.WebApi
                 var parameters = new
                 {
                     Id = field[1],
-                    Name = patch.Value
+                    Name = patch.Value.ToString()
                 };
                 _gateway.Insert(query, parameters);
             }
@@ -55,7 +55,7 @@ namespace Lisa.Excelsis.WebApi
                               WHERE Name = @Name";
                 var parameters = new
                 {
-                    Name = patch.Value
+                    Name = patch.Value.ToString()
                 };
                 _gateway.Update(query, parameters);
             }
@@ -70,7 +70,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void ReplaceResult(int id, Patch patch)
         {
-            if (patch.Value != null && Regex.IsMatch(patch.Value.ToString().ToLower(), @"^seen$|^unseen$"))
+            if (patch.Value != null && Regex.IsMatch(patch.Value.ToString().ToLower(), @"^(seen|unseen)$"))
             {
                 var field = patch.Field.Split('/');
                 var query = @"UPDATE Observations
@@ -78,7 +78,7 @@ namespace Lisa.Excelsis.WebApi
                               WHERE Assessment_Id = @Id AND Id = @ObservationId";
                 var parameters = new
                 {
-                    value = patch.Value,
+                    value = patch.Value.ToString(),
                     Id = id,
                     ObservationId = field[1]
                 };
