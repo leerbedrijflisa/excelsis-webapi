@@ -14,6 +14,7 @@ CREATE TABLE [dbo].[Exams] (
     [Cohort]        NVARCHAR (MAX) NULL,
     [Crebo]         NVARCHAR (MAX) NULL,
     [Subject]       NVARCHAR (MAX) NULL,
+	[Status]		NVARCHAR (MAX) Null,
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
