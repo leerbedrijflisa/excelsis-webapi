@@ -88,13 +88,21 @@ namespace Lisa.Excelsis.WebApi
                 }));
             }
 
+            if(exam.Status != "draft" && exam.Status != "published")
+            {
+                _errors.Add(new Error(1106, string.Format("The status '{0}' can only contain `draft` or `published`."), new
+                {
+                    Status = exam.Status
+                }));
+            }
+
             if (_errors.Count > 0)
             {
                 return null;
             }
 
-            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject)
-                        VALUES (@Name, @Cohort, @Crebo, @subject);";
+            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject, Status)
+                        VALUES (@Name, @Cohort, @Crebo, @subject, @status);";
             return _gateway.Insert(query, exam);
            
         }
@@ -119,7 +127,8 @@ namespace Lisa.Excelsis.WebApi
                     Subject = exam.Subject,
                     Cohort = exam.Cohort,
                     Name = exam.Name,
-                    Crebo = exam.Crebo
+                    Crebo = exam.Crebo,
+                    Status = exam.Status
                 }));
                 return true;
             }
