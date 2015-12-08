@@ -219,25 +219,32 @@ namespace Lisa.Excelsis.WebApi
 
         private void ReplaceStudent(int id, Patch patch)
         {
-            if (Regex.IsMatch(patch.Value.ToString().ToString().ToLower(), @"^[a-zA-Z\s]*$"))
-            {
-                var field = patch.Field.Split('/');
-                var query = @"UPDATE Assessments
-                              SET " + field + @" = @Value
-                              WHERE Assessment_Id = @Id";
-                var parameters = new
-                {
-                    value = patch.Value.ToString().ToString(),
-                    Id = id
-                };
-                _gateway.Update(query, parameters);
-            }
-            else
-            {
+            if (Regex.IsMatch(patch.Field, @"^studentname$") && !Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z\s]*$"))
+            { 
                 _errors.Add(new Error(0, string.Format("The value '{0}' is not alphanumeric.", patch.Value.ToString()), new
                 {
                     Value = patch.Value.ToString()
                 }));
+            }
+            else if (Regex.IsMatch(patch.Field, @"^studentnumber$") && !Regex.IsMatch(patch.Value.ToString().ToLower(), @"^\d+$"))
+            {
+                _errors.Add(new Error(0, string.Format("The value '{0}' doesn't meet the requirements of 8 digits.", patch.Value.ToString()), new
+                {
+                    Value = patch.Value.ToString()
+                }));
+            }
+
+            if(_errors.Count == 0)
+            {
+                var query = @"UPDATE Assessments
+                              SET " + patch.Field + @" = @Value
+                              WHERE Id = @Id";
+                var parameters = new
+                {
+                    value = patch.Value.ToString(),
+                    Id = id
+                };
+                _gateway.Update(query, parameters);
             }
         }
 
