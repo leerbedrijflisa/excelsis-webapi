@@ -37,22 +37,18 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(0, string.Format("The field '{0}' with value '{1}' is not patchable", propPatch.Key, propPatch.Value.ToString()), new
-                        {
-                            Key = propPatch.Key,
-                            Value = propPatch.Value.ToString()
-                        }));
+                        _errors.Add(new Error(1205, new { field = propPatch.Key }));
                     }
                 }
 
                 if (!dict.ContainsKey("order"))
                 {
-                    _errors.Add(new Error(1111, "The field 'Order' is required.", new { field = "Order" }));
+                    _errors.Add(new Error(1101, new { field = "order" }));
                 }
 
                 if (!dict.ContainsKey("name"))
                 {
-                    _errors.Add(new Error(1111, "The field 'name' is required.", new { field = "Name" }));
+                    _errors.Add(new Error(1101, new { field = "name" }));
                 }
 
                 if (_errors.Count > 0)
@@ -62,7 +58,7 @@ namespace Lisa.Excelsis.WebApi
 
                 if (!Regex.IsMatch(dict["order"].ToString(), @"^\d+$"))
                 {
-                    _errors.Add(new Error(0, "The field 'order' may only contain digits.", new { field = "order", value = dict["order"].ToString() }));
+                    _errors.Add(new Error(1202, new { field = "order", value = dict["order"].ToString() }));
                 }
 
                 if (_errors.Count == 0)
@@ -80,7 +76,7 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(1111, "The field 'value' is required", new { field = "value" }));
+                _errors.Add(new Error(1101, new { field = "value" }));
             }
         }
 

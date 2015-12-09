@@ -47,7 +47,7 @@ namespace Lisa.Excelsis.WebApi
                     {
                         if (error.Exception == null)
                         {
-                            errors.Add(new Error(1111, error.ErrorMessage, new { field = propertyName }));
+                            errors.Add(new Error(1101, new { field = propertyName }));
                         }
                         else
                         {
@@ -61,7 +61,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (patches == null)
             {
-                errors.Add(new Error(1110, "The body is empty.", new { }));
+                errors.Add(new Error(1100));
                 return new BadRequestObjectResult(errors);
             }
 
@@ -100,7 +100,7 @@ namespace Lisa.Excelsis.WebApi
                     {
                         if (error.Exception == null)
                         {
-                            errors.Add(new Error(1111, error.ErrorMessage, new { field = propertyName }));
+                            errors.Add(new Error(1101, new { field = propertyName }));
                         }
                         else
                         {

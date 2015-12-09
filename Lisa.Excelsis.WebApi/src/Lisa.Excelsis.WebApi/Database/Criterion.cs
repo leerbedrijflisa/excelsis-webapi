@@ -10,84 +10,73 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            if (patch.Value != null)
+
+            foreach (var propPatch in (JObject)patch.Value)
             {
-
-                foreach (var propPatch in (JObject)patch.Value)
+                if (Regex.IsMatch(propPatch.Key.ToLower(), @"^order$")
+                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^weight$")
+                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^title$")
+                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^description$"))
                 {
-                    if (Regex.IsMatch(propPatch.Key.ToLower(), @"^order$")
-                     || Regex.IsMatch(propPatch.Key.ToLower(), @"^weight$")
-                     || Regex.IsMatch(propPatch.Key.ToLower(), @"^title$")
-                     || Regex.IsMatch(propPatch.Key.ToLower(), @"^description$"))
-                    {
-                        dict.Add(propPatch.Key.ToLower(), propPatch.Value.ToString());
-                    }
-                    else
-                    {
-                        _errors.Add(new Error(0, string.Format("The field '{0}' with value '{1}' is not patchable", propPatch.Key, propPatch.Value.ToString()), new
-                        {
-                            Key = propPatch.Key,
-                            Value = propPatch.Value.ToString()
-                        }));
-                    }
+                    dict.Add(propPatch.Key.ToLower(), propPatch.Value.ToString());
                 }
-
-                if (!dict.ContainsKey("order"))
+                else
                 {
-                    _errors.Add(new Error(1111, "The field 'Order' is required.", new { field = "Order" }));
-                }
-
-                if (!dict.ContainsKey("title"))
-                {
-                    _errors.Add(new Error(1111, "The field 'Title' is required.", new { field = "Title" }));
-                }
-
-                if (!dict.ContainsKey("description"))
-                {
-                    _errors.Add(new Error(1111, "The field 'Description' is required.", new { field = "Description" }));
-                }
-
-                if (!dict.ContainsKey("weight"))
-                {
-                    _errors.Add(new Error(1111, "The field 'weight' is required.", new { field = "weight" }));
-                }
-
-                if(_errors.Count > 0)
-                {
-                    return;
-                }
-
-                if (!Regex.IsMatch(dict["order"].ToString(), @"^\d+$"))
-                {
-                    _errors.Add(new Error(0, "The field 'order' may only contain digits.", new { field = "order", value = dict["order"].ToString() }));
-                }
-
-                if (!Regex.IsMatch(dict["weight"].ToString(), @"^(fail|pass|excellent)$"))
-                {
-                    _errors.Add(new Error(0, "The field 'weight' may only be 'fail', 'pass' or 'excellent'.", new { field = "weight", value = dict["weight"].ToString() }));
-                }
-
-                if (_errors.Count == 0)
-                {
-                    var query = @"INSERT INTO Criteria ([Order], Title, [Description], weight, ExamId, CategoryId)
-                            VALUES (@Order, @Title ,@Description, @Weight, @ExamId, @CategoryId);";
-
-                    var parameters = new
-                    {
-                        Order = dict["order"],
-                        Title = dict["title"],
-                        Description = dict["description"],
-                        Weight = dict["weight"],
-                        CategoryId = categoryId,
-                        ExamId = id
-                    };
-
-                    _gateway.Insert(query, parameters);
+                    _errors.Add(new Error(1205, new { field = propPatch.Key }));
                 }
             }
-            else
+
+            if (!dict.ContainsKey("order"))
             {
-                _errors.Add(new Error(1111, "The field 'value' is required", new { field = "value" }));
+                _errors.Add(new Error(1101, new { field = "order" }));
+            }
+
+            if (!dict.ContainsKey("title"))
+            {
+                _errors.Add(new Error(1101, new { field = "title" }));
+            }
+
+            if (!dict.ContainsKey("description"))
+            {
+                _errors.Add(new Error(1101, new { field = "description" }));
+            }
+
+            if (!dict.ContainsKey("weight"))
+            {
+                _errors.Add(new Error(1101, new { field = "weight" }));
+            }
+
+            if(_errors.Count > 0)
+            {
+                return;
+            }
+
+            if (!Regex.IsMatch(dict["order"].ToString(), @"^\d+$"))
+            {
+                _errors.Add(new Error(1202, new { field = "order", value = dict["order"].ToString() }));
+            }
+
+            if (!Regex.IsMatch(dict["weight"].ToString(), @"^(fail|pass|excellent)$"))
+            {
+                _errors.Add(new Error(1204, new { field = "weight", value = dict["weight"].ToString(), permitted = new string[] { "fail", "pass", "excellent" } }));
+            }
+
+            if (_errors.Count == 0)
+            {
+                var query = @"INSERT INTO Criteria ([Order], Title, [Description], weight, ExamId, CategoryId)
+                        VALUES (@Order, @Title ,@Description, @Weight, @ExamId, @CategoryId);";
+
+                var parameters = new
+                {
+                    Order = dict["order"],
+                    Title = dict["title"],
+                    Description = dict["description"],
+                    Weight = dict["weight"],
+                    CategoryId = categoryId,
+                    ExamId = id
+                };
+
+                _gateway.Insert(query, parameters);
             }
         }
     }
