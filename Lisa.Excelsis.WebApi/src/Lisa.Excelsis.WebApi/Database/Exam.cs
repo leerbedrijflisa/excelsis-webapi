@@ -70,23 +70,14 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
 
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
-
-            var regexCrebo = new Regex(@"^$|^\d{5}$");
-            if (!regexCrebo.IsMatch(exam.Crebo))
+            if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
             {
-                _errors.Add(new Error(1109, string.Format("The crebo number '{0}' doesn't meet the requirements of 5 digits.", exam.Crebo), new
-                {
-                    Crebo = exam.Crebo
-                }));
+                _errors.Add(new Error(1203, new { field = "crebo", value = exam.Crebo, count = 5 }));
             }
 
-            var regexCohort = new Regex(@"^(19|20)\d{2}$");
-            if (!regexCohort.IsMatch(exam.Cohort))
+            if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
             {
-                _errors.Add(new Error(1110, string.Format("The cohort year '{0}' doesn't meet the requirements of 4 digits.", exam.Cohort), new
-                {
-                    Cohort = exam.Cohort
-                }));
+                _errors.Add(new Error(1203, new { field = "cohort", value = exam.Cohort, count = 2 }));
             }
 
             string subjectId = CleanParam(exam.Subject);
@@ -94,12 +85,12 @@ namespace Lisa.Excelsis.WebApi
 
             if (subjectId == string.Empty)
             {
-                _errors.Add(new Error(1103, "The 'subject' may not be empty.", new { field = "Subject"}));
+                _errors.Add(new Error(1206, new { field = "Subject", value = exam.Subject }));
             }
 
             if (nameId == string.Empty)
             {
-                _errors.Add(new Error(1103, "The 'name' may not be empty.", new { field = "Name" }));
+                _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
             }
 
             if (_errors.Count > 0)
@@ -133,47 +124,53 @@ namespace Lisa.Excelsis.WebApi
                     {
                         patch.Field.ToLower();
                         var field = patch.Field.Split('/');
-
-                        switch (patch.Action)
+                        if (patch.Value != null)
                         {
-                            case "add":
-                                if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
-                                {
-                                    if (CategoryExists(id, Convert.ToInt32(field[1])))
+                            switch (patch.Action)
+                            {
+                                case "add":
+                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                     {
-                                        AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                                        if (CategoryExists(id, Convert.ToInt32(field[1])))
+                                        {
+                                            AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
+                                        }
+                                    }
+                                    else if (Regex.IsMatch(patch.Field, @"^categories$"))
+                                    {
+                                        AddCategory(id, patch);
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(0, string.Format("The category with id '{0}' doesn't exist.", field[1]), new { CategoryId = field[1] }));
+                                        _errors.Add(new Error(1205, new { field = patch.Field }));
                                     }
-                                }
-                                else if (Regex.IsMatch(patch.Field, @"^categories$"))
-                                {
-                                    AddCategory(id, patch);
-                                }
-                                else
-                                {
-                                    _errors.Add(new Error(0, string.Format("The field '{0}' is not patchable.", patch.Field), new { field = patch.Field }));
-                                }
-                                break;
-                            case "replace":
-                                break;
-                            case "remove":
-                                break;
-                            default:
-                                _errors.Add(new Error(0, string.Format("The action '{0}' doesn't exist.", patch.Action), new { action = patch.Action }));
-                                break;
+                                    break;
+                                case "replace":
+                                    break;
+                                case "remove":
+                                    break;
+                                default:
+                                    _errors.Add(new Error(1303, new { value = patch.Action }));
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(1101, new { field = "value" }));
                         }
                     }
                     else
                     {
-                        _errors.Add(new Error(1111, "The field 'field' is required.", new { field = "field" }));
+                        _errors.Add(new Error(1101, new { field = "field" }));
                     }
                 }
                 else
                 {
-                    _errors.Add(new Error(1111, "The field 'action' is required.", new { field = "action" }));
+                    _errors.Add(new Error(1101, new { field = "action" }));
                 }
             }
         }

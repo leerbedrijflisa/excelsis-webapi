@@ -54,16 +54,20 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                var modelStateErrors = ModelState.Values.Where(E => E.Errors.Count > 0).SelectMany(E => E.Errors);
+                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
                 foreach (var property in modelStateErrors)
                 {
-                    if (property.Exception == null)
+                    var propertyName = property.Key;
+                    foreach (var error in property.Value.Errors)
                     {
-                        errors.Add(new Error(1111, property.ErrorMessage, new { }));
-                    }
-                    else
-                    {
-                        return new BadRequestObjectResult(new { property.Exception.Message });
+                        if (error.Exception == null)
+                        {
+                            errors.Add(new Error(1101, new { field = propertyName }));
+                        }
+                        else
+                        {
+                            return new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
+                        }
                     }
                 }
 
@@ -107,7 +111,7 @@ namespace Lisa.Excelsis.WebApi
                     {
                         if (error.Exception == null)
                         {
-                            errors.Add(new Error(1111, error.ErrorMessage, new { field = propertyName }));
+                            errors.Add(new Error(1101, new { field = propertyName }));
                         }
                         else
                         {
@@ -126,15 +130,8 @@ namespace Lisa.Excelsis.WebApi
 
             if (_db.ExamExists(exam))
             {
-                errors.Add(new Error(1109, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
-                {
-                    Subject = exam.Subject,
-                    Cohort = exam.Cohort,
-                    Name = exam.Name,
-                    Crebo = exam.Crebo
-                }));
+                errors.Add(new Error(1301, new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name, crebo = exam.Crebo }));
             }
-
 
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
