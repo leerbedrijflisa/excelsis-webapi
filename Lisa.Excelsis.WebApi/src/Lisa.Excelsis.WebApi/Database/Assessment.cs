@@ -51,7 +51,9 @@ namespace Lisa.Excelsis.WebApi
 
         public IEnumerable<object> FetchAssessments(Filter filter)
         {
-            List<string> queryList = new List<string>();
+            bool multipleAssessors = false;
+            List<string> assessmentQueryList = new List<string>();
+            string assessorQuery = string.Empty;
 
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
@@ -61,31 +63,61 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id";
 
-            if (filter.Assessor != null)
+            if (filter.Assessors != null)
             {
-                queryList.Add( @" Assessments.Id IN(
-                                      SELECT Assessments.Id
-                                      FROM Assessments
-                                      LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                                      LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                                      LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                                      WHERE Assessors.UserName = @Assessor
-                                  )");
+                if (Regex.IsMatch(filter.Assessors, @"^[a-zA-Z]*$"))
+                {
+                    assessorQuery = @" Assessors.UserName = '" + filter.Assessors + "'";
+                }
+                else if(Regex.IsMatch(filter.Assessors, @"^([ |A-Za-z]+)$"))
+                {
+                    string assessors = string.Join(",", Regex.Split(filter.Assessors, @" "));
+                    assessorQuery = @" Assessors.UserName IN('" + assessors.Replace(",", "','") + "')";
+                    multipleAssessors = true;
+                }
+                else if(Regex.IsMatch(filter.Assessors, @"^([,|A-Za-z]+)$"))
+                {
+                    assessorQuery = @" Assessors.UserName IN('" + filter.Assessors.Replace(",", "','") + "')";
+                }
+                assessmentQueryList.Add(@" Assessments.Id IN(
+                                              SELECT Assessments.Id
+                                              FROM Assessments
+                                              LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                                              LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                                              LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                                              WHERE " + assessorQuery + ")");
             }
 
-            if (filter.StudentNumber != null)
+            if (filter.Student != null)
             {
-                queryList.Add(" Assessments.StudentNumber = @StudentNumber");
+                assessmentQueryList.Add(" Assessments.StudentNumber = @StudentNumber");
             }
 
             var parameters = new
             {
-                Assessor = filter.Assessor ?? string.Empty,
-                StudentNumber = filter.StudentNumber ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty,
+                StudentNumber = filter.Student ?? string.Empty
             };
-
-            query += (queryList.Count > 0) ? " WHERE " + string.Join(" AND ", queryList) : string.Join(" AND ", queryList);
-            return _gateway.SelectMany(query, parameters);
+           
+            query += (assessmentQueryList.Count > 0) ? " WHERE " + string.Join(" AND ", assessmentQueryList) : string.Join(" AND ", assessmentQueryList);
+            dynamic results = _gateway.SelectMany(query, parameters);
+            List<dynamic> newResults = new List<dynamic>();
+            if (multipleAssessors)
+            {
+                string[] assessorString = filter.Assessors.Split(' ');
+                foreach (var assessment in results)
+                {
+                    int count = 0;
+                    foreach(var assessor in assessment.Assessors)
+                    {
+                        int pos = Array.IndexOf(assessorString, assessor.UserName);
+                        if (pos > -1) count++;
+                    }
+                    if (count == assessorString.Count()) newResults.Add(assessment);
+                }
+                return newResults;
+            }
+            return results;
         }
 
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)

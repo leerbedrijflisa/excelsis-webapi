@@ -43,7 +43,7 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Assessor = filter.Assessor ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
@@ -59,7 +59,7 @@ namespace Lisa.Excelsis.WebApi
             var parameters = new {
                 Subject = subject,
                 Cohort = cohort,
-                Assessor = filter.Assessor ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
