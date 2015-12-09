@@ -136,7 +136,7 @@ namespace Lisa.Excelsis.WebApi
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var id = _db.AddExam(exam);
@@ -144,7 +144,7 @@ namespace Lisa.Excelsis.WebApi
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var result = _db.FetchExam(id);

@@ -62,7 +62,7 @@ namespace Lisa.Excelsis.WebApi
             if (patches == null)
             {
                 errors.Add(new Error(1100));
-                return new BadRequestObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             if (!_db.AssessmentExists(id))
@@ -75,7 +75,7 @@ namespace Lisa.Excelsis.WebApi
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var result = _db.FetchAssessment(id);
@@ -128,7 +128,7 @@ namespace Lisa.Excelsis.WebApi
             errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
             {
-                return new BadRequestObjectResult(errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var result = _db.FetchAssessment(id);
