@@ -102,13 +102,21 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1103, "The 'name' may not be empty.", new { field = "Name" }));
             }
 
+            if(exam.Status != "draft" && exam.Status != "published")
+            {
+                _errors.Add(new Error(1106, string.Format("The status '{0}' can only contain 'draft' or 'published'.", exam.Status), new
+                {
+                    Status = exam.Status
+                }));
+            }
+
             if (_errors.Count > 0)
             {
                 return null;
             }
 
-            var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId)
-                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId);";
+            var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, @Status);";
             var parameters = new
             {
                 Name = exam.Name,
@@ -116,7 +124,8 @@ namespace Lisa.Excelsis.WebApi
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo,
                 Subject = exam.Subject,
-                SubjectId = subjectId
+                SubjectId = subjectId,
+                Status = exam.Status
             };
             return _gateway.Insert(query, parameters);
         }
@@ -217,7 +226,7 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Exams.Id AS [@], Exams.Id, Exams.Name, Cohort, Crebo, Subject,
+                return @"SELECT Exams.Id AS [@], Exams.Id, Exams.Name, Cohort, Crebo, Subject, Status,
                                 Categories.Id as #Categories_@Id,
                                 Categories.Id as #Categories_Id,
                                 Categories.[Order] as #Categories_Order,
@@ -238,7 +247,7 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Id, Name, Cohort, Crebo, Subject
+                return @"SELECT Id, Name, Cohort, Crebo, Subject, Status
                           FROM Exams
                           LEFT JOIN (	
 	                          SELECT TOP 10 Exam_Id, MAX(Assessments.Assessed) as Assessed
