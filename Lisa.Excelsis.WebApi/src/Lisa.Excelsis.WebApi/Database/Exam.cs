@@ -95,10 +95,7 @@ namespace Lisa.Excelsis.WebApi
 
             if(exam.Status != "draft" && exam.Status != "published")
             {
-                _errors.Add(new Error(1106, string.Format("The status '{0}' can only contain 'draft' or 'published'.", exam.Status), new
-                {
-                    Status = exam.Status
-                }));
+                _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
             }
 
             if (_errors.Count > 0)
