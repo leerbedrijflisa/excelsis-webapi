@@ -34,6 +34,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 return null;
             }
+
             foreach(dynamic category in result.Categories)
             {
                 foreach(dynamic observation in category.Observations)
@@ -287,7 +288,7 @@ namespace Lisa.Excelsis.WebApi
 
         private object SelectAssessors(AssessmentPost assessment)
         {
-            if (assessment.Assessors.Count() > 0)
+            if (assessment.Assessors.Any())
             {
                 var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 

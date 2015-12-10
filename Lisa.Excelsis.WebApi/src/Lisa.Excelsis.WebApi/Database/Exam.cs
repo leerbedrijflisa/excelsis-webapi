@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -68,8 +69,10 @@ namespace Lisa.Excelsis.WebApi
         public object AddExam(ExamPost exam)
         {
             _errors = new List<Error>();
-
+            string subjectId = CleanParam(exam.Subject);
+            string nameId = CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
+
             if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
             {
                 _errors.Add(new Error(1203, new { field = "crebo", value = exam.Crebo, count = 5 }));
@@ -79,9 +82,6 @@ namespace Lisa.Excelsis.WebApi
             {
                 _errors.Add(new Error(1203, new { field = "cohort", value = exam.Cohort, count = 2 }));
             }
-
-            string subjectId = CleanParam(exam.Subject);
-            string nameId = CleanParam(exam.Name);
 
             if (subjectId == string.Empty)
             {
@@ -93,12 +93,12 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
             }
 
-            if(exam.Status != "draft" && exam.Status != "published")
+            if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
             {
                 _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
             }
 
-            if (_errors.Count > 0)
+            if (_errors.Any())
             {
                 return null;
             }
@@ -182,11 +182,6 @@ namespace Lisa.Excelsis.WebApi
         }
         public bool ExamExists(ExamPost exam)
         {
-            _errors = new List<Error>();
-            string subject = CleanParam(exam.Subject);
-            string name = CleanParam(exam.Name);
-            exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
-
             var query = @"SELECT COUNT(*) as count FROM Exams
                           WHERE NameId = @Name
                             AND SubjectId = @Subject
@@ -195,10 +190,10 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Name = name,
-                Subject = subject,
+                Name = CleanParam(exam.Name),
+                Subject = CleanParam(exam.Subject),
                 Cohort = exam.Cohort,
-                Crebo = exam.Crebo
+                Crebo = exam.Crebo ?? string.Empty
             };
             dynamic result = _gateway.SelectSingle(query, parameters);
 
@@ -207,8 +202,6 @@ namespace Lisa.Excelsis.WebApi
 
         public bool ExamExists(int id)
         {
-            _errors = new List<Error>();
-
             var query = @"SELECT COUNT(*) as count FROM Exams
                           WHERE Id = @Id";
             dynamic result = _gateway.SelectSingle(query, new { Id = id });

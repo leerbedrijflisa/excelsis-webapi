@@ -1,5 +1,5 @@
-﻿using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -10,43 +10,14 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
             Dictionary<string, string> dict = new Dictionary<string, string>();
+            var fields = new List<string>() { "order", "weight", "title", "description" };
+            var regex = @"^order$|^weight$|^title$|^description$";
 
-            foreach (var propPatch in (JObject)patch.Value)
-            {
-                if (Regex.IsMatch(propPatch.Key.ToLower(), @"^order$")
-                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^weight$")
-                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^title$")
-                    || Regex.IsMatch(propPatch.Key.ToLower(), @"^description$"))
-                {
-                    dict.Add(propPatch.Key.ToLower(), propPatch.Value.ToString());
-                }
-                else
-                {
-                    _errors.Add(new Error(1205, new { field = propPatch.Key }));
-                }
-            }
+            dict = IsPatchable(patch, fields, regex);
 
-            if (!dict.ContainsKey("order"))
-            {
-                _errors.Add(new Error(1101, new { field = "order" }));
-            }
+            FieldsExists(dict, fields);
 
-            if (!dict.ContainsKey("title"))
-            {
-                _errors.Add(new Error(1101, new { field = "title" }));
-            }
-
-            if (!dict.ContainsKey("description"))
-            {
-                _errors.Add(new Error(1101, new { field = "description" }));
-            }
-
-            if (!dict.ContainsKey("weight"))
-            {
-                _errors.Add(new Error(1101, new { field = "weight" }));
-            }
-
-            if(_errors.Count > 0)
+            if (_errors.Any())
             {
                 return;
             }
@@ -61,7 +32,7 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1204, new { field = "weight", value = dict["weight"].ToString(), permitted = new string[] { "fail", "pass", "excellent" } }));
             }
 
-            if (_errors.Count == 0)
+            if (!_errors.Any())
             {
                 var query = @"INSERT INTO Criteria ([Order], Title, [Description], weight, ExamId, CategoryId)
                         VALUES (@Order, @Title ,@Description, @Weight, @ExamId, @CategoryId);";

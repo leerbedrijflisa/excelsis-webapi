@@ -133,7 +133,6 @@ namespace Lisa.Excelsis.WebApi
                 errors.Add(new Error(1301, new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name, crebo = exam.Crebo }));
             }
 
-            errors.AddRange(_db.Errors);
             if (errors != null && errors.Any())
             {
                 return new UnprocessableEntityObjectResult(errors);
