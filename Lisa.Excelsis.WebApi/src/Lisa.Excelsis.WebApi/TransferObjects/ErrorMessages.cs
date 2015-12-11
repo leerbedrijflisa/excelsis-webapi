@@ -26,7 +26,7 @@ namespace Lisa.Excelsis.WebApi
                         message = string.Format("The field '{0}' with value '{1}' can only contain numbers.", obj.field, obj.value);
                     break;
                 case 1203:
-                        message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of '{2}' digits.", obj.field, obj.value, obj.count);
+                        message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digits.", obj.field, obj.value, obj.count);
                     break;
                 case 1204:
                         List<string> permitted = new List<string>(obj.permitted);
@@ -38,6 +38,9 @@ namespace Lisa.Excelsis.WebApi
                     break;
                 case 1206:
                         message = string.Format("The field '{0}' with value '{1}' can only contain letters, numbers, spaces and dots.", obj.field, obj.value);
+                    break;
+                case 1207:
+                        message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digits between the range {3} and {4}.", obj.field, obj.value, obj.count, obj.min, obj.max);
                     break;
                 case 1300:
                         message = string.Format("The field '{0}' with id '{1}' doesn't exists.", obj.field, obj.value);

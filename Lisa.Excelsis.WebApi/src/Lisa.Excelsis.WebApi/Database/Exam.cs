@@ -80,7 +80,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
             {
-                _errors.Add(new Error(1203, new { field = "cohort", value = exam.Cohort, count = 2 }));
+                _errors.Add(new Error(1207, new { field = "cohort", value = exam.Cohort, count = 4 , min = 1900, max = 2099 }));
             }
 
             if (subjectId == string.Empty)
