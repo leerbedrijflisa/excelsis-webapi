@@ -46,16 +46,24 @@ namespace Lisa.Excelsis.WebApi
         public Dictionary<string, string> IsPatchable (Patch patch, List<string> fields, string regex)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
-            foreach (var property in (JObject)patch.Value)
+            var value = patch.Value as JObject;
+            if (value != null)
             {
-                if (Regex.IsMatch(property.Key.ToLower(), regex))
+                foreach (var property in value)
                 {
-                    dict.Add(property.Key.ToLower(), property.Value.ToString());
+                    if (Regex.IsMatch(property.Key.ToLower(), regex))
+                    {
+                        dict.Add(property.Key.ToLower(), property.Value.ToString());
+                    }
+                    else
+                    {
+                        _errors.Add(new Error(1205, new { field = property.Key }));
+                    }
                 }
-                else
-                {
-                    _errors.Add(new Error(1205, new { field = property.Key }));
-                }
+            }
+            else
+            {
+                _errors.Add(new Error(1208, new { field = "value", value = patch.Value, type = "object" }));
             }
             return dict;
         }
@@ -66,7 +74,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (!dict.ContainsKey(field))
                 {
-                    _errors.Add(new Error(1101, new { field = field }));
+                    _errors.Add(new Error(1102, new { subField = field, field = "value", type = "object"}));
                 }
             }
         }

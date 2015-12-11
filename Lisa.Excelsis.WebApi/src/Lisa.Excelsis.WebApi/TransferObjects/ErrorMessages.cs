@@ -16,6 +16,9 @@ namespace Lisa.Excelsis.WebApi
                 case 1101:
                         message = string.Format("Field '{0}' is required.", obj.field);
                     break;
+                case 1102:
+                        message = string.Format("Subfield '{0}' is required in the {1} named '{2}'.", obj.subField, obj.type, obj.field);
+                    break;
                 case 1200:
                         message = string.Format("The field '{0}' with value '{1}' can only contain letters.", obj.field, obj.value);
                     break;
@@ -41,6 +44,9 @@ namespace Lisa.Excelsis.WebApi
                     break;
                 case 1207:
                         message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digits between the range {3} and {4}.", obj.field, obj.value, obj.count, obj.min, obj.max);
+                    break;
+                case 1208:
+                        message = string.Format("The field '{0}' with value '{1}' must be an {2}.", obj.field, obj.value, obj.type);
                     break;
                 case 1300:
                         message = string.Format("The field '{0}' with id '{1}' doesn't exists.", obj.field, obj.value);
