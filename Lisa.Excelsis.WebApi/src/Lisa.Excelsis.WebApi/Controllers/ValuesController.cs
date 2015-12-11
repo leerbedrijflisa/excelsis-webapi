@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi.Controllers
 {

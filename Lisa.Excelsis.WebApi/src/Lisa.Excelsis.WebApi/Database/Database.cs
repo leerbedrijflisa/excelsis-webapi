@@ -3,6 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Newtonsoft.Json.Linq;
+using Microsoft.AspNet.Mvc.ModelBinding;
+using System.Linq;
+using Newtonsoft.Json;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -18,6 +21,13 @@ namespace Lisa.Excelsis.WebApi
             get
             {
                 return _errors;
+            }
+        }
+        public string FatalError
+        {
+            get
+            {
+                return _fatalError;
             }
         }
 
@@ -61,7 +71,34 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
+        public bool GetModelStateErrors(ModelStateDictionary ModelState)
+        {
+            bool fatalError = false;
+            _errors = new List<Error>();
+            string fatalErrorMessage = string.Empty;
+            var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
+            foreach (var property in modelStateErrors)
+            {
+                var propertyName = property.Key;
+                foreach (var error in property.Value.Errors)
+                {
+                    if (error.Exception == null)
+                    {
+                        _errors.Add(new Error(1101, new { field = propertyName }));
+                    }
+                    else
+                    {
+                        fatalError = true;
+                        _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                    }
+                }
+            }
+            return (fatalError);
+        }
+
         private List<Error> _errors { get; set; }
+
+        private string _fatalError { get; set; }
 
         private Gateway _gateway = new Gateway(Environment.GetEnvironmentVariable("ConnectionString"));
     }

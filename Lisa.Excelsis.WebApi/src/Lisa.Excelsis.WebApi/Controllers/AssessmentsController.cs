@@ -39,24 +39,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
-                foreach (var property in modelStateErrors)
-                {
-                    var propertyName = property.Key;
-                    foreach (var error in property.Value.Errors)
-                    {
-                        if (error.Exception == null)
-                        {
-                            errors.Add(new Error(1101, new { field = propertyName }));
-                        }
-                        else
-                        {
-                            return new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
-                        }
-                    }
-                }
-
-                return new BadRequestObjectResult(errors);
+                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
             }
 
             if (patches == null)
@@ -92,24 +75,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
-                foreach (var property in modelStateErrors)
-                {
-                    var propertyName = property.Key;
-                    foreach (var error in property.Value.Errors)
-                    {
-                        if (error.Exception == null)
-                        {
-                            errors.Add(new Error(1101, new { field = propertyName }));
-                        }
-                        else
-                        {
-                            return new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
-                        }
-                    }
-                }
-
-                return new BadRequestObjectResult(errors);
+                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
             }
 
             if (assessment == null)
