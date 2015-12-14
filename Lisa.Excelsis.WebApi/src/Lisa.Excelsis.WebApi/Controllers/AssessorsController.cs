@@ -11,11 +11,6 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get()
         {
             IEnumerable<object> result = _db.FetchAssessors();
-            if (result.Count() == 0)
-            {
-                return new HttpNotFoundResult();
-            }
-
             return new HttpOkObjectResult(result);
         }
 

@@ -83,7 +83,6 @@ namespace Lisa.Excelsis.WebApi
         {
             bool fatalError = false;
             _errors = new List<Error>();
-            string fatalErrorMessage = string.Empty;
             var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
             foreach (var property in modelStateErrors)
             {
@@ -96,8 +95,16 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        fatalError = true;
-                        _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                        if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                        {
+                            string[] errorString = error.Exception.Message.Split('\'');
+                            _errors.Add(new Error(1103, new { field = errorString[1] } ));
+                        }
+                        else
+                        {
+                            fatalError = true;
+                            _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                        }
                     }
                 }
             }

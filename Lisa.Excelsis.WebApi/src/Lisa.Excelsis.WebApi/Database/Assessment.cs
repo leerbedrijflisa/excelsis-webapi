@@ -288,7 +288,7 @@ namespace Lisa.Excelsis.WebApi
 
         private object SelectAssessors(AssessmentPost assessment)
         {
-            if (assessment.Assessors.Any())
+            if (assessment.Assessors != null)
             {
                 var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
