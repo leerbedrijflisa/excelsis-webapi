@@ -86,19 +86,18 @@ namespace Lisa.Excelsis.WebApi
             var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
             foreach (var property in modelStateErrors)
             {
-                var propertyName = property.Key;
                 foreach (var error in property.Value.Errors)
                 {
                     if (error.Exception == null)
                     {
-                        _errors.Add(new Error(1101, new { field = propertyName }));
+                        _errors.Add(new Error(1101, new { field = property.Key }));
                     }
                     else
                     {
                         if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
                         {
                             string[] errorString = error.Exception.Message.Split('\'');
-                            _errors.Add(new Error(1103, new { field = errorString[1] } ));
+                            _errors.Add(new Error(1103, new { field = property.Key } ));
                         }
                         else
                         {
