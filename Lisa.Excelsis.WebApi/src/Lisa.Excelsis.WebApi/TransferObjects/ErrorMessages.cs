@@ -20,7 +20,7 @@ namespace Lisa.Excelsis.WebApi
                         message = string.Format("Subfield '{0}' is required in the {1} named '{2}'.", obj.subField, obj.type, obj.field);
                     break;
                 case 1103:
-                        message = string.Format("Field '{0}' is not allowed in the json.", obj.field);
+                        message = string.Format("Field '{0}' is not allowed in the request body.", obj.field);
                     break;
                 case 1200:
                         message = string.Format("The field '{0}' with value '{1}' can only contain letters.", obj.field, obj.value);

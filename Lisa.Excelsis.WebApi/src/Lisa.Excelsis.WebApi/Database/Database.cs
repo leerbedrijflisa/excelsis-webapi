@@ -96,7 +96,6 @@ namespace Lisa.Excelsis.WebApi
                     {
                         if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
                         {
-                            string[] errorString = error.Exception.Message.Split('\'');
                             _errors.Add(new Error(1103, new { field = property.Key } ));
                         }
                         else
