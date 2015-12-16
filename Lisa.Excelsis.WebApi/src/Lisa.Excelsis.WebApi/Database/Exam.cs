@@ -1,4 +1,6 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -8,8 +10,8 @@ namespace Lisa.Excelsis.WebApi
         public object FetchExam(string subject, string name, string cohort)
         {
             var query = FetchExamQuery +
-                        @" WHERE Exams.Name = @Name
-                             AND Exams.Subject = @Subject
+                        @" WHERE Exams.NameId = @Name
+                             AND Exams.SubjectId = @Subject
                              AND Exams.Cohort = @Cohort
                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
 
@@ -42,7 +44,7 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Assessor = filter.Assessor ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
@@ -51,14 +53,14 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
         {
             var query = FetchExamsQuery +
-                        @" WHERE Subject = @Subject 
+                        @" WHERE SubjectId = @Subject 
                              AND Cohort = @Cohort
                            ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
 
             var parameters = new {
                 Subject = subject,
                 Cohort = cohort,
-                Assessor = filter.Assessor ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
@@ -67,63 +69,138 @@ namespace Lisa.Excelsis.WebApi
         public object AddExam(ExamPost exam)
         {
             _errors = new List<Error>();
-
+            string subjectId = CleanParam(exam.Subject);
+            string nameId = CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
 
-            var regexCrebo = new Regex(@"^$|^\d{5}$");
-            if (!regexCrebo.IsMatch(exam.Crebo))
+            if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
             {
-                _errors.Add(new Error(1106, string.Format("The crebo number '{0}' doesn't meet the requirements of 5 digits", exam.Crebo), new
-                {
-                    Crebo = exam.Crebo
-                }));
+                _errors.Add(new Error(1203, new { field = "crebo", value = exam.Crebo, count = 5 }));
             }
 
-            var regexCohort = new Regex(@"^(19|20)\d{2}$");
-            if (!regexCohort.IsMatch(exam.Cohort))
+            if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
             {
-                _errors.Add(new Error(1107, string.Format("The cohort year '{0}' doesn't meet the requirements of 4 digits", exam.Cohort), new
-                {
-                    Cohort = exam.Cohort
-                }));
+                _errors.Add(new Error(1207, new { field = "cohort", value = exam.Cohort, count = 4 , min = 1900, max = 2099 }));
             }
 
-            if (_errors.Count > 0)
+            if (subjectId == string.Empty)
+            {
+                _errors.Add(new Error(1206, new { field = "Subject", value = exam.Subject }));
+            }
+
+            if (nameId == string.Empty)
+            {
+                _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
+            }
+
+            if (_errors.Any())
             {
                 return null;
             }
 
-            var query = @"INSERT INTO Exams (Name, Cohort, Crebo, Subject, Status)
-                        VALUES (@Name, @Cohort, @Crebo, @subject, 'draft')";
-            return _gateway.Insert(query, exam);
-           
+            var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, 'draft');";
+            var parameters = new
+            {
+                Name = exam.Name,
+                NameId = nameId,
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo,
+                Subject = exam.Subject,
+                SubjectId = subjectId
+            };
+            return _gateway.Insert(query, parameters);
         }
 
-        public bool ExamExists(ExamPost exam)
+        public void PatchExam(IEnumerable<Patch> patches, int id)
         {
             _errors = new List<Error>();
-
-            exam.Crebo = (exam.Crebo == null)? string.Empty : exam.Crebo;
-
+            foreach (Patch patch in patches)
+            {
+                if(patch.Action != null)
+                {
+                    patch.Action.ToLower();
+                    if (patch.Field != null)
+                    {
+                        patch.Field.ToLower();
+                        var field = patch.Field.Split('/');
+                        if (patch.Value != null)
+                        {
+                            switch (patch.Action)
+                            {
+                                case "add":
+                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
+                                    {
+                                        if (CategoryExists(id, Convert.ToInt32(field[1])))
+                                        {
+                                            AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
+                                        }
+                                    }
+                                    else if (Regex.IsMatch(patch.Field, @"^categories$"))
+                                    {
+                                        AddCategory(id, patch);
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                    }
+                                    break;
+                                case "replace":
+                                    break;
+                                case "remove":
+                                    break;
+                                default:
+                                    _errors.Add(new Error(1303, new { value = patch.Action }));
+                                    break;
+                            }
+                        }
+                        else
+                        {
+                            _errors.Add(new Error(1101, new { field = "value" }));
+                        }
+                    }
+                    else
+                    {
+                        _errors.Add(new Error(1101, new { field = "field" }));
+                    }
+                }
+                else
+                {
+                    _errors.Add(new Error(1101, new { field = "action" }));
+                }
+            }
+        }
+        public bool ExamExists(ExamPost exam)
+        {
             var query = @"SELECT COUNT(*) as count FROM Exams
-                          WHERE Name = @Name
-                            AND Subject = @Subject
+                          WHERE NameId = @Name
+                            AND SubjectId = @Subject
                             AND Cohort = @Cohort
                             AND Crebo = @Crebo";
-            dynamic result = _gateway.SelectSingle(query, exam);
 
-            if(result.count > 0)
+            var parameters = new
             {
-                _errors.Add(new Error(1201, string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", exam.Subject, exam.Cohort, exam.Name, exam.Crebo), new
-                {
-                    Subject = exam.Subject,
-                    Cohort = exam.Cohort,
-                    Name = exam.Name,
-                    Crebo = exam.Crebo
-                }));
-                return true;
-            }
-            return false;
+                Name = CleanParam(exam.Name),
+                Subject = CleanParam(exam.Subject),
+                Cohort = exam.Cohort,
+                Crebo = exam.Crebo ?? string.Empty
+            };
+            dynamic result = _gateway.SelectSingle(query, parameters);
+
+            return (result.count > 0);
+        }
+
+        public bool ExamExists(int id)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Exams
+                          WHERE Id = @Id";
+            dynamic result = _gateway.SelectSingle(query, new { Id = id });
+
+            return (result.count > 0);
         }
 
         private string FetchExamQuery
@@ -140,7 +217,7 @@ namespace Lisa.Excelsis.WebApi
                                 Criteria.[Order] as #Categories_#Criteria_Order,
                                 Criteria.Title as #Categories_#Criteria_Title,
                                 Criteria.[Description] as #Categories_#Criteria_Description,
-                                Criteria.Value as #Categories_#Criteria_Value
+                                Criteria.Weight as #Categories_#Criteria_Weight
                           FROM Exams
                 LEFT JOIN Categories ON Categories.ExamId = Exams.Id
                 LEFT JOIN Criteria ON Criteria.CategoryId = Categories.Id";

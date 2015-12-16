@@ -13,13 +13,15 @@ namespace Lisa.Excelsis.WebApi
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
-                                 Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result, Observations.Marks as #Categories_#Observations_Marks,
-                                 Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Value as #Categories_#Observations_Criterion_Value
+                                 Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result,
+                                 Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
+                                 Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Weight as #Categories_#Observations_Criterion_Weight
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
                           LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
+                          LEFT JOIN Marks ON Marks.Observation_Id = Observations.Id
                           LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
                           LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
                           WHERE Assessments.Id = @Id";
@@ -27,12 +29,32 @@ namespace Lisa.Excelsis.WebApi
                 Id = id
             };
 
-            return _gateway.SelectSingle(query, parameters);
+            dynamic result = _gateway.SelectSingle(query, parameters);
+            if (result == null)
+            {
+                return null;
+            }
+
+            foreach(dynamic category in result.Categories)
+            {
+                foreach(dynamic observation in category.Observations)
+                {
+                    List<string> marks = new List<string>();
+                    foreach (dynamic mark in observation.Marks)
+                    {
+                        marks.Add(mark.Name);
+                    }
+                    observation.Marks = marks.GroupBy(m => m).Select(g => g.First()).ToArray();
+                }
+            }
+            return result;
         }
 
         public IEnumerable<object> FetchAssessments(Filter filter)
         {
-            List<string> queryList = new List<string>();
+            bool multipleAssessors = false;
+            List<string> assessmentQueryList = new List<string>();
+            string assessorQuery = string.Empty;
 
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
@@ -42,70 +64,81 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id";
 
-            if (filter.Assessor != null)
+            if (filter.Assessors != null)
             {
-                queryList.Add( @" Assessments.Id IN(
-                                      SELECT Assessments.Id
-                                      FROM Assessments
-                                      LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                                      LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                                      LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                                      WHERE Assessors.UserName = @Assessor
-                                  )");
+                if (Regex.IsMatch(filter.Assessors, @"^[a-zA-Z]*$"))
+                {
+                    assessorQuery = @" Assessors.UserName = '" + filter.Assessors + "'";
+                }
+                else if(Regex.IsMatch(filter.Assessors, @"^([ |A-Za-z]+)$"))
+                {
+                    string assessors = string.Join(",", Regex.Split(filter.Assessors, @" "));
+                    assessorQuery = @" Assessors.UserName IN('" + assessors.Replace(",", "','") + "')";
+                    multipleAssessors = true;
+                }
+                else if(Regex.IsMatch(filter.Assessors, @"^([,|A-Za-z]+)$"))
+                {
+                    assessorQuery = @" Assessors.UserName IN('" + filter.Assessors.Replace(",", "','") + "')";
+                }
+                assessmentQueryList.Add(@" Assessments.Id IN(
+                                              SELECT Assessments.Id
+                                              FROM Assessments
+                                              LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
+                                              LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
+                                              LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                                              WHERE " + assessorQuery + ")");
             }
 
-            if (filter.StudentNumber != null)
+            if (filter.Student != null)
             {
-                queryList.Add(" Assessments.StudentNumber = @StudentNumber");
+                assessmentQueryList.Add(" Assessments.StudentNumber = @StudentNumber");
             }
 
             var parameters = new
             {
-                Assessor = filter.Assessor ?? string.Empty,
-                StudentNumber = filter.StudentNumber ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty,
+                StudentNumber = filter.Student ?? string.Empty
             };
-
-            query += (queryList.Count > 0) ? " WHERE " + string.Join(" AND ", queryList) : string.Join(" AND ", queryList);
-            return _gateway.SelectMany(query, parameters);
+           
+            query += (assessmentQueryList.Count > 0) ? " WHERE " + string.Join(" AND ", assessmentQueryList) : string.Join(" AND ", assessmentQueryList);
+            dynamic results = _gateway.SelectMany(query, parameters);
+            List<dynamic> newResults = new List<dynamic>();
+            if (multipleAssessors)
+            {
+                string[] assessorString = filter.Assessors.Split(' ');
+                foreach (var assessment in results)
+                {
+                    int count = 0;
+                    foreach(var assessor in assessment.Assessors)
+                    {
+                        int pos = Array.IndexOf(assessorString, assessor.UserName);
+                        if (pos > -1) count++;
+                    }
+                    if (count == assessorString.Count()) newResults.Add(assessment);
+                }
+                return newResults;
+            }
+            return results;
         }
 
-        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort)
+        public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)
         {
             _errors = new List<Error>();
             if (assessment.Student != null)
             {
-                var regexName = new Regex(@"^\s*(\w+\s)*\w+\s*$");
-                if (assessment.Student.Name != null && !regexName.IsMatch(assessment.Student.Name))
+                if (assessment.Student.Name != null && !Regex.IsMatch(assessment.Student.Name, @"^\s*(\w+\s)*\w+\s*$"))
                 {
-                    _errors.Add(new Error(1101, string.Format("The student name '{0}' may only contain characters", assessment.Student.Name), new
-                    {
-                        StudentName = assessment.Student.Name
-                    }));
+                    _errors.Add(new Error(1201, new { field = "studentname", value = assessment.Student.Name }));
                 }
 
-                var regexNumber = new Regex(@"^\d{8}$");
-                if (assessment.Student.Number != null && !regexNumber.IsMatch(assessment.Student.Number))
+                if (assessment.Student.Number != null && !Regex.IsMatch(assessment.Student.Number, @"^\d{8}$"))
                 {
-                    _errors.Add(new Error(1102, string.Format("The student number '{0}' doesn't meet the requirements of 8 digits", assessment.Student.Number), new
-                    {
-                        StudentNumber = assessment.Student.Number
-                    }));
+                    _errors.Add(new Error(1203, new { field = "studentnumber", value = assessment.Student.Number, count = 8 }));
                 }
             }
             else
             {
                 assessment.Student = new Student();
-            }
-
-            object examResult = FetchExam(subject, name, cohort);
-            if (examResult == null)
-            {
-                _errors.Add(new Error(1103, string.Format("The exam with subject '{0}', cohort '{1}' and name '{2}' was not found.",subject, cohort, name), new
-                {
-                    Subject = subject,
-                    Cohort = cohort,
-                    Name = name
-                }));
             }
 
             object assessorResult = SelectAssessors(assessment);
@@ -114,7 +147,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 object assessmentResult = InsertAssessment(assessment, examResult);
                 InsertAssessmentAssessors(assessment, assessmentResult, assessorResult);
-                InsertObservations(assessmentResult, examResult);
+                AddObservations(assessmentResult, examResult);
 
                 return (_errors.Count() > 0) ? null : assessmentResult;
             }
@@ -127,78 +160,159 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
-                switch (patch.Action)
+                if (patch.Action != null)
                 {
-                    case "replace":
-                        var fieldString = patch.Field.Split('/');
-                        if(fieldString.ElementAt(0).ToLower() == "observations")
+                    patch.Action.ToLower();
+                    if (patch.Field != null)
+                    {
+                        patch.Field.ToLower();
+                        var field = patch.Field.Split('/');
+                        if (patch.Value != null)
                         {
-                            int observationId = Convert.ToInt32(fieldString.ElementAt(1));
-                            PatchObservation(id, observationId, fieldString.ElementAt(2), patch.Value);
+                            switch (patch.Action)
+                            {
+                                case "add":
+                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+                                    {
+                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
+                                        {
+                                            AddMark(patch);
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                    }
+                                    break;
+                                case "replace":
+                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
+                                    {
+                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
+                                        {
+                                            ReplaceResult(id, patch);
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+                                        }
+                                    }
+                                    else if (Regex.IsMatch(patch.Field, @"^(studentnumber|studentname)$"))
+                                    {
+                                        ReplaceStudent(id, patch);
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                    }
+                                    break;
+                                case "remove":
+                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+                                    {
+                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
+                                        {
+                                            RemoveMark(patch);
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                    }
+                                    break;
+                                default:
+                                    _errors.Add(new Error(1303, new { value = patch.Action }));
+                                    break;
+                            }
                         }
                         else
                         {
-                            _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", fieldString.ElementAt(0)), new
-                            {
-                                FieldName = fieldString.ElementAt(0)
-                            }));
+                            _errors.Add(new Error(1101, new { field = "value" }));
                         }
-                        break;
+                    }
+                    else
+                    {
+                        _errors.Add(new Error(1101, new { field = "field" }));
+                    }
+                }
+                else
+                {
+                    _errors.Add(new Error(1101, new { field = "action" }));
                 }
             }
         }
 
-        private void PatchObservation(int id, int observationId, string field, object value)
+        private void ReplaceStudent(int id, Patch patch)
         {
-            if (field.ToLower() == "result" || field.ToLower() == "marks")
+            if (Regex.IsMatch(patch.Field, @"^studentname$") && !Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z\s]*$"))
+            { 
+                _errors.Add(new Error(1201, new { field = "studentname", value = patch.Value.ToString() }));
+            }
+            else if (Regex.IsMatch(patch.Field, @"^studentnumber$") && !Regex.IsMatch(patch.Value.ToString().ToLower(), @"^\d{8}$"))
             {
-                var query = @"UPDATE Observations
-                              SET " + field + @" = @Value
-                              WHERE Assessment_Id = @Id AND Id = @ObservationId";
+                _errors.Add(new Error(1203, new { field = "studentnumber", value = patch.Value.ToString(), count = 8 }));
+            }
 
+            if(_errors.Count == 0)
+            {
+                var query = @"UPDATE Assessments
+                              SET " + patch.Field + @" = @Value
+                              WHERE Id = @Id";
                 var parameters = new
                 {
-                    value = value,
-                    Id = id,
-                    ObservationId = observationId
+                    value = patch.Value.ToString(),
+                    Id = id
                 };
-
                 _gateway.Update(query, parameters);
             }
-            else
+        }
+
+        public bool AssessmentExists(int id)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Assessments
+                          WHERE Id = @id";
+            var parameters = new
             {
-                _errors.Add(new Error(1104, string.Format("The field '{0}' is not patchable.", field), new
-                {
-                    FieldName = field
-                }));
-            }
+               Id = id
+            };
+            dynamic result = _gateway.SelectSingle(query, parameters);
+
+            return (result.count > 0);
         }
 
         private object SelectAssessors(AssessmentPost assessment)
         {
-            var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
+            if (assessment.Assessors.Any())
+            {
+                var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 
-            var query = @"SELECT Id, UserName
+                var query = @"SELECT Id, UserName
                           FROM Assessors
                           WHERE UserName IN ( " + string.Join(",", assessors) + " ) ";
-            dynamic result = _gateway.SelectMany(query);
+                dynamic result = _gateway.SelectMany(query);
 
-           
-            if (result.Count != assessment.Assessors.Count())
-            {
-                foreach(var assessor in assessment.Assessors)
+
+                if (result.Count != assessment.Assessors.Count())
                 {
-                    if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
+                    foreach (var assessor in assessment.Assessors)
                     {
-                        _errors.Add(new Error(1103, string.Format("The assessor with username '{0}' is not found.", assessor), new
+                        if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
                         {
-                            Assessor = assessor
-                        }));
+                            _errors.Add(new Error(1302, new { value = assessor }));
+                        }
                     }
                 }
-            }
 
-            return result;
+                return result;
+            }
+            _errors.Add(new Error(1101, new { field = "assessors"}));
+            return null;
         }
 
         private object InsertAssessment(AssessmentPost assessment, dynamic examResult)
@@ -215,25 +329,6 @@ namespace Lisa.Excelsis.WebApi
             };
 
             return _gateway.Insert(query, parameters);
-        }
-
-        private void InsertObservations(dynamic assessmentResult, dynamic examResult)
-        {
-            List<string> observations = new List<string>();
-            if (examResult.Categories.Count > 0)
-            {
-                foreach (var category in examResult.Categories)
-                {
-                    foreach (var criterion in category.Criteria)
-                    {
-                        observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'','')");
-                    }
-                }
-
-                var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result, Marks) VALUES ";
-                query += string.Join(",", observations);
-                _gateway.Insert(query, null);
-            }
         }
 
         private void InsertAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
