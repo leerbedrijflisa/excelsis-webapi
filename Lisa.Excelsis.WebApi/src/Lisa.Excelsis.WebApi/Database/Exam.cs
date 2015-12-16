@@ -130,16 +130,17 @@ namespace Lisa.Excelsis.WebApi
                     {
                         patch.Field.ToLower();
                         var field = patch.Field.Split('/');
-                        if (patch.Value != null)
+                        
+                        switch (patch.Action)
                         {
-                            switch (patch.Action)
-                            {
-                                case "add":
+                            case "add":
+                                if (patch.Value != null)
+                                {
                                     if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                     {
-                                        if (CategoryExists(id, Convert.ToInt32(field[1])))
+                                        if (CategoryExists(id, field[1]))
                                         {
-                                            AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                                            AddCriterion(id, field[1], patch);
                                         }
                                         else
                                         {
@@ -152,21 +153,67 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
                                     }
-                                    break;
-                                case "replace":
-                                    break;
-                                case "remove":
-                                    break;
-                                default:
-                                    _errors.Add(new Error(1303, new { value = patch.Action }));
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(1101, new { field = "value" }));
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(1101, new { field = "value" }));
+                                }
+                                break;
+                            case "replace":
+                                break;
+                            case "move":
+                                if(patch.Target != null)
+                                {
+                                    var target = patch.Target.Split('/');
+                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria/\d+$"))
+                                    {
+                                        if (Regex.IsMatch(patch.Target, @"^categories/\d+$"))
+                                        {
+                                            if (CategoryExists(id, field[1]))
+                                            {
+                                                if (CategoryExists(id, target[1]))
+                                                {
+                                                    if (CriterionExists(id, field[1],field[3]))
+                                                    {
+                                                        MoveCriterion(id, field[3], target[1]);
+                                                    }
+                                                    else
+                                                    {
+                                                        _errors.Add(new Error(1300, new { field = "criterion", value = field[3] }));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    _errors.Add(new Error(1300, new { field = "category", value = target[1] }));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1205, new { field = "target", value = patch.Target }));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
+                                    }
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(1101, new { field = "target" }));
+                                }
+                                break;
+                            case "remove":
+                                break;
+                            default:
+                                _errors.Add(new Error(1303, new { value = patch.Action }));
+                                break;
                         }
                     }
                     else
