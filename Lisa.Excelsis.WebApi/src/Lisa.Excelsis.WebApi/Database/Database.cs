@@ -57,7 +57,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1205, new { field = property.Key }));
+                        _errors.Add(new Error(1205, new { field = property.Key, value = property.Value.ToString() }));
                     }
                 }
             }

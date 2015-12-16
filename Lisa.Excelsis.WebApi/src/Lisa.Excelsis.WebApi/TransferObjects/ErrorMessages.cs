@@ -40,7 +40,7 @@ namespace Lisa.Excelsis.WebApi
                         message = string.Format("The field '{0}' with value '{1}' can only contain {2}.", obj.field, obj.value, values);
                     break;
                 case 1205:
-                        message = string.Format("The field '{0}' is not patchable.", obj.field);
+                        message = string.Format("The field '{0}' with value '{1}' is not patchable.", obj.field, obj.value);
                     break;
                 case 1206:
                         message = string.Format("The field '{0}' with value '{1}' must contain at least one letter or number.", obj.field, obj.value);
