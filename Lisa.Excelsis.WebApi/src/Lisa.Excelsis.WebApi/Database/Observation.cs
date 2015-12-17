@@ -80,7 +80,7 @@ namespace Lisa.Excelsis.WebApi
             }
             else
             {
-                _errors.Add(new Error(1204, new { field = "value", value = patch.Value ?? string.Empty, permitted = new string[] { "seen", "unseen", "notrated" } }));
+                _errors.Add(new Error(1204, new { field = "value", value = patch.Value ?? string.Empty, permitted = new string[] { "seen", "notseen", "notrated" } }));
             }
         }
 
