@@ -63,6 +63,16 @@ namespace Lisa.Excelsis.WebApi
                 case 1304:
                         message = string.Format("The field {0} is not found.", obj.field);
                     break;
+
+                case 1500:
+                    message = string.Format("The field '{0}' is not correct therefore it cannot be patched.", obj.field);
+                    break;
+                case 1501:
+                    message = string.Format("The resource '{0}' with value '{1}' was not found.", obj.field, obj.value);
+                    break;
+                case 1502:
+                    message = string.Format("The resource '{0}' with value '{1}' was not found inside the parent '{2} with value '{3}'.", obj.field, obj.value, obj.parent, obj.parentId);
+                    break;
             }
             return message;
         }
