@@ -23,6 +23,7 @@ namespace Lisa.Excelsis.WebApi
                 return _errors;
             }
         }
+
         public string FatalError
         {
             get
@@ -31,19 +32,12 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        public string CleanParam(string name)
+        public object Execute(string query, object parameters)
         {
-            List<string> nameParts = new List<string>();
-            Regex regex = new Regex(@"[\w\d\.]+");
-            var matches = regex.Matches(name.ToLower());
-            foreach(Match match in matches)
-            {
-                nameParts.Add(match.Value);
-            }
-            return string.Join("-", nameParts);
+            return _gateway.SelectSingle(query, parameters);
         }
 
-        public Dictionary<string, string> IsPatchable (Patch patch, List<string> fields, string regex)
+        public static Dictionary<string, string> IsPatchable(Patch patch, List<string> fields, string regex)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>();
             var value = patch.Value as JObject;
@@ -68,13 +62,13 @@ namespace Lisa.Excelsis.WebApi
             return dict;
         }
 
-        public void FieldsExists (Dictionary<string,string> dict, List<string> fields)
+        public void FieldsExists(Dictionary<string, string> dict, List<string> fields)
         {
             foreach (var field in fields)
             {
                 if (!dict.ContainsKey(field))
                 {
-                    _errors.Add(new Error(1102, new { subField = field, field = "value", type = "object"}));
+                    _errors.Add(new Error(1102, new { subField = field, field = "value", type = "object" }));
                 }
             }
         }
@@ -94,9 +88,9 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                        if (Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
                         {
-                            _errors.Add(new Error(1103, new { field = property.Key } ));
+                            _errors.Add(new Error(1103, new { field = property.Key }));
                         }
                         else
                         {
@@ -109,74 +103,7 @@ namespace Lisa.Excelsis.WebApi
             return (fatalError);
         }
 
-        public bool CheckResource(dynamic resource, string child, object childId)
-        {
-            var query = @"SELECT COUNT(*) as count FROM " + child + @"
-                          WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id";
-            dynamic result = _gateway.SelectSingle(query, new { Id = childId });
-            return (result.count > 0);
-        }
-
-        public bool CheckResourceInResource(dynamic resource, string parent, string parentId, string child, object childId)
-        {
-            var query = @"SELECT COUNT(*) as count FROM " + child + @"
-                          WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id AND " + parent + @" = @ParentId";
-            dynamic result = _gateway.SelectSingle(query, new { Id = childId, ParentId = parentId });
-            return (result.count > 0);
-        }
-
-        private List<PatchValidation> GetExamPatchValidation()
-        {
-            /*
-             *  FieldRegex is for validation of the json field 'field', this will be used to create a query.
-             *  Parent defines the name of the database field to check if the parent exists.
-             */
-            List<PatchValidation> pVal = new List<PatchValidation>();
-            Validate val = new Validate();
-
-            pVal.Add(new PatchValidation
-            {
-                Action = "add",
-                properties = new List<PatchValidationProps>
-                    {
-                        new PatchValidationProps { FieldRegex = @"^categories$"},
-                        new PatchValidationProps { FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/criteria$"}
-                    }
-            });
-            pVal.Add(new PatchValidation
-            {
-                Action = "remove",
-                properties = new List<PatchValidationProps>
-                    {
-                        new PatchValidationProps { FieldRegex = @"^categories$"},
-                        new PatchValidationProps { FieldRegex = @"^categories/(\d+)/criteria$"}
-                    }
-            });
-            pVal.Add(new PatchValidation
-            {
-                Action = "replace",
-                properties = new List<PatchValidationProps>
-                    {
-                        new PatchValidationProps { FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/order$", Validate = val.ValidateCategoryOrder },
-                        new PatchValidationProps { FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/name$", Validate = val.ValidateCategoryName },
-                        new PatchValidationProps { FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/order$", Parent = "CategoryId", Validate = val.ValidateCriterionOrder },
-                        new PatchValidationProps { FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/title$", Parent = "CategoryId", Validate = val.ValidateCriterionTitle },
-                        new PatchValidationProps { FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/description$", Parent = "CategoryId", Validate = val.ValidateCriterionDescription },
-                        new PatchValidationProps { FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/weight$", Parent = "CategoryId", Validate = val.ValidateCriterionWeight }
-                    }
-            });
-            pVal.Add(new PatchValidation
-            {
-                Action = "move",
-                properties = new List<PatchValidationProps>
-                    {
-                        new PatchValidationProps { FieldRegex = @"^categories/(\d+)/criteria/(\d+)$"}
-                    }
-            });
-            return pVal;
-        }
-
-        private List<Error> _errors { get; set; }
+        public static List<Error> _errors { get; set; }
 
         private string _fatalError { get; set; }
 

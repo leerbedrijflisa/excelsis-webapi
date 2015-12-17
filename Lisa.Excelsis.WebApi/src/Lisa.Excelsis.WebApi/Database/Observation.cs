@@ -88,13 +88,8 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = @"SELECT COUNT(*) as count FROM Observations
                           WHERE Assessment_Id = @AssessmentId AND Id = @id";
-            var parameters = new
-            {
-                AssessmentId = assessmentId,
-                Id = id
-            };
+            var parameters = new { AssessmentId = assessmentId, Id = id };
             dynamic result = _gateway.SelectSingle(query, parameters);
-
             return (result.count > 0);
         }
     }

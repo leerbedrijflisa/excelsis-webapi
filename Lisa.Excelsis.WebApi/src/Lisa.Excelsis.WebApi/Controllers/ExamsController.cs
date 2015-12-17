@@ -17,7 +17,7 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}")]
         public IActionResult Get([FromQuery] Filter filter, string subject, string cohort)
         {
-            subject = _db.CleanParam(subject);
+            subject = Misc.CleanParam(subject);
 
             IEnumerable<object> result = _db.FetchExams(filter, subject, cohort);
             return new HttpOkObjectResult(result);
@@ -26,8 +26,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpGet("{subject}/{cohort}/{name}", Name = "exam")]
         public IActionResult Get(string subject, string cohort, string name)
         {
-            subject = _db.CleanParam(subject);
-            name = _db.CleanParam(name);
+            subject = Misc.CleanParam(subject);
+            name = Misc.CleanParam(name);
 
             var result = _db.FetchExam(subject, name, cohort);
             if(result == null)
@@ -112,7 +112,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             var result = _db.FetchExam(id);
-            string location = Url.RouteUrl("exam", new { subject = _db.CleanParam(exam.Subject), cohort = exam.Cohort, name = _db.CleanParam(exam.Name) }, Request.Scheme);
+            string location = Url.RouteUrl("exam", new { subject = Misc.CleanParam(exam.Subject), cohort = exam.Cohort, name = Misc.CleanParam(exam.Name) }, Request.Scheme);
             return new CreatedResult(location, result);
         }
 

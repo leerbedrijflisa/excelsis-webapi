@@ -49,21 +49,23 @@ namespace Lisa.Excelsis.WebApi
                                 Child = match.Groups["child"].Value,
                                 ChildId = match.Groups["childId"].Value,
                                 Parent = validationProp.Parent,
-                                ParentId = match.Groups["parentId"].Value
+                                ParentId = match.Groups["parentId"].Value,
+                                Property = match.Groups["property"].Value
                             };
                             
                             validationProp.Validate(resource, patch, parameters);
+                            validationProp.BuildQuery(parameters, patch.Value);
                         }
+                    }
+
+                    if (!foundMatch)
+                    {
+                        _errors.Add(new Error(1500, new { field = patch.Field.ToLower() }));
                     }
                 }
                 else
                 {
                     // _errors.Add(new Error)
-                }
-
-                if (!foundMatch)
-                {
-                    _errors.Add(new Error(1500, new { field = patch.Field.ToLower() }));
                 }
             }
         }

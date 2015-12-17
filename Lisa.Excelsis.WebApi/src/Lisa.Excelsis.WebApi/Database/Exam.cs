@@ -69,8 +69,8 @@ namespace Lisa.Excelsis.WebApi
         public object AddExam(ExamPost exam)
         {
             _errors = new List<Error>();
-            string subjectId = CleanParam(exam.Subject);
-            string nameId = CleanParam(exam.Name);
+            string subjectId = Misc.CleanParam(exam.Subject);
+            string nameId = Misc.CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
 
             if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
@@ -120,7 +120,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchExam(IEnumerable<Patch> patches, int id)
         {
-            Patch(new { Name = "ExamId", Value = id }, patches, GetExamPatchValidation());
+            Patch(new { Name = "ExamId", Value = id }, patches, Validate.GetExamPatchValidation());
         }
         
         public bool ExamExists(ExamPost exam)
@@ -133,8 +133,8 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Name = CleanParam(exam.Name),
-                Subject = CleanParam(exam.Subject),
+                Name = Misc.CleanParam(exam.Name),
+                Subject = Misc.CleanParam(exam.Subject),
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo ?? string.Empty
             };

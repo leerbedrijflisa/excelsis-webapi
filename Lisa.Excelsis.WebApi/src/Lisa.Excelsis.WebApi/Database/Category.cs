@@ -24,6 +24,7 @@ namespace Lisa.Excelsis.WebApi
         public void AddCategory(int examId, Patch patch)
         {
             _errors = new List<Error>();
+
             Dictionary<string, string> dict = new Dictionary<string, string>();
             var fields = new List<string>() { "order", "name" };
             var regex = @"^(order|name)$";

@@ -22,5 +22,6 @@ namespace Lisa.Excelsis.WebApi
         public string FieldRegex { get; set; }
         public string Parent { get; set; }
         public Func<object, Patch, object, bool> Validate { get; set; }
+        public Func<object, JToken, bool> BuildQuery { get; set; }
     }
 }

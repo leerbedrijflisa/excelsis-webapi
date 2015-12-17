@@ -69,8 +69,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
-            subject = _db.CleanParam(subject);
-            name = _db.CleanParam(name);
+            subject = Misc.CleanParam(subject);
+            name = Misc.CleanParam(name);
 
             if (!ModelState.IsValid)
             {
