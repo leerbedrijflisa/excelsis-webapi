@@ -157,95 +157,97 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchAssessment(IEnumerable<Patch> patches, int id)
         {
-            _errors = new List<Error>();
-            foreach (Patch patch in patches)
-            {
-                if (patch.Action != null)
-                {
-                    patch.Action.ToLower();
-                    if (patch.Field != null)
-                    {
-                        patch.Field.ToLower();
-                        var field = patch.Field.Split('/');
-                        if (patch.Value != null)
-                        {
-                            switch (patch.Action)
-                            {
-                                case "add":
-                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
-                                    {
-                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
-                                        {
-                                            AddMark(patch);
-                                        }
-                                        else
-                                        {
-                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
-                                    }
-                                    break;
-                                case "replace":
-                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
-                                    {
-                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
-                                        {
-                                            ReplaceResult(id, patch);
-                                        }
-                                        else
-                                        {
-                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
-                                        }
-                                    }
-                                    else if (Regex.IsMatch(patch.Field, @"^(studentnumber|studentname)$"))
-                                    {
-                                        ReplaceStudent(id, patch);
-                                    }
-                                    else
-                                    {
-                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
-                                    }
-                                    break;
-                                case "remove":
-                                    if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
-                                    {
-                                        if (ObservationExists(id, Convert.ToInt32(field[1])))
-                                        {
-                                            RemoveMark(patch);
-                                        }
-                                        else
-                                        {
-                                            _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
-                                    }
-                                    break;
-                                default:
-                                    _errors.Add(new Error(1303, new { value = patch.Action }));
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(1101, new { field = "value" }));
-                        }
-                    }
-                    else
-                    {
-                        _errors.Add(new Error(1101, new { field = "field" }));
-                    }
-                }
-                else
-                {
-                    _errors.Add(new Error(1101, new { field = "action" }));
-                }
-            }
+            Patch(new { Name = "assessmentId", Value = id }, patches, Validate.GetAssessmentPatchValidation());
+
+            //_errors = new List<Error>();
+            //foreach (Patch patch in patches)
+            //{
+            //    if (patch.Action != null)
+            //    {
+            //        patch.Action.ToLower();
+            //        if (patch.Field != null)
+            //        {
+            //            patch.Field.ToLower();
+            //            var field = patch.Field.Split('/');
+            //            if (patch.Value != null)
+            //            {
+            //                switch (patch.Action)
+            //                {
+            //                    case "add":
+            //                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+            //                        {
+            //                            if (ObservationExists(id, Convert.ToInt32(field[1])))
+            //                            {
+            //                                AddMark(patch);
+            //                            }
+            //                            else
+            //                            {
+            //                                _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
+            //                        }
+            //                        break;
+            //                    case "replace":
+            //                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/result$"))
+            //                        {
+            //                            if (ObservationExists(id, Convert.ToInt32(field[1])))
+            //                            {
+            //                                ReplaceResult(id, patch);
+            //                            }
+            //                            else
+            //                            {
+            //                                _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+            //                            }
+            //                        }
+            //                        else if (Regex.IsMatch(patch.Field, @"^(studentnumber|studentname)$"))
+            //                        {
+            //                            ReplaceStudent(id, patch);
+            //                        }
+            //                        else
+            //                        {
+            //                            _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
+            //                        }
+            //                        break;
+            //                    case "remove":
+            //                        if (Regex.IsMatch(patch.Field, @"^observations/\d+/marks$"))
+            //                        {
+            //                            if (ObservationExists(id, Convert.ToInt32(field[1])))
+            //                            {
+            //                                RemoveMark(patch);
+            //                            }
+            //                            else
+            //                            {
+            //                                _errors.Add(new Error(1300, new { field = "observation", value = field[1] }));
+            //                            }
+            //                        }
+            //                        else
+            //                        {
+            //                            _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
+            //                        }
+            //                        break;
+            //                    default:
+            //                        _errors.Add(new Error(1303, new { value = patch.Action }));
+            //                        break;
+            //                }
+            //            }
+            //            else
+            //            {
+            //                _errors.Add(new Error(1101, new { field = "value" }));
+            //            }
+            //        }
+            //        else
+            //        {
+            //            _errors.Add(new Error(1101, new { field = "field" }));
+            //        }
+            //    }
+            //    else
+            //    {
+            //        _errors.Add(new Error(1101, new { field = "action" }));
+            //    }
+            //}
         }
 
         private void ReplaceStudent(int id, Patch patch)

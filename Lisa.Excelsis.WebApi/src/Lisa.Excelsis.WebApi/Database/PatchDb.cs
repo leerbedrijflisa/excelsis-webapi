@@ -12,60 +12,57 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
             foreach (Patch patch in patches)
             {
-                ValidatePatch(resource, patch, validations);
-            }
-        }
-
-        private void ValidatePatch(object resource, Patch patch, IEnumerable<PatchValidation> validations)
-        {
-            if (patch.Field == null)
-            {
-                _errors.Add(new Error(1101, new { field = "field" }));
-            }
-            if (patch.Action == null)
-            {
-                _errors.Add(new Error(1101, new { field = "action" }));
-            }
-            if (patch.Value == null)
-            {
-                _errors.Add(new Error(1101, new { field = "value" }));
-            }
-
-            if (!_errors.Any())
-            {
-                bool foundMatch = false;
-                var validation = validations.Where(v => v.Action == patch.Action.ToLower()).FirstOrDefault();
-                if (validation != null)
+                if (patch.Field == null)
                 {
-                    foreach (PatchValidationProps validationProp in validation.properties)
-                    {
-                        Match match = Regex.Match(patch.Field.ToLower(), validationProp.FieldRegex);
+                    _errors.Add(new Error(1101, new { field = "field" }));
+                }
+                if (patch.Action == null)
+                {
+                    _errors.Add(new Error(1101, new { field = "action" }));
+                }
+                if (patch.Value == null)
+                {
+                    _errors.Add(new Error(1101, new { field = "value" }));
+                }
 
-                        if (match.Success)
+                if (!_errors.Any())
+                {
+                    bool foundMatch = false;
+                    var validation = validations.Where(v => v.Action == patch.Action.ToLower()).FirstOrDefault();
+                    if (validation != null)
+                    {
+                        foreach (PatchValidationProps validationProp in validation.properties)
                         {
-                            foundMatch = true;
-                            var parameters = new
+                            Match match = Regex.Match(patch.Field.ToLower(), validationProp.FieldRegex);
+                            if (match.Success)
                             {
-                                Child = match.Groups["child"].Value,
-                                ChildId = match.Groups["childId"].Value,
-                                Parent = validationProp.Parent,
-                                ParentId = match.Groups["parentId"].Value,
-                                Property = match.Groups["property"].Value
-                            };
-                            
-                            validationProp.Validate(resource, patch, parameters);
-                            validationProp.BuildQuery(parameters, patch.Value);
+                                foundMatch = true;
+                                var parameters = new
+                                {
+                                    Child = match.Groups["child"].Value,
+                                    ChildId = match.Groups["childId"].Value,
+                                    Parent = validationProp.Parent,
+                                    ParentId = match.Groups["parentId"].Value,
+                                    Property = match.Groups["property"].Value
+                                };
+
+                                var ValidResource = validationProp.Validate(resource, patch, parameters);
+                                if (ValidResource)
+                                {
+                                    validationProp.BuildQuery(parameters, patch.Value);
+                                }
+                            }
+                        }
+
+                        if (!foundMatch)
+                        {
+                            _errors.Add(new Error(1500, new { field = patch.Field.ToLower() }));
                         }
                     }
-
-                    if (!foundMatch)
+                    else
                     {
-                        _errors.Add(new Error(1500, new { field = patch.Field.ToLower() }));
+                        // _errors.Add(new Error)
                     }
-                }
-                else
-                {
-                    // _errors.Add(new Error)
                 }
             }
         }

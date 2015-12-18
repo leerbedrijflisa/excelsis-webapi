@@ -7,16 +7,16 @@ namespace Lisa.Excelsis.WebApi
         public bool QueryBuilderReplace(dynamic parameters, JToken value)
         {
             var query = @"UPDATE " + parameters.Child + @" 
-                          SET " + parameters.Property + @" = @Value
+                          SET [" + parameters.Property + @"] = @Value
                           WHERE Id = @Id";
-            _gateway.Update(query, new { Id = parameters.ChildId, Value = value });
+            _gateway.Update(query, new { Id = parameters.ChildId, Value = value.ToString() });
             return true;
         }
 
         public bool QueryBuilderRemove(dynamic parameters, JToken value)
         {
             var query = @"DELETE FROM " + parameters.Child + @"  WHERE Id = @Id";
-           _gateway.Update(query, new { Id = value});
+           _gateway.Update(query, new { Id = value.ToString()});
             return true;
         }
 
