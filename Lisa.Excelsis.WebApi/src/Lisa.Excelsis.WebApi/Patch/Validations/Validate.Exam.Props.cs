@@ -20,11 +20,16 @@ namespace Lisa.Excelsis.WebApi
                     {
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<child>categories)$"
+                            FieldRegex = @"^(?<child>categories)$",
+                            Validate = val.ValidateCategory,
+                            BuildQuery = _db.QueryBuilderAdd
                         },
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$"
+                            FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$",
+                            Validate = val.ValidateCriterion,
+                            BuildQuery = _db.QueryBuilderAdd,
+                            Parent = "CategoryId"                            
                         }
                     }
             });
@@ -35,11 +40,16 @@ namespace Lisa.Excelsis.WebApi
                     {
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<child>categories)"
+                            FieldRegex = @"^(?<child>categories)$",
+                            Validate = val.ValidateRemove,
+                            BuildQuery = _db.QueryBuilderRemove
                         },
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$"
+                            FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$",
+                            Validate = val.ValidateRemove,
+                            BuildQuery = _db.QueryBuilderRemove,
+                            Parent = "CategoryId"
                         }
                     }
             });

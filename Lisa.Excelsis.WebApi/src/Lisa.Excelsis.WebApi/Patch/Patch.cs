@@ -20,7 +20,16 @@ namespace Lisa.Excelsis.WebApi
     {
         public string FieldRegex { get; set; }
         public string Parent { get; set; }
-        public Func<object, Patch, object, bool> Validate { get; set; }
-        public Func<object, JToken, bool> BuildQuery { get; set; }
+        public Func<object, Patch, PatchPropInfo, bool> Validate { get; set; }
+        public Func<object, JToken, PatchPropInfo, bool> BuildQuery { get; set; }
+    }
+    public class PatchPropInfo
+    {
+        public string Child { get; set; }
+        public string ChildId { get; set; }
+        public string Parent { get; set; }
+        public string ParentId { get; set; }
+        public string Property { get; set; }
+        public string Target { get; set; }
     }
 }

@@ -7,7 +7,7 @@ namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
-        public void Patch(object resource, IEnumerable<Patch> patches, IEnumerable<PatchValidation> validations)
+        public void Patch(dynamic resource, IEnumerable<Patch> patches, IEnumerable<PatchValidation> validations)
         {
             _errors = new List<Error>();
             foreach (Patch patch in patches)
@@ -37,19 +37,20 @@ namespace Lisa.Excelsis.WebApi
                             if (match.Success)
                             {
                                 foundMatch = true;
-                                var parameters = new
+                                var parameters = new PatchPropInfo
                                 {
                                     Child = match.Groups["child"].Value,
                                     ChildId = match.Groups["childId"].Value,
                                     Parent = validationProp.Parent,
                                     ParentId = match.Groups["parentId"].Value,
-                                    Property = match.Groups["property"].Value
+                                    Property = match.Groups["property"].Value,
+                                    Target = match.Groups["target"].Value
                                 };
 
                                 var ValidResource = validationProp.Validate(resource, patch, parameters);
                                 if (ValidResource)
                                 {
-                                    validationProp.BuildQuery(parameters, patch.Value);
+                                    validationProp.BuildQuery(resource, patch.Value, parameters);
                                 }
                             }
                         }

@@ -1,4 +1,8 @@
-﻿namespace Lisa.Excelsis.WebApi
+﻿using Newtonsoft.Json.Linq;
+using System.Collections.Generic;
+using System.Text.RegularExpressions;
+
+namespace Lisa.Excelsis.WebApi
 {
     partial class Validate
     {
@@ -20,6 +24,39 @@
 
             dynamic result = _db.Execute(query, parameters);
             return (result.count > 0);
+        }
+
+        public bool CheckValue(Patch patch, Dictionary<string, string> dict)
+        {
+            int Count = 0;
+            string regex;
+            var value = patch.Value as JObject;
+            if (value != null)
+            {
+                foreach(var prop in value)
+                {
+                    if (dict.TryGetValue(prop.Key, out regex))
+                    {
+                        if (Regex.IsMatch(prop.Value.ToString(), regex))
+                        {
+                            Count++;
+                        }
+                        else
+                        {
+                            // TODO: Error value is not correct
+                        }
+                    }
+                    else
+                    {
+                        // TODO: Error property is not correct
+                    }
+                }
+            }
+            else
+            {
+                // TODO: Error value cannot be parsed to object
+            }
+            return (Count == dict.Count);
         }
 
         private static readonly Database _db = new Database();
