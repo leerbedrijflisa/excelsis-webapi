@@ -6,7 +6,7 @@ namespace Lisa.Excelsis.WebApi
 {
     partial class Validate
     {
-        public bool CheckResource(dynamic resource, string child, object childId)
+        public bool CheckChild(dynamic resource, string child, object childId)
         {
             var query = @"SELECT COUNT(*) as count FROM " + child + @"
                           WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id";
@@ -16,7 +16,7 @@ namespace Lisa.Excelsis.WebApi
             return (result.count > 0);
         }
 
-        public bool CheckResourceInResource(dynamic resource, string parent, string parentId, string child, object childId)
+        public bool CheckParent(dynamic resource, string parent, string parentId, string child, object childId)
         {
             var query = @"SELECT COUNT(*) as count FROM " + child + @"
                           WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id AND " + parent + @" = @ParentId";
@@ -30,16 +30,16 @@ namespace Lisa.Excelsis.WebApi
         {
             if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
             {
-                return CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, patch.Value.ToString());
+                return CheckParent(resource, parameters.Parent, parameters.ParentId, parameters.Child, patch.Value.ToString());
             }
             return false;
         }
 
-        public bool ValidateRemoveCategory(object resource, Patch patch, PatchPropInfo parameters)
+        public bool ValidateRemoveOneResource(object resource, Patch patch, PatchPropInfo parameters)
         {
             if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
             {
-                return CheckResource(resource, parameters.Child, patch.Value.ToString());
+                return CheckChild(resource, parameters.Child, patch.Value.ToString());
             }
             return false;
         }

@@ -42,7 +42,7 @@ namespace Lisa.Excelsis.WebApi
                         {
                             FieldRegex = @"^(?<child>categories)$",
                             ValueRegex = @"^\d+$",
-                            Validate = val.ValidateRemoveCategory,
+                            Validate = val.ValidateRemoveOneResource,
                             BuildQuery = _db.QueryBuilderRemove
                         },
                         new PatchValidationProps

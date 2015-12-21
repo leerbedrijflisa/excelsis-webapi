@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -6,8 +7,10 @@ namespace Lisa.Excelsis.WebApi
     partial class Validate
     {
         /*
-         *  Validate Add actions
-         */
+        *
+        *   EXAM VALIDATE FUNCTIONS
+        *
+        */
         public bool ValidateCategory(object resource, Patch patch, PatchPropInfo parameters)
         {
             Dictionary<string, string> dict = new Dictionary<string, string>()
@@ -21,7 +24,7 @@ namespace Lisa.Excelsis.WebApi
 
         public bool ValidateCriterion(object resource, Patch patch, PatchPropInfo parameters)
         {
-            if (CheckResource(resource, parameters.Child, parameters.ChildId))
+            if (CheckChild(resource, parameters.Child, parameters.ChildId))
             {
                 Dictionary<string, string> dict = new Dictionary<string, string>()
                 {
@@ -39,21 +42,46 @@ namespace Lisa.Excelsis.WebApi
             }
             return false;
         }
-        
-        /*
-         *  Validate Replace actions
-         */
+
+
 
         public bool ValidateReplaceCategory(object resource, Patch patch, PatchPropInfo parameters)
         {
-            bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
+            bool resourceExists = CheckChild(resource, parameters.Child, parameters.ChildId);
             bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
 
         public bool ValidateReplaceCriterion(object resource, Patch patch, PatchPropInfo parameters)
         {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
+            bool resourceExists = CheckParent(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
+            return (resourceExists && ValueIsValid);
+        }
+
+        /*
+        *
+        *   ASSESSMENT VALIDATE FUNCTIONS
+        *
+        */
+
+        public bool ValidateAssessed(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            DateTime temp;
+            bool ValueIsValid = (DateTime.TryParse(patch.Value.ToString(), out temp));
+            return (ValueIsValid);
+        }
+
+        public bool ValidateMark(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            bool resourceExists = CheckChild(resource, "observations", parameters.ChildId);
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
+            return (resourceExists && ValueIsValid);
+        }
+
+        public bool ValidateResult(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            bool resourceExists = CheckChild(resource, parameters.Child, parameters.ChildId);
             bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
