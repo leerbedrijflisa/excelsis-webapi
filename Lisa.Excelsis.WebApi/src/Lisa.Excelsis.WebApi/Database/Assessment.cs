@@ -17,12 +17,12 @@ namespace Lisa.Excelsis.WebApi
                                  Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
                                  Criteria.Id as #Categories_#Observations_Criterion_@Id, Criteria.Title as #Categories_#Observations_Criterion_Title, Criteria.Description as #Categories_#Observations_Criterion_Description, Criteria.[Order] as #Categories_#Observations_Criterion_Order, Criteria.Weight as #Categories_#Observations_Criterion_Weight
                           FROM Assessments
-                          LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
-                          LEFT JOIN Observations ON Observations.Assessment_Id = Assessments.Id
-                          LEFT JOIN Marks ON Marks.Observation_Id = Observations.Id
-                          LEFT JOIN Criteria ON Criteria.Id = Observations.Criterion_Id
+                          LEFT JOIN Exams ON Exams.Id = Assessments.ExamId
+                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId
+                          LEFT JOIN Observations ON Observations.AssessmentId = Assessments.Id
+                          LEFT JOIN Marks ON Marks.ObservationId = Observations.Id
+                          LEFT JOIN Criteria ON Criteria.Id = Observations.CriterionId
                           LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
                           WHERE Assessments.Id = @Id";
             var parameters = new {
@@ -60,9 +60,9 @@ namespace Lisa.Excelsis.WebApi
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
                           FROM Assessments
-                          LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id";
+                          LEFT JOIN Exams ON Exams.Id = Assessments.ExamId
+                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
+                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId";
 
             if (filter.Assessors != null)
             {
@@ -83,9 +83,9 @@ namespace Lisa.Excelsis.WebApi
                 assessmentQueryList.Add(@" Assessments.Id IN(
                                               SELECT Assessments.Id
                                               FROM Assessments
-                                              LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
-                                              LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-                                              LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+                                              LEFT JOIN Exams ON Exams.Id = Assessments.ExamId
+                                              LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
+                                              LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId
                                               WHERE " + assessorQuery + ")");
             }
 
@@ -319,7 +319,7 @@ namespace Lisa.Excelsis.WebApi
 
         private object InsertAssessment(AssessmentPost assessment, dynamic examResult)
         {
-            var query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, Exam_Id)
+            var query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, ExamId)
                           VALUES (@StudentName, @StudentNumber, @Assessed, @ExamId);";
 
             var parameters = new
@@ -337,7 +337,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var assessorAssessments = ((IEnumerable<dynamic>)assessorResult).Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
 
-            var query = @"INSERT INTO AssessmentsAssessors (Assessment_Id, Assessor_Id) VALUES ";
+            var query = @"INSERT INTO AssessmentsAssessors (AssessmentId, AssessorId) VALUES ";
             query += string.Join(",", assessorAssessments);
             _gateway.Insert(query, null);
         }

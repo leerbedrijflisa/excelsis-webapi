@@ -18,7 +18,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                 }
 
-                var query = @"INSERT INTO Observations (Criterion_Id, Assessment_Id, Result) VALUES ";
+                var query = @"INSERT INTO Observations (CriterionId, AssessmentId, Result) VALUES ";
                 query += string.Join(",", observations);
                 _gateway.Insert(query, null);
             }
@@ -29,7 +29,7 @@ namespace Lisa.Excelsis.WebApi
             if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
             {
                 var field = patch.Field.Split('/');
-                var query = @"INSERT INTO Marks ([Observation_Id], [Name]) 
+                var query = @"INSERT INTO Marks ([ObservationId], [Name]) 
                     VALUES (@Id, @Name)";
                 var parameters = new
                 {
@@ -69,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
                 var field = patch.Field.Split('/');
                 var query = @"UPDATE Observations
                               SET result = @Value
-                              WHERE Assessment_Id = @Id AND Id = @ObservationId";
+                              WHERE AssessmentId = @Id AND Id = @ObservationId";
                 var parameters = new
                 {
                     value = patch.Value.ToString(),
@@ -87,7 +87,7 @@ namespace Lisa.Excelsis.WebApi
         private bool ObservationExists(int assessmentId, int id)
         {
             var query = @"SELECT COUNT(*) as count FROM Observations
-                          WHERE Assessment_Id = @AssessmentId AND Id = @id";
+                          WHERE AssessmentId = @AssessmentId AND Id = @id";
             var parameters = new { AssessmentId = assessmentId, Id = id };
             dynamic result = _gateway.SelectSingle(query, parameters);
             return (result.count > 0);

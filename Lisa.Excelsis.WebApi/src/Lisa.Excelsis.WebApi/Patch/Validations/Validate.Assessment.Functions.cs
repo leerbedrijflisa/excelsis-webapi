@@ -1,34 +1,28 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
     partial class Validate
     {
-        public bool ValidateStudentName(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
-            return (resourceExists && ValueIsValid);
-        }
-
-        public bool ValidateStudentNumber(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
-            return (resourceExists && ValueIsValid);
-        }
-
         public bool ValidateAssessed(object resource, Patch patch, PatchPropInfo parameters)
         {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
+            DateTime temp;
+            bool ValueIsValid = (DateTime.TryParse(patch.Value.ToString(), out temp)); 
+            return (ValueIsValid);
+        }
+
+        public bool ValidateMark(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            bool resourceExists = CheckResource(resource, "observations", parameters.ChildId);
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
 
-        public bool ValidateObservationResult(object resource, Patch patch, PatchPropInfo parameters)
+        public bool ValidateResult(object resource, Patch patch, PatchPropInfo parameters)
         {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
+            bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
     }

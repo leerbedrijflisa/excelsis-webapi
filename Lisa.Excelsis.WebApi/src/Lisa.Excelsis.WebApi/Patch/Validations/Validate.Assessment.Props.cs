@@ -20,7 +20,12 @@ namespace Lisa.Excelsis.WebApi
                     {
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<parent>observations)/(?<parentId>\d+)/(?<child>marks)$"
+                            FieldRegex = @"^(?<parent>observations)/(?<parentId>\d+)/(?<child>marks)$",
+                            ValueRegex = @"^[\w+\s]*$",
+                            Validate = val.ValidateMark,
+                            BuildQuery = _db.QueryBuilderAddMark,
+                            Parent = "ObservationId"
+
                         }
                     }
             });
@@ -31,7 +36,11 @@ namespace Lisa.Excelsis.WebApi
                     {
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<parent>observations)/(?<parentId>\d+)/(?<child>marks)$"
+                            FieldRegex = @"^(?<parent>observations)/(?<parentId>\d+)/(?<child>marks)$",
+                            ValueRegex = @"^[\w+\s]*$",
+                            Validate = val.ValidateMark,
+                            BuildQuery = _db.QueryBuilderRemoveMark,
+                            Parent = "ObservationId"                            
                         }
                     }
             });
@@ -43,41 +52,36 @@ namespace Lisa.Excelsis.WebApi
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<property>studentname)$",
-                            Validate = val.ValidateStudentName,
-                            BuildQuery = _db.QueryBuilderReplace
+                            ValueRegex = @"^[a-zA-Z\s]*$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "assessments"
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<property>studentnumber)$",
-                            Validate = val.ValidateStudentNumber,
-                            BuildQuery = _db.QueryBuilderReplace
+                            ValueRegex = @"^\d{8}$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "assessments"
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<property>assessed)$",
                             Validate = val.ValidateAssessed,
-                            BuildQuery = _db.QueryBuilderReplace
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "assessments"
                         },
                         new PatchValidationProps
                         {
-                            FieldRegex = @"^(?<parent>observations)/(?<parentId>\d+)/(?<property>result)$",
-                            Parent = "CategoryId",
-                            Validate = val.ValidateObservationResult,
+                            FieldRegex = @"^(?<child>observations)/(?<childId>\d+)/(?<property>result)$",
+                            ValueRegex = @"^(seen|unseen|notrated)$",
+                            Validate = val.ValidateResult,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                     }
             });
-            pVal.Add(new PatchValidation
-            {
-                Action = "move",
-                properties = new List<PatchValidationProps>
-                    {
-                        new PatchValidationProps
-                        {
-                            FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)$"
-                        }
-                    }
-            });
+            
             return pVal;
         }
     }

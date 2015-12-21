@@ -19,6 +19,7 @@ namespace Lisa.Excelsis.WebApi
     public class PatchValidationProps
     {
         public string FieldRegex { get; set; }
+        public string ValueRegex { get; set; }
         public string Parent { get; set; }
         public Func<object, Patch, PatchPropInfo, bool> Validate { get; set; }
         public Func<object, JToken, PatchPropInfo, bool> BuildQuery { get; set; }
@@ -31,5 +32,6 @@ namespace Lisa.Excelsis.WebApi
         public string ParentId { get; set; }
         public string Property { get; set; }
         public string Target { get; set; }
+        public string Regex { get; set; }
     }
 }

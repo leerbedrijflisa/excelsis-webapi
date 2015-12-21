@@ -39,61 +39,22 @@ namespace Lisa.Excelsis.WebApi
             }
             return false;
         }
-
-        /*
-         * Validate Remove actions
-         */
-        public bool ValidateRemove(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            if (Regex.IsMatch(patch.Value.ToString(), @"^\d+$"))
-            {
-                return CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, patch.Value.ToString());
-            }
-            return false;
-        }
-
+        
         /*
          *  Validate Replace actions
          */
-        public bool ValidateCategoryOrder(object resource, Patch patch, PatchPropInfo parameters)
+
+        public bool ValidateReplaceCategory(object resource, Patch patch, PatchPropInfo parameters)
         {
             bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
 
-        public bool ValidateCategoryName(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResource(resource, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^[a-zA-Z\s,!?.:'""]*$");
-            return (resourceExists && ValueIsValid);
-        }
-
-        public bool ValidateCriterionOrder(object resource, Patch patch, PatchPropInfo parameters)
+        public bool ValidateReplaceCriterion(object resource, Patch patch, PatchPropInfo parameters)
         {
             bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^\d+$");
-            return (resourceExists && ValueIsValid);
-        }
-
-        public bool ValidateCriterionTitle(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^[a-zA-Z\s,!?.:'""]*$");
-            return (resourceExists && ValueIsValid);
-        }
-
-        public bool ValidateCriterionDescription(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"^[a-zA-Z\s,!?.:'""]*$");
-            return (resourceExists && ValueIsValid);
-        }
-
-        public bool ValidateCriterionWeight(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            bool resourceExists = CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, parameters.ChildId);
-            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), @"(fail|pass|excellent)$");
+            bool ValueIsValid = Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
             return (resourceExists && ValueIsValid);
         }
     }

@@ -41,12 +41,14 @@ namespace Lisa.Excelsis.WebApi
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<child>categories)$",
-                            Validate = val.ValidateRemove,
+                            ValueRegex = @"^\d+$",
+                            Validate = val.ValidateRemoveCategory,
                             BuildQuery = _db.QueryBuilderRemove
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$",
+                            ValueRegex = @"^\d+$",
                             Validate = val.ValidateRemove,
                             BuildQuery = _db.QueryBuilderRemove,
                             Parent = "CategoryId"
@@ -60,42 +62,88 @@ namespace Lisa.Excelsis.WebApi
                     {
                         new PatchValidationProps
                         {
+                            FieldRegex = @"^(?<child>subject)$",
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "exams"
+                        },
+                        new PatchValidationProps
+                        {
+                            FieldRegex = @"^(?<child>name)$",
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "exams"
+                        },
+                        new PatchValidationProps
+                        {
+                            FieldRegex = @"^(?<child>cohort)$",
+                            ValueRegex = @"19|20{2}$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "exams"
+                        },
+                        new PatchValidationProps
+                        {
+                            FieldRegex = @"^(?<child>crebo)$",
+                            ValueRegex = @"^\d{8}$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "exams"
+                        },
+                        new PatchValidationProps
+                        {
+                            FieldRegex = @"^(?<child>status)$",
+                            ValueRegex = @"^(draft|published)$",
+                            Validate = val.ValidateValue,
+                            BuildQuery = _db.QueryBuilderReplace,
+                            Parent = "exams"
+                        },
+                        new PatchValidationProps
+                        {
                             FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/(?<property>order)$",
-                            Validate = val.ValidateCategoryOrder,
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
+                            Validate = val.ValidateReplaceCategory,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/(?<property>name)$",
-                            Validate = val.ValidateCategoryName,
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
+                            Validate = val.ValidateReplaceCategory,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/(?<property>order)$",
+                            ValueRegex = @"^\d+$",
                             Parent = "CategoryId",
-                            Validate = val.ValidateCriterionOrder,
+                            Validate = val.ValidateReplaceCriterion,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/(?<property>title)$",
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
                             Parent = "CategoryId",
-                            Validate = val.ValidateCriterionTitle,
+                            Validate = val.ValidateReplaceCriterion,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/(?<property>description)$",
+                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
                             Parent = "CategoryId",
-                            Validate = val.ValidateCriterionDescription,
+                            Validate = val.ValidateReplaceCriterion,
                             BuildQuery = _db.QueryBuilderReplace
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/(?<property>weight)$",
+                            ValueRegex = @"^(fail|pass|excellent)$",
                             Parent = "CategoryId",
-                            Validate = val.ValidateCriterionWeight,
+                            Validate = val.ValidateReplaceCriterion,
                             BuildQuery = _db.QueryBuilderReplace
                         }
                     }

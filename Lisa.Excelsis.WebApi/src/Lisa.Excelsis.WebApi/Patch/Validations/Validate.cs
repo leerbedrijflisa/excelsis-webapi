@@ -26,6 +26,29 @@ namespace Lisa.Excelsis.WebApi
             return (result.count > 0);
         }
 
+        public bool ValidateRemove(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
+            {
+                return CheckResourceInResource(resource, parameters.Parent, parameters.ParentId, parameters.Child, patch.Value.ToString());
+            }
+            return false;
+        }
+
+        public bool ValidateRemoveCategory(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
+            {
+                return CheckResource(resource, parameters.Child, patch.Value.ToString());
+            }
+            return false;
+        }
+
+        public bool ValidateValue(object resource, Patch patch, PatchPropInfo parameters)
+        {
+            return Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
+        }
+
         public bool CheckValue(Patch patch, Dictionary<string, string> dict)
         {
             int Count = 0;

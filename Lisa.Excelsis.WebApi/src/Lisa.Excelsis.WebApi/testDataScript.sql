@@ -9,80 +9,81 @@ GO
 USE ExcelsisDb;
 
 CREATE TABLE [dbo].[Exams] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Name]          NVARCHAR (MAX) NULL,
-    [NameId]        NVARCHAR (MAX) NULL,
-    [Cohort]        NVARCHAR (MAX) NULL,
-    [Crebo]         NVARCHAR (MAX) NULL,
-    [Subject]       NVARCHAR (MAX) NULL,
-    [SubjectId]     NVARCHAR (MAX) NULL,
-	[Status]		NVARCHAR (MAX) Null,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [Name]          NVARCHAR (MAX)	NULL,
+    [NameId]        NVARCHAR (MAX)	NULL,
+    [Cohort]        NVARCHAR (MAX)	NULL,
+    [Crebo]         NVARCHAR (MAX)	NULL,
+    [Subject]       NVARCHAR (MAX)	NULL,
+    [SubjectId]     NVARCHAR (MAX)	NULL,
+	[Status]		NVARCHAR (MAX)	Null,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Criteria] (
-    [Id]          INT            IDENTITY (1, 1) NOT NULL,
-    [Order]       INT            NULL,
-    [Title]       NVARCHAR (MAX) NULL,
-    [Description] NVARCHAR (MAX) NULL,
-    [Weight]       NVARCHAR (MAX) NULL,
-    [ExamId]      INT            NULL,
-    [CategoryId]  INT            NULL,
-    [Created]     DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]			INT				IDENTITY (1, 1) NOT NULL,
+    [Order]			INT				NULL,
+    [Title]			NVARCHAR (MAX)	NULL,
+    [Description]	NVARCHAR (MAX)	NULL,
+    [Weight]		NVARCHAR (MAX)	NULL,
+    [ExamId]		INT				NULL,
+    [CategoryId]	INT				NULL,
+    [Created]		DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Assessors] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [UserName]      NVARCHAR (MAX) NULL,
-    [Email]         NVARCHAR (MAX) NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [UserName]      NVARCHAR (MAX)	NULL,
+    [Email]         NVARCHAR (MAX)	NULL,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[AssessmentsAssessors] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Assessment_Id] INT            NULL,
-    [Assessor_Id]   INT            NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [AssessmentId]	INT				NULL,
+    [AssessorId]	INT				NULL,
     CONSTRAINT [PK_AssessmentsAssessors] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Assessments] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [StudentName]   NVARCHAR (MAX) NULL,
-    [StudentNumber] NVARCHAR (MAX) NULL,
-    [Assessed]      DATETIME       NULL,
-    [Exam_Id]       INT            NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [StudentName]   NVARCHAR (MAX)	NULL,
+    [StudentNumber] NVARCHAR (MAX)	NULL,
+    [Assessed]      NVARCHAR (MAX)	NULL,
+    [ExamId]		INT				NULL,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Observations] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Criterion_Id]  INT            NULL,
-    [Result]        NVARCHAR (MAX) NULL,
-    [Assessment_Id] INT            NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [CriterionId]	INT				NULL,
+    [Result]        NVARCHAR (MAX)	NULL,
+    [AssessmentId]	INT				NULL,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Marks] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-	[Observation_Id]INT            NULL,
-	[Name]          NVARCHAR (MAX) NULL,
-	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+	[ObservationId]	INT				NULL,
+	[AssessmentId]	INT				NULL,
+	[Name]          NVARCHAR (MAX)	NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 
 CREATE TABLE [dbo].[Categories]
 (
-    [Id]            INT            NOT NULL PRIMARY KEY IDENTITY, 
-    [Order]         INT            NULL, 
-    [Name]          NVARCHAR (MAX) NULL,
-	[ExamId]        INT            NULL,
-	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				NOT NULL PRIMARY KEY IDENTITY, 
+    [Order]         INT				NULL, 
+    [Name]          NVARCHAR (MAX)	NULL,
+	[ExamId]        INT				NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
 )
 
 GO

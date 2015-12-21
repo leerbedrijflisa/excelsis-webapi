@@ -39,12 +39,13 @@ namespace Lisa.Excelsis.WebApi
                                 foundMatch = true;
                                 var parameters = new PatchPropInfo
                                 {
-                                    Child = match.Groups["child"].Value,
-                                    ChildId = match.Groups["childId"].Value,
+                                    Child = (match.Groups["child"].Value == string.Empty)? validationProp.Parent : match.Groups["child"].Value,
+                                    ChildId = (match.Groups["childId"].Value == string.Empty)? resource.Value.ToString() : match.Groups["childId"].Value,
                                     Parent = validationProp.Parent,
                                     ParentId = match.Groups["parentId"].Value,
                                     Property = match.Groups["property"].Value,
-                                    Target = match.Groups["target"].Value
+                                    Target = match.Groups["target"].Value,
+                                    Regex = validationProp.ValueRegex
                                 };
 
                                 var ValidResource = validationProp.Validate(resource, patch, parameters);

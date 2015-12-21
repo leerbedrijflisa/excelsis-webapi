@@ -59,5 +59,40 @@ namespace Lisa.Excelsis.WebApi
 
             return true;
         }
+
+        public bool QueryBuilderRemoveMark(dynamic resource, JToken value, PatchPropInfo parameters)
+        {
+            var query = @"DELETE FROM " + parameters.Child + @"  WHERE Name = @Id";
+            _gateway.Update(query, new { Id = value.ToString() });
+            return true;
+        }
+
+        public bool QueryBuilderAddMark(dynamic resource, JToken value, PatchPropInfo parameters)
+        {
+            List<string> propParams = new List<string>();
+            List<string> valueParams = new List<string>();
+
+            var query = @"INSERT INTO " + parameters.Child;
+           
+            propParams.Add("[name]");
+            valueParams.Add("'" + value.ToString() + "'");
+
+            if (parameters.Parent != string.Empty && parameters.ParentId != string.Empty)
+            {
+                propParams.Add(parameters.Parent.ToString());
+                valueParams.Add(parameters.ParentId.ToString());
+            }
+
+            propParams.Add(resource.Name.ToString());
+            valueParams.Add(resource.Value.ToString());
+
+            string props = string.Join(",", propParams);
+            string values = string.Join(",", valueParams);
+
+            query += "(" + props + ")" + " VALUES (" + values + ")";
+            _gateway.Insert(query, new { });
+
+            return true;
+        }
     }
 }

@@ -180,14 +180,14 @@ namespace Lisa.Excelsis.WebApi
                 return @"SELECT Id, Name, Cohort, Crebo, Subject, Status
                           FROM Exams
                           LEFT JOIN (	
-	                          SELECT TOP 10 Exam_Id, MAX(Assessments.Assessed) as Assessed
+	                          SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
 	                          FROM Assessments	
-	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
+	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId
 	                          WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
 	                          AND Assessors.UserName = @Assessor
-	                          GROUP BY Exam_Id
-                          ) Assessments ON Exams.Id = Assessments.Exam_Id";
+	                          GROUP BY ExamId
+                          ) Assessments ON Exams.Id = Assessments.ExamId";
             }
         }
     }
