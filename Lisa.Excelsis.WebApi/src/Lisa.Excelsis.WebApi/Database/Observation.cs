@@ -23,67 +23,7 @@ namespace Lisa.Excelsis.WebApi
                 _gateway.Insert(query, null);
             }
         }
-
-        public void AddMark(Patch patch)
-        {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
-            {
-                var field = patch.Field.Split('/');
-                var query = @"INSERT INTO Marks ([ObservationId], [Name]) 
-                    VALUES (@Id, @Name)";
-                var parameters = new
-                {
-                    Id = field[1],
-                    Name = patch.Value.ToString()
-                };
-                _gateway.Insert(query, parameters);
-            }
-            else
-            {
-                _errors.Add(new Error(1200, new { field = "value", value = patch.Value ?? string.Empty }));
-            }
-        }
-
-        public void RemoveMark(Patch patch)
-        {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^[a-zA-Z]*$"))
-            {
-                var query = @"DELETE FROM Marks
-                              WHERE Name = @Name";
-                var parameters = new
-                {
-                    Name = patch.Value.ToString()
-                };
-                _gateway.Update(query, parameters);
-            }
-            else
-            {
-                _errors.Add(new Error(1200, new { field = "value", value = patch.Value ?? string.Empty }));
-            }
-        }
-
-        public void ReplaceResult(int id, Patch patch)
-        {
-            if (Regex.IsMatch(patch.Value.ToString().ToLower(), @"^(seen|unseen|notrated)$"))
-            {
-                var field = patch.Field.Split('/');
-                var query = @"UPDATE Observations
-                              SET result = @Value
-                              WHERE AssessmentId = @Id AND Id = @ObservationId";
-                var parameters = new
-                {
-                    value = patch.Value.ToString(),
-                    Id = id,
-                    ObservationId = field[1]
-                };
-                _gateway.Update(query, parameters);
-            }
-            else
-            {
-                _errors.Add(new Error(1204, new { field = "value", value = patch.Value ?? string.Empty, permitted = new string[] { "seen", "notseen", "notrated" } }));
-            }
-        }
-
+        
         private bool ObservationExists(int assessmentId, int id)
         {
             var query = @"SELECT COUNT(*) as count FROM Observations

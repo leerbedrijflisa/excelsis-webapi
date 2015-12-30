@@ -25,7 +25,6 @@ namespace Lisa.Excelsis.WebApi
                             Validate = val.ValidateMark,
                             BuildQuery = _db.QueryBuilderAddMark,
                             Parent = "ObservationId"
-
                         }
                     }
             });
@@ -40,7 +39,12 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^[\w+\s]*$",
                             Validate = val.ValidateMark,
                             BuildQuery = _db.QueryBuilderRemoveMark,
-                            Parent = "ObservationId"                            
+                            Parent = "ObservationId",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1201,
+                                Field = "value",                                
+                            }                            
                         }
                     }
             });
@@ -55,7 +59,12 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^[a-zA-Z\s]*$",
                             Validate = val.ValidateValue,
                             BuildQuery = _db.QueryBuilderReplace,
-                            Parent = "assessments"
+                            Parent = "assessments",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1201,
+                                Field = "value"
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -63,7 +72,13 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^\d{8}$",
                             Validate = val.ValidateValue,
                             BuildQuery = _db.QueryBuilderReplace,
-                            Parent = "assessments"
+                            Parent = "assessments",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1203,
+                                Field = "value",
+                                Count = 8
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -77,8 +92,16 @@ namespace Lisa.Excelsis.WebApi
                             FieldRegex = @"^(?<child>observations)/(?<childId>\d+)/(?<property>result)$",
                             ValueRegex = @"^(seen|unseen|notrated)$",
                             Validate = val.ValidateResult,
-                            BuildQuery = _db.QueryBuilderReplace
-                        },
+                            BuildQuery = _db.QueryBuilderReplace,
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1204,
+                                Field = "value",
+                                Permitted1 = "seen",
+                                Permitted2 = "unseen",
+                                Permitted3 = "notrated"
+                            }
+                        }
                     }
             });
             

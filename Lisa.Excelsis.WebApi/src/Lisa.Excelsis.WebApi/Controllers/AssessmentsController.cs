@@ -56,9 +56,13 @@ namespace Lisa.Excelsis.WebApi
 
             _db.PatchAssessment(patches, id);
 
-            if (_db.Errors.Any())
+            if (_db.Errors.Any() || _val.Errors.Any())
             {
-                return new UnprocessableEntityObjectResult(_db.Errors);
+                errors.AddRange(_db.Errors);
+                errors.AddRange(_val.Errors);
+                _val.ClearErrors();
+                _db.ClearErrors();
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var result = _db.FetchAssessment(id);
@@ -108,5 +112,6 @@ namespace Lisa.Excelsis.WebApi
         }
 
         private readonly Database _db = new Database();
+        private readonly Validate _val = new Validate();
     }
 }

@@ -2,7 +2,7 @@
 {
     public class Error
     {
-        public Error(int code, object values = null)
+        public Error(int code, ErrorProps values = null)
         {
 
             Code = code;
@@ -15,6 +15,6 @@
 
         public int Code { get; set; }
         public string Message { get; set; }
-        public object Values { get; set; }
+        public ErrorProps Values { get; set; }
     }
 }

@@ -21,13 +21,13 @@ namespace Lisa.Excelsis.WebApi
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<child>categories)$",
-                            Validate = val.ValidateCategory,
+                            Validate = val.ValidateCategoryObject,
                             BuildQuery = _db.QueryBuilderAdd
                         },
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)$",
-                            Validate = val.ValidateCriterion,
+                            Validate = val.ValidateCriterionObject,
                             BuildQuery = _db.QueryBuilderAdd,
                             Parent = "CategoryId"                            
                         }
@@ -43,7 +43,12 @@ namespace Lisa.Excelsis.WebApi
                             FieldRegex = @"^(?<child>categories)$",
                             ValueRegex = @"^\d+$",
                             Validate = val.ValidateRemoveOneResource,
-                            BuildQuery = _db.QueryBuilderRemove
+                            BuildQuery = _db.QueryBuilderRemove,
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1202,
+                                Field = "value"
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -51,7 +56,12 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^\d+$",
                             Validate = val.ValidateRemove,
                             BuildQuery = _db.QueryBuilderRemove,
-                            Parent = "CategoryId"
+                            Parent = "CategoryId",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1202,
+                                Field = "value"
+                            }
                         }
                     }
             });
@@ -60,6 +70,7 @@ namespace Lisa.Excelsis.WebApi
                 Action = "replace",
                 properties = new List<PatchValidationProps>
                     {
+                        //Exam metadata
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<child>subject)$",
@@ -82,7 +93,15 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"19|20{2}$",
                             Validate = val.ValidateValue,
                             BuildQuery = _db.QueryBuilderReplace,
-                            Parent = "exams"
+                            Parent = "exams",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1207,
+                                Field = "value",
+                                Count = 4,
+                                Min = 1900,
+                                Max = 2099
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -90,7 +109,13 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^\d{8}$",
                             Validate = val.ValidateValue,
                             BuildQuery = _db.QueryBuilderReplace,
-                            Parent = "exams"
+                            Parent = "exams",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1203,
+                                Field = "value",
+                                Count = 8
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -98,14 +123,27 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^(draft|published)$",
                             Validate = val.ValidateValue,
                             BuildQuery = _db.QueryBuilderReplace,
-                            Parent = "exams"
+                            Parent = "exams",
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1204,
+                                Field = "value",
+                                Permitted1 = "draft",
+                                Permitted2 = "published"
+                            }
                         },
+                        // Category
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<child>categories)/(?<childId>\d+)/(?<property>order)$",
-                            ValueRegex = @"^[a-zA-Z\s,!?.:'""]*$",
+                            ValueRegex = @"^\d+$",
                             Validate = val.ValidateReplaceCategory,
-                            BuildQuery = _db.QueryBuilderReplace
+                            BuildQuery = _db.QueryBuilderReplace,
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1202,
+                                Field = "value"                                
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -114,13 +152,19 @@ namespace Lisa.Excelsis.WebApi
                             Validate = val.ValidateReplaceCategory,
                             BuildQuery = _db.QueryBuilderReplace
                         },
+                        //Criteria
                         new PatchValidationProps
                         {
                             FieldRegex = @"^(?<parent>categories)/(?<parentId>\d+)/(?<child>criteria)/(?<childId>\d+)/(?<property>order)$",
                             ValueRegex = @"^\d+$",
                             Parent = "CategoryId",
                             Validate = val.ValidateReplaceCriterion,
-                            BuildQuery = _db.QueryBuilderReplace
+                            BuildQuery = _db.QueryBuilderReplace,
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1202,
+                                Field = "value"
+                            }
                         },
                         new PatchValidationProps
                         {
@@ -144,7 +188,15 @@ namespace Lisa.Excelsis.WebApi
                             ValueRegex = @"^(fail|pass|excellent)$",
                             Parent = "CategoryId",
                             Validate = val.ValidateReplaceCriterion,
-                            BuildQuery = _db.QueryBuilderReplace
+                            BuildQuery = _db.QueryBuilderReplace,
+                            ErrorInfo = new ErrorProps
+                            {
+                                Code = 1202,
+                                Field = "value",
+                                Permitted1 = "fail",
+                                Permitted2 = "pass",
+                                Permitted3 = "excellent"
+                            }
                         }
                     }
             });

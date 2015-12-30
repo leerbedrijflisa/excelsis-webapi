@@ -40,6 +40,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpPatch("{id}")]
         public IActionResult Patch([FromBody] List<Patch> patches, int id)
         {
+            List<Error> errors = new List<Error>();
+
             if (!ModelState.IsValid)
             {
                 if (_db.GetModelStateErrors(ModelState))
@@ -64,9 +66,13 @@ namespace Lisa.Excelsis.WebApi
 
             _db.PatchExam(patches, id);
 
-            if (_db.Errors.Any())
+            if (_db.Errors.Any() || _val.Errors.Any())
             {
-                return new BadRequestObjectResult(_db.Errors);
+                errors.AddRange(_db.Errors);
+                errors.AddRange(_val.Errors);
+                _val.ClearErrors();
+                _db.ClearErrors();
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var result = _db.FetchExam(id);
@@ -97,7 +103,7 @@ namespace Lisa.Excelsis.WebApi
 
             if (_db.ExamExists(exam))
             {
-                errors.Add(new Error(1301, new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name, crebo = exam.Crebo }));
+                errors.Add(new Error(1301, new ErrorProps { Subject = exam.Subject, Cohort = exam.Cohort, Name = exam.Name, Crebo = exam.Crebo }));
             }
 
             if (errors.Any())
@@ -117,5 +123,6 @@ namespace Lisa.Excelsis.WebApi
         }
 
         private readonly Database _db = new Database();
+        private readonly Validate _val = new Validate();
     }
 }

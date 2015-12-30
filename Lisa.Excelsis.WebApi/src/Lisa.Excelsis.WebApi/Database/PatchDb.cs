@@ -14,15 +14,15 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (patch.Field == null)
                 {
-                    _errors.Add(new Error(1101, new { field = "field" }));
+                    _errors.Add(new Error(1101, new ErrorProps { Field = "field" }));
                 }
                 if (patch.Action == null)
                 {
-                    _errors.Add(new Error(1101, new { field = "action" }));
+                    _errors.Add(new Error(1101, new ErrorProps { Field = "action" }));
                 }
                 if (patch.Value == null)
                 {
-                    _errors.Add(new Error(1101, new { field = "value" }));
+                    _errors.Add(new Error(1101, new ErrorProps { Field = "value" }));
                 }
 
                 if (!_errors.Any())
@@ -45,8 +45,16 @@ namespace Lisa.Excelsis.WebApi
                                     ParentId = match.Groups["parentId"].Value,
                                     Property = match.Groups["property"].Value,
                                     Target = match.Groups["target"].Value,
-                                    Regex = validationProp.ValueRegex
+                                    Regex = validationProp.ValueRegex,
+                                    ErrorInfo = validationProp.ErrorInfo
                                 };
+
+                                if(parameters.ErrorInfo == null)
+                                {
+                                    parameters.ErrorInfo = new ErrorProps();
+                                }
+
+                                parameters.ErrorInfo.Value = patch.Value.ToString();
 
                                 var ValidResource = validationProp.Validate(resource, patch, parameters);
                                 if (ValidResource)
@@ -58,12 +66,12 @@ namespace Lisa.Excelsis.WebApi
 
                         if (!foundMatch)
                         {
-                            _errors.Add(new Error(1500, new { field = patch.Field.ToLower() }));
+                            _errors.Add(new Error(1500, new ErrorProps { Field = "field" }));
                         }
                     }
                     else
                     {
-                        // _errors.Add(new Error)
+                        _errors.Add(new Error(1208, new ErrorProps { Field = "value", Type = "object" }));
                     }
                 }
             }

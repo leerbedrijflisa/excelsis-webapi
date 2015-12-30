@@ -6,81 +6,20 @@ namespace Lisa.Excelsis.WebApi
 {
     partial class Validate
     {
-        public bool CheckChild(dynamic resource, string child, object childId)
+        public IEnumerable<Error> Errors
         {
-            var query = @"SELECT COUNT(*) as count FROM " + child + @"
-                          WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id";
-            var parameters = new { id = childId };
-
-            dynamic result = _db.Execute(query, parameters);
-            return (result.count > 0);
-        }
-
-        public bool CheckParent(dynamic resource, string parent, string parentId, string child, object childId)
-        {
-            var query = @"SELECT COUNT(*) as count FROM " + child + @"
-                          WHERE " + resource.Name + @" = " + resource.Value + @" AND Id = @Id AND " + parent + @" = @ParentId";
-            var parameters = new { Id = childId, ParentId = parentId };
-
-            dynamic result = _db.Execute(query, parameters);
-            return (result.count > 0);
-        }
-
-        public bool ValidateRemove(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
+            get
             {
-                return CheckParent(resource, parameters.Parent, parameters.ParentId, parameters.Child, patch.Value.ToString());
+                return _errors;
             }
-            return false;
         }
 
-        public bool ValidateRemoveOneResource(object resource, Patch patch, PatchPropInfo parameters)
+        public void ClearErrors()
         {
-            if (Regex.IsMatch(patch.Value.ToString(), parameters.Regex))
-            {
-                return CheckChild(resource, parameters.Child, patch.Value.ToString());
-            }
-            return false;
+            _errors.Clear();
         }
 
-        public bool ValidateValue(object resource, Patch patch, PatchPropInfo parameters)
-        {
-            return Regex.IsMatch(patch.Value.ToString(), parameters.Regex);
-        }
-
-        public bool CheckValue(Patch patch, Dictionary<string, string> dict)
-        {
-            int Count = 0;
-            string regex;
-            var value = patch.Value as JObject;
-            if (value != null)
-            {
-                foreach(var prop in value)
-                {
-                    if (dict.TryGetValue(prop.Key, out regex))
-                    {
-                        if (Regex.IsMatch(prop.Value.ToString(), regex))
-                        {
-                            Count++;
-                        }
-                        else
-                        {
-                            // TODO: Error value is not correct
-                        }
-                    }
-                    else
-                    {
-                        // TODO: Error property is not correct
-                    }
-                }
-            }
-            else
-            {
-                // TODO: Error value cannot be parsed to object
-            }
-            return (Count == dict.Count);
-        }
+        public static List<Error> _errors { get; set; }
 
         private static readonly Database _db = new Database();
     }

@@ -51,13 +51,13 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1205, new { field = property.Key, value = property.Value.ToString() }));
+                        _errors.Add(new Error(1205, new ErrorProps { Field = property.Key, Value = property.Value.ToString() }));
                     }
                 }
             }
             else
             {
-                _errors.Add(new Error(1208, new { field = "value", value = patch.Value, type = "object" }));
+                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "object" }));
             }
             return dict;
         }
@@ -68,7 +68,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (!dict.ContainsKey(field))
                 {
-                    _errors.Add(new Error(1102, new { subField = field, field = "value", type = "object" }));
+                    _errors.Add(new Error(1102, new ErrorProps { SubField = field, Field = "value", Type = "object" }));
                 }
             }
         }
@@ -84,13 +84,13 @@ namespace Lisa.Excelsis.WebApi
                 {
                     if (error.Exception == null)
                     {
-                        _errors.Add(new Error(1101, new { field = property.Key }));
+                        _errors.Add(new Error(1101, new ErrorProps { Field = property.Key }));
                     }
                     else
                     {
                         if (Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
                         {
-                            _errors.Add(new Error(1103, new { field = property.Key }));
+                            _errors.Add(new Error(1103, new ErrorProps { Field = property.Key }));
                         }
                         else
                         {
@@ -101,6 +101,11 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
             return (fatalError);
+        }
+
+        public void ClearErrors()
+        {
+            _errors.Clear();
         }
 
         public static List<Error> _errors { get; set; }

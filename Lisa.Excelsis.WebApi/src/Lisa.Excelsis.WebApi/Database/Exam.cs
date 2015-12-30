@@ -75,27 +75,27 @@ namespace Lisa.Excelsis.WebApi
 
             if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
             {
-                _errors.Add(new Error(1203, new { field = "crebo", value = exam.Crebo, count = 5 }));
+                _errors.Add(new Error(1203, new ErrorProps { Field = "crebo", Value = exam.Crebo, Count = 5 }));
             }
 
             if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
             {
-                _errors.Add(new Error(1207, new { field = "cohort", value = exam.Cohort, count = 4 , min = 1900, max = 2099 }));
+                _errors.Add(new Error(1207, new ErrorProps { Field = "cohort", Value = exam.Cohort, Count = 4 , Min = 1900, Max = 2099 }));
             }
 
             if (subjectId == string.Empty)
             {
-                _errors.Add(new Error(1206, new { field = "Subject", value = exam.Subject }));
+                _errors.Add(new Error(1206, new ErrorProps { Field = "Subject", Value = exam.Subject }));
             }
 
             if (nameId == string.Empty)
             {
-                _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
+                _errors.Add(new Error(1206, new ErrorProps { Field = "Name", Value = exam.Name }));
             }
 
             if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
             {
-                _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
+                _errors.Add(new Error(1204, new ErrorProps { Field = "status", Value = exam.Status, Permitted1 = "draft", Permitted2 = "published" }));
             }
 
             if (_errors.Any())
