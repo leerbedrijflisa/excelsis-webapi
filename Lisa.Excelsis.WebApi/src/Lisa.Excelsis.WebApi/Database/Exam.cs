@@ -120,7 +120,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchExam(IEnumerable<Patch> patches, int id)
         {
-            Patch(new { Name = "ExamId", Value = id }, patches, Validate.GetExamPatchValidation());
+            ValidateExamPatches(new { Name = "ExamId", Value = id }, patches);
         }
         
         public bool ExamExists(ExamPost exam)

@@ -1,64 +1,43 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class Patch
+    public class PatchValidator
     {
-        public string Action { get; set; }
-        public string Field { get; set; }
-        public JToken Value { get; set; }
-        public string Target { get; set; }
-    }
-
-    public class PatchValidation
-    {
-        public string Action { get; set; }
-        public List<PatchValidationProps> properties { get; set; }
-    }
-
-    public class PatchValidationProps
-    {
-        public string FieldRegex { get; set; }
-        public string ValueRegex { get; set; }
-        public string Parent { get; set; }
-        public Func<object, Patch, PatchPropInfo, bool> Validate { get; set; }
-        public Func<object, JToken, PatchPropInfo, bool> BuildQuery { get; set; }
-        public ErrorProps ErrorInfo { get; set; }
-    }
-
-    public class ErrorProps
-    {
-        public int Code { get; set; }
-        public string Type { get; set; }
-        public string Field { get; set; }
-        public string Value { get; set; }
-        public int Count { get; set; }
-        public int Min { get; set; }
-        public int Max { get; set; }
-        public string Permitted1 { get; set; }
-        public string Permitted2 { get; set; }
-        public string Permitted3 { get; set; }
-        public string Name { get; set; }
-        public string Subject { get; set; }
-        public string Cohort { get; set; }
-        public string Crebo { get; set; }
-        public string Parent { get; set; }
-        public string ParentId { get; set; }
-        public string SubField { get; set; }
-        public string Regex { get; set; }
-    }
-
-    public class PatchPropInfo
-    {
-        public string Child { get; set; }
-        public string ChildId { get; set; }
-        public string Parent { get; set; }
-        public string ParentId { get; set; }
-        public string Property { get; set; }
-        public string Target { get; set; }
-        public string Regex { get; set; }
-        public ErrorProps ErrorInfo { get; set; }
+        public static void Allow(string action, IEnumerable<Patch> patches, string field, params Action<Patch>[] funcs)
+        {
+            foreach(Patch patch in patches)
+            {
+                if(patch.Action.ToLower() == action)
+                {
+                    if(Regex.IsMatch(patch.Field.ToLower(), field))
+                    {
+                        foreach(Action<Patch> func in funcs)
+                        {                            
+                            func(patch);                           
+                        }
+                        patch.IsValidated = true;
+                    }
+                    else
+                    {
+                        patch.Errors.Remove()
+                        if (!patch.Errors.Any(e => e.Code == 0))
+                        {
+                            patch.Errors = new Error(0, new ErrorProps { });
+                        }
+                    }
+                }
+                else
+                {
+                    if (!patch.Errors.Any(e => e.Code == 1303))
+                    {
+                        patch.Errors = new Error(1303, new ErrorProps{ Value = patch.Action });
+                    }
+                }               
+            }
+        }
     }
 }
