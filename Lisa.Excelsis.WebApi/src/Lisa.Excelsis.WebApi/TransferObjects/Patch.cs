@@ -10,6 +10,7 @@ namespace Lisa.Excelsis.WebApi
         public JToken Value { get; set; }
         public string Target { get; set; }
         internal bool IsValidated { get; set; }
+        internal bool IsValidField { get; set; }
         internal IList<Error> Errors { get; set; }
     }
 

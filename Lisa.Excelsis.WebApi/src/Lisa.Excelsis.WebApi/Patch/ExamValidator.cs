@@ -2,41 +2,43 @@
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class ExamValidator
+    public class ExamValidator : PatchValidator
     {
-        public static void ValidatePatches(object resource, IEnumerable<Patch> patches)
+        public void ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
             foreach (Patch patch in patches)
             {
                 patch.Errors = new List<Error>();
 
                 //Add Category
-                PatchValidator.Allow("add", resource, patch, @"categories", ExamExists, ValueIsCategoryObject);
+                Allow("add", resource, patch, @"categories", ExamExists, ValueIsCategoryObject);
                 //Add Criterion
-                PatchValidator.Allow("add", resource, patch, @"categories/{id}/criteria", CategoryExists, ValueIsCriteriaObject);
+                Allow("add", resource, patch, @"categories/{id}/criteria", CategoryExists, ValueIsCriteriaObject);
 
                 //Replace Category
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/order", CategoryExists, ValueIsInt);
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/name", CategoryExists, ValueIsString);
+                Allow("replace", resource, patch, @"categories/{id}/order", CategoryExists, ValueIsInt);
+                Allow("replace", resource, patch, @"categories/{id}/name", CategoryExists, ValueIsString);
                 //Replace Criterion
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/order", CriterionExists, ValueIsInt);
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/title", CriterionExists, ValueIsString);
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/description", CriterionExists, ValueIsString);
-                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/weight", CriterionExists, ValueIsWeight);
+                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/order", CriterionExists, ValueIsInt);
+                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/title", CriterionExists, ValueIsString);
+                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/description", CriterionExists, ValueIsString);
+                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/weight", CriterionExists, ValueIsWeight);
                 //Replace Exam
-                PatchValidator.Allow("replace", resource, patch, @"subject", ExamExists, ValueIsString);
-                PatchValidator.Allow("replace", resource, patch, @"name", ExamExists, ValueIsString);
-                PatchValidator.Allow("replace", resource, patch, @"cohort", ExamExists, ValueIsCohort);
-                PatchValidator.Allow("replace", resource, patch, @"crebo", ExamExists, ValueIsCrebo);
-                PatchValidator.Allow("replace", resource, patch, @"status", ExamExists, ValueIsStatus);
+                Allow("replace", resource, patch, @"subject", ExamExists, ValueIsString);
+                Allow("replace", resource, patch, @"name", ExamExists, ValueIsString);
+                Allow("replace", resource, patch, @"cohort", ExamExists, ValueIsCohort);
+                Allow("replace", resource, patch, @"crebo", ExamExists, ValueIsCrebo);
+                Allow("replace", resource, patch, @"status", ExamExists, ValueIsStatus);
 
                 //Remove Category
-                PatchValidator.Allow("remove", resource, patch, @"categories", CategoryExists, ValueIsInt);
-                PatchValidator.Allow("remove", resource, patch, @"categories/{id}/criteria/", CriterionExists, ValueIsInt);
+                Allow("remove", resource, patch, @"categories", CategoryExists, ValueIsInt);
+                Allow("remove", resource, patch, @"categories/{id}/criteria/", CriterionExists, ValueIsInt);
 
                 //Move Criterion
-                PatchValidator.Allow("move", resource, patch, @"categories/{id}/criteria/{id}", CriterionExists, TargetExists, ValueIsInt);
+                Allow("move", resource, patch, @"categories/{id}/criteria/{id}", CriterionExists, TargetExists, ValueIsInt);
             }
+
+            IsValid(patches);
         }
 
         //Check if resource exists

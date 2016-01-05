@@ -2,27 +2,33 @@
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class AssessmentValidator
+    public class AssessmentValidator : PatchValidator
     {
-        public static void ValidatePatches(object resource, IEnumerable<Patch> patches)
+        public IEnumerable<Error> ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
             foreach (Patch patch in patches)
             {
                 patch.Errors = new List<Error>();
 
                 //Add Mark
-                PatchValidator.Allow("add", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
+                Allow("add", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
 
                 //Replace Observation
-                PatchValidator.Allow("replace", resource, patch, @"observations/{id}/result", ObservationExists, ValueIsResult);
+                Allow("replace", resource, patch, @"observations/{id}/result", ObservationExists, ValueIsResult);
                 //Replace  Assessment
-                PatchValidator.Allow("replace", resource, patch, @"studentname", AssessmentExists, ValueIsStudentName);
-                PatchValidator.Allow("replace", resource, patch, @"studentnumber", AssessmentExists, ValueIsStudentNumber);
-                PatchValidator.Allow("replace", resource, patch, @"assessed", AssessmentExists, ValueIsDateTime);
+                Allow("replace", resource, patch, @"studentname", AssessmentExists, ValueIsStudentName);
+                Allow("replace", resource, patch, @"studentnumber", AssessmentExists, ValueIsStudentNumber);
+                Allow("replace", resource, patch, @"assessed", AssessmentExists, ValueIsDateTime);
 
                 //Remove Mark
-                PatchValidator.Allow("remove", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
+                Allow("remove", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
             }
+
+            if (!IsValid(patches))
+            {
+                return Errors(patches);
+            }
+            return new List<Error>();
         }
 
         //Check if resource exists
