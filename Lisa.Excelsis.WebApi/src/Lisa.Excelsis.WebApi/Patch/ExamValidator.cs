@@ -4,84 +4,113 @@ namespace Lisa.Excelsis.WebApi
 {
     public class ExamValidator
     {
-        public void ValidateExamPatches(dynamic resource, IEnumerable<Patch> patches)
+        public static void ValidateExamPatches(object resource, IEnumerable<Patch> patches)
         {
-            //Add Category
-            PatchValidator.Allow("add", patches, @"categories", ExamExists, ValueIsCategoryObject);
-            //Add Criterion
-            PatchValidator.Allow("add", patches, @"categories/{id}/criteria", CategoryExists, ValueIsCriteriaObject);
+            foreach (Patch patch in patches)
+            {
+                patch.Errors = new List<Error>();
 
-            //Replace Category
-            PatchValidator.Allow("replace", patches, @"categories/{id}/order", CategoryExists, ValueIsInt);
-            PatchValidator.Allow("replace", patches, @"categories/{id}/name", CategoryExists, ValueIsString);
-            //Replace Criterion
-            PatchValidator.Allow("replace", patches, @"categories/{id}/criteria/{id}/order", CriterionExists, ValueIsInt);
-            PatchValidator.Allow("replace", patches, @"categories/{id}/criteria/{id}/title", CriterionExists, ValueIsString);
-            PatchValidator.Allow("replace", patches, @"categories/{id}/criteria/{id}/description", CriterionExists, ValueIsString);
-            PatchValidator.Allow("replace", patches, @"categories/{id}/criteria/{id}/weight", CriterionExists, ValueIsWeight);
-            //Replace Exam
-            PatchValidator.Allow("replace", patches, @"subject", ExamExists, ValueIsString);
-            PatchValidator.Allow("replace", patches, @"name", ExamExists, ValueIsString);
-            PatchValidator.Allow("replace", patches, @"cohort", ExamExists, ValueIsCohort);
-            PatchValidator.Allow("replace", patches, @"crebo", ExamExists, ValueIsCrebo);
-            PatchValidator.Allow("replace", patches, @"status", ExamExists, ValueIsStatus);
+                //Add Category
+                PatchValidator.Allow("add", resource, patch, @"categories", ExamExists, ValueIsCategoryObject);
+                //Add Criterion
+                PatchValidator.Allow("add", resource, patch, @"categories/{id}/criteria", CategoryExists, ValueIsCriteriaObject);
 
-            //Remove Category
-            PatchValidator.Allow("remove", patches, @"categories",CategoryExists, ValueIsInt);
-            PatchValidator.Allow("remove", patches, @"categories/{id}/criteria/",CriterionExists, ValueIsInt);
+                //Replace Category
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/order", CategoryExists, ValueIsInt);
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/name", CategoryExists, ValueIsString);
+                //Replace Criterion
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/order", CriterionExists, ValueIsInt);
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/title", CriterionExists, ValueIsString);
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/description", CriterionExists, ValueIsString);
+                PatchValidator.Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/weight", CriterionExists, ValueIsWeight);
+                //Replace Exam
+                PatchValidator.Allow("replace", resource, patch, @"subject", ExamExists, ValueIsString);
+                PatchValidator.Allow("replace", resource, patch, @"name", ExamExists, ValueIsString);
+                PatchValidator.Allow("replace", resource, patch, @"cohort", ExamExists, ValueIsCohort);
+                PatchValidator.Allow("replace", resource, patch, @"crebo", ExamExists, ValueIsCrebo);
+                PatchValidator.Allow("replace", resource, patch, @"status", ExamExists, ValueIsStatus);
 
-            //Move Criterion
-            PatchValidator.Allow("move", patches, @"categories/{id}/criteria/{id}",CriterionExists, TargetExists, ValueIsInt);
+                //Remove Category
+                PatchValidator.Allow("remove", resource, patch, @"categories", CategoryExists, ValueIsInt);
+                PatchValidator.Allow("remove", resource, patch, @"categories/{id}/criteria/", CriterionExists, ValueIsInt);
+
+                //Move Criterion
+                PatchValidator.Allow("move", resource, patch, @"categories/{id}/criteria/{id}", CriterionExists, TargetExists, ValueIsInt);
+            }
         }
 
         //Check if resource exists
-        private void CriterionExists(Patch patch)
+        private static void ExamExists(dynamic resource, Patch patch)
         {
+            var query = @"SELECT count(*) FROM Exams WHERE Id = @Id";
+            dynamic result = _db.Execute(query, new { Id = resource.Value });
+            if(result.count > 0)
+            {
+                patch.Errors.Add(new Error(1501, new ErrorProps { Field = "Exam", Value = resource.Value}));
+            }
         }
 
-        private void CategoryExists(Patch patch)
+        private static void CriterionExists(dynamic resource, Patch patch)
         {
+            var field = patch.Field.Split('/');
+            var query = @"SELECT count(*) FROM Criteria 
+                          WHERE Id = @Id AND CategoryId = @Cid AND ExamId = @Eid";
+            dynamic result = _db.Execute(query, new { Id = field[3], Cid = field[1], Eid = resource.Value});
+            if (result.count > 0)
+            {
+                patch.Errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = field[3], Parent = "Category", ParentId = field[1] }));
+            }
         }
 
-        private void ExamExists(Patch patch)
+        private static void CategoryExists(dynamic resource, Patch patch)
         {
+            var field = patch.Field.Split('/');
+            var query = @"SELECT count(*) FROM Categories 
+                          WHERE Id = @Id AND ExamId = @Eid";
+            dynamic result = _db.Execute(query, new { Id = field[1], Eid = resource.Value });
+            if (result.count > 0)
+            {
+                patch.Errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = field[1], Parent = "Exam", ParentId = resource.Value }));
+            }
         }
 
-        private void TargetExists(Patch patch)
+        private static void TargetExists(dynamic resource, Patch patch)
         {
         }
 
         //Check if value is valid
-        private void ValueIsString(Patch patch)
+        private static void ValueIsString(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsInt(Patch patch)
+        private static void ValueIsInt(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsCategoryObject(Patch patch)
+        private static void ValueIsCategoryObject(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsCriteriaObject(Patch patch)
+        private static void ValueIsCriteriaObject(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsWeight(Patch patch)
+        private static void ValueIsWeight(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsCohort(Patch patch)
+        private static void ValueIsCohort(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsCrebo(Patch patch)
+        private static void ValueIsCrebo(dynamic resource, Patch patch)
         {
         }
 
-        private void ValueIsStatus(Patch patch)
+        private static void ValueIsStatus(dynamic resource, Patch patch)
         {
         }
+
+        private static readonly Database _db = new Database();
     }
 }
