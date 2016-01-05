@@ -6,36 +6,36 @@ namespace Lisa.Excelsis.WebApi
     {
         public IEnumerable<Error> ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
-            foreach (Patch patch in patches)
-            {
-                _errors = new List<Error>();
+            _errors = new List<Error>();
 
+            foreach (Patch patch in patches)
+            {     
                 //Add Category
-                Allow("add", resource, patch, @"categories", ExamExists, ValueIsCategoryObject);
+                Allow("add", resource, patch, @"^categories$", ExamExists, ValueIsCategoryObject);
                 //Add Criterion
-                Allow("add", resource, patch, @"categories/{id}/criteria", CategoryExists, ValueIsCriteriaObject);
+                Allow("add", resource, patch, @"^categories/\d/criteria$", CategoryExists, ValueIsCriteriaObject);
 
                 //Replace Category
-                Allow("replace", resource, patch, @"categories/{id}/order", CategoryExists, ValueIsInt);
-                Allow("replace", resource, patch, @"categories/{id}/name", CategoryExists, ValueIsString);
+                Allow("replace", resource, patch, @"^categories/\d/order$", CategoryExists, ValueIsInt);
+                Allow("replace", resource, patch, @"^categories/\d/name$", CategoryExists, ValueIsString);
                 //Replace Criterion
-                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/order", CriterionExists, ValueIsInt);
-                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/title", CriterionExists, ValueIsString);
-                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/description", CriterionExists, ValueIsString);
-                Allow("replace", resource, patch, @"categories/{id}/criteria/{id}/weight", CriterionExists, ValueIsWeight);
+                Allow("replace", resource, patch, @"^categories/\d/criteria/\d/order$", CriterionExists, ValueIsInt);
+                Allow("replace", resource, patch, @"^categories/\d/criteria/\d/title$", CriterionExists, ValueIsString);
+                Allow("replace", resource, patch, @"^categories/\d/criteria/\d/description$", CriterionExists, ValueIsString);
+                Allow("replace", resource, patch, @"^categories/\d/criteria/\d/weight$", CriterionExists, ValueIsWeight);
                 //Replace Exam
-                Allow("replace", resource, patch, @"subject", ExamExists, ValueIsString);
-                Allow("replace", resource, patch, @"name", ExamExists, ValueIsString);
-                Allow("replace", resource, patch, @"cohort", ExamExists, ValueIsCohort);
-                Allow("replace", resource, patch, @"crebo", ExamExists, ValueIsCrebo);
-                Allow("replace", resource, patch, @"status", ExamExists, ValueIsStatus);
+                Allow("replace", resource, patch, @"^subject$", ExamExists, ValueIsString);
+                Allow("replace", resource, patch, @"^name$", ExamExists, ValueIsString);
+                Allow("replace", resource, patch, @"^cohort$", ExamExists, ValueIsCohort);
+                Allow("replace", resource, patch, @"^crebo$", ExamExists, ValueIsCrebo);
+                Allow("replace", resource, patch, @"^status$", ExamExists, ValueIsStatus);
 
                 //Remove Category
-                Allow("remove", resource, patch, @"categories", CategoryExists, ValueIsInt);
-                Allow("remove", resource, patch, @"categories/{id}/criteria/", CriterionExists, ValueIsInt);
+                Allow("remove", resource, patch, @"^categories$", CategoryExists, ValueIsInt);
+                Allow("remove", resource, patch, @"^categories/\d/criteria/$", CriterionExists, ValueIsInt);
 
                 //Move Criterion
-                Allow("move", resource, patch, @"categories/{id}/criteria/{id}", CriterionExists, TargetExists, ValueIsInt);
+                Allow("move", resource, patch, @"^categories/\d/criteria/\d$", CriterionExists, TargetExists, ValueIsInt);
             }
 
             if (!IsValid(patches))

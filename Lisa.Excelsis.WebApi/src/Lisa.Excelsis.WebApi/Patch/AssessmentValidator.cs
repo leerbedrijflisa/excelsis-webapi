@@ -6,22 +6,22 @@ namespace Lisa.Excelsis.WebApi
     {
         public IEnumerable<Error> ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
+            _errors = new List<Error>();
+
             foreach (Patch patch in patches)
             {
-                _errors = new List<Error>();
-
                 //Add Mark
-                Allow("add", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
+                Allow("add", resource, patch, @"^observations/\d/marks$", ObservationExists, ValueIsMark);
 
                 //Replace Observation
-                Allow("replace", resource, patch, @"observations/{id}/result", ObservationExists, ValueIsResult);
+                Allow("replace", resource, patch, @"^observations/\d/result$", ObservationExists, ValueIsResult);
                 //Replace  Assessment
-                Allow("replace", resource, patch, @"studentname", AssessmentExists, ValueIsStudentName);
-                Allow("replace", resource, patch, @"studentnumber", AssessmentExists, ValueIsStudentNumber);
-                Allow("replace", resource, patch, @"assessed", AssessmentExists, ValueIsDateTime);
+                Allow("replace", resource, patch, @"^studentname$", AssessmentExists, ValueIsStudentName);
+                Allow("replace", resource, patch, @"^studentnumber$", AssessmentExists, ValueIsStudentNumber);
+                Allow("replace", resource, patch, @"^assessed$", AssessmentExists, ValueIsDateTime);
 
                 //Remove Mark
-                Allow("remove", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
+                Allow("remove", resource, patch, @"^observations/\d/marks", ObservationExists, ValueIsMark);
             }
 
             if (!IsValid(patches))
