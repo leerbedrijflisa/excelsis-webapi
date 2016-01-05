@@ -101,7 +101,9 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchExam(IEnumerable<Patch> patches, int id)
         {
-            ExamValidator.ValidatePatches(new { Name = "ExamId", Value = id }, patches);
+            ExamValidator validator = new ExamValidator();
+            var errors = validator.ValidatePatches(new { Name = "ExamId", Value = id }, patches);
+            _errors.AddRange(errors);
         }
         
         public bool ExamExists(ExamPost exam)

@@ -30,20 +30,22 @@ namespace Lisa.Excelsis.WebApi
                 if(!patch.IsValidField)
                 {
                     IsValid = false;
-                    patch.Errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(0, new ErrorProps { }));
                 }
                 else if (patch.IsValidField && !patch.IsValidated)
                 {
                     IsValid = false;
-                    patch.Errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(0, new ErrorProps { }));
                 }
             }
             return IsValid;
         }
 
-        protected List<Error> Errors(IEnumerable<Patch> patches)
+        protected List<Error> Errors()
         {
-            return new List<Error>();
+            return _errors;
         }
+
+        protected static List<Error> _errors = new List<Error>();
     }
 }

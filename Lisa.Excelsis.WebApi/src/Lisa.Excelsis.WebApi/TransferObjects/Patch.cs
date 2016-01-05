@@ -11,7 +11,6 @@ namespace Lisa.Excelsis.WebApi
         public string Target { get; set; }
         internal bool IsValidated { get; set; }
         internal bool IsValidField { get; set; }
-        internal IList<Error> Errors { get; set; }
     }
 
     public class ErrorProps

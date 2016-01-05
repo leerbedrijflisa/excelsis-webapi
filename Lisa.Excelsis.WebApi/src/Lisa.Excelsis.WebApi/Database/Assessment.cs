@@ -154,7 +154,9 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchAssessment(IEnumerable<Patch> patches, int id)
         {
-            AssessmentValidator.ValidatePatches(new { Name = "assessmentId", Value = id }, patches);
+            AssessmentValidator validator = new AssessmentValidator();
+            var errors = validator.ValidatePatches(new { Name = "assessmentId", Value = id }, patches);
+            _errors.AddRange(errors);
         }
         
         public bool AssessmentExists(int id)

@@ -4,11 +4,11 @@ namespace Lisa.Excelsis.WebApi
 {
     public class ExamValidator : PatchValidator
     {
-        public void ValidatePatches(object resource, IEnumerable<Patch> patches)
+        public IEnumerable<Error> ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
             foreach (Patch patch in patches)
             {
-                patch.Errors = new List<Error>();
+                _errors = new List<Error>();
 
                 //Add Category
                 Allow("add", resource, patch, @"categories", ExamExists, ValueIsCategoryObject);
@@ -38,7 +38,12 @@ namespace Lisa.Excelsis.WebApi
                 Allow("move", resource, patch, @"categories/{id}/criteria/{id}", CriterionExists, TargetExists, ValueIsInt);
             }
 
-            IsValid(patches);
+            if (!IsValid(patches))
+            {
+                return Errors();
+            }
+
+            return new List<Error>();
         }
 
         //Check if resource exists
@@ -48,7 +53,7 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _db.Execute(query, new { Id = resource.Value });
             if(result.count > 0)
             {
-                patch.Errors.Add(new Error(1501, new ErrorProps { Field = "Exam", Value = resource.Value}));
+                _errors.Add(new Error(1501, new ErrorProps { Field = "Exam", Value = resource.Value}));
             }
         }
 
@@ -60,7 +65,7 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _db.Execute(query, new { Id = field[3], Cid = field[1], Eid = resource.Value});
             if (result.count > 0)
             {
-                patch.Errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = field[3], Parent = "Category", ParentId = field[1] }));
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = field[3], Parent = "Category", ParentId = field[1] }));
             }
         }
 
@@ -72,7 +77,7 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _db.Execute(query, new { Id = field[1], Eid = resource.Value });
             if (result.count > 0)
             {
-                patch.Errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = field[1], Parent = "Exam", ParentId = resource.Value }));
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = field[1], Parent = "Exam", ParentId = resource.Value }));
             }
         }
 

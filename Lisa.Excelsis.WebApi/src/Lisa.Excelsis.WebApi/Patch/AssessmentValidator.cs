@@ -8,7 +8,7 @@ namespace Lisa.Excelsis.WebApi
         {
             foreach (Patch patch in patches)
             {
-                patch.Errors = new List<Error>();
+                _errors = new List<Error>();
 
                 //Add Mark
                 Allow("add", resource, patch, @"observations/{id}/marks", ObservationExists, ValueIsMark);
@@ -26,8 +26,9 @@ namespace Lisa.Excelsis.WebApi
 
             if (!IsValid(patches))
             {
-                return Errors(patches);
+                return Errors();
             }
+            
             return new List<Error>();
         }
 
