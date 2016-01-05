@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,14 +13,7 @@ namespace Lisa.Excelsis.WebApi
                              AND Exams.SubjectId = @Subject
                              AND Exams.Cohort = @Cohort
                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
-
-            var parameters = new {
-                Subject = subject,
-                Name = name,
-                Cohort = cohort
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Subject = subject, Name = name, Cohort = cohort });
         }
 
         public object FetchExam(object id)
@@ -29,25 +21,14 @@ namespace Lisa.Excelsis.WebApi
             var query = FetchExamQuery +
                         @" WHERE Exams.Id = @Id
                             ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
-
-            var parameters = new {
-                Id = id
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Id = id });
         }
 
         public IEnumerable<object> FetchExams(Filter filter)
         {
             var query = FetchExamsQuery +
                         @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-
-            var parameters = new
-            {
-                Assessor = filter.Assessors ?? string.Empty
-            };
-
-            return _gateway.SelectMany(query, parameters);
+            return _gateway.SelectMany(query, new { Assessor = filter.Assessors ?? string.Empty });
         }
 
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
@@ -120,7 +101,7 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchExam(IEnumerable<Patch> patches, int id)
         {
-            ValidateExamPatches(new { Name = "ExamId", Value = id }, patches);
+            ExamValidator.ValidatePatches(new { Name = "ExamId", Value = id }, patches);
         }
         
         public bool ExamExists(ExamPost exam)

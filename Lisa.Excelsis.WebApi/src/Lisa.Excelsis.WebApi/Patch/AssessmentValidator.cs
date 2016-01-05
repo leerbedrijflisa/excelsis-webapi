@@ -4,7 +4,7 @@ namespace Lisa.Excelsis.WebApi
 {
     public class AssessmentValidator
     {
-        public static void ValidateAssessmentPatches(object resource, IEnumerable<Patch> patches)
+        public static void ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
             foreach (Patch patch in patches)
             {

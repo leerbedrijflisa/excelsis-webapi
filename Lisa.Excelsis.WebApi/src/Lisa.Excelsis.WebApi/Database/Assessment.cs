@@ -25,11 +25,8 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN Criteria ON Criteria.Id = Observations.CriterionId
                           LEFT JOIN Categories ON Categories.Id = Criteria.CategoryId
                           WHERE Assessments.Id = @Id";
-            var parameters = new {
-                Id = id
-            };
 
-            dynamic result = _gateway.SelectSingle(query, parameters);
+            dynamic result = _gateway.SelectSingle(query, new { Id = id });
             if (result == null)
             {
                 return null;
@@ -157,20 +154,14 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchAssessment(IEnumerable<Patch> patches, int id)
         {
-            _errors = new List<Error>();
-
-            AssessmentValidator.ValidateAssessmentPatches(new { Name = "assessmentId", Value = id }, patches);
+            AssessmentValidator.ValidatePatches(new { Name = "assessmentId", Value = id }, patches);
         }
         
         public bool AssessmentExists(int id)
         {
             var query = @"SELECT COUNT(*) as count FROM Assessments
                           WHERE Id = @id";
-            var parameters = new
-            {
-               Id = id
-            };
-            dynamic result = _gateway.SelectSingle(query, parameters);
+            dynamic result = _gateway.SelectSingle(query, new { Id = id });
 
             return (result.count > 0);
         }

@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -55,13 +54,10 @@ namespace Lisa.Excelsis.WebApi
             }
 
             _db.PatchAssessment(patches, id);
-
-            if (_db.Errors.Any() || _val.Errors.Any())
+                        
+            if (_db.Errors.Any())
             {
                 errors.AddRange(_db.Errors);
-                errors.AddRange(_val.Errors);
-                _val.ClearErrors();
-                _db.ClearErrors();
                 return new UnprocessableEntityObjectResult(errors);
             }
 
@@ -112,6 +108,5 @@ namespace Lisa.Excelsis.WebApi
         }
 
         private readonly Database _db = new Database();
-        private readonly Validate _val = new Validate();
     }
 }

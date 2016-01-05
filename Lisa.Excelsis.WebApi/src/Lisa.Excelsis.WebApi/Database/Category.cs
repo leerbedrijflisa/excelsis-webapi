@@ -7,14 +7,7 @@
             var query = @"SELECT Id, [Order], Name
                           FROM Categories 
                           WHERE Categories.Id = @Id AND Categories.ExamId = @ExamId";
-
-            var parameters = new
-            {
-                Id = id,
-                ExamId = examId
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Id = id, ExamId = examId });
         }
         
         public bool CategoryExists(int examId, object id)

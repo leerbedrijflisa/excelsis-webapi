@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -28,8 +27,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = @"SELECT COUNT(*) as count FROM Observations
                           WHERE AssessmentId = @AssessmentId AND Id = @id";
-            var parameters = new { AssessmentId = assessmentId, Id = id };
-            dynamic result = _gateway.SelectSingle(query, parameters);
+            dynamic result = _gateway.SelectSingle(query, new { AssessmentId = assessmentId, Id = id });
             return (result.count > 0);
         }
     }

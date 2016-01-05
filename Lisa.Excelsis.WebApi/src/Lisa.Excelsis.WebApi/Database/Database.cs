@@ -2,7 +2,6 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using System.Linq;
 using Newtonsoft.Json;
@@ -35,42 +34,6 @@ namespace Lisa.Excelsis.WebApi
         public object Execute(string query, object parameters)
         {
             return _gateway.SelectSingle(query, parameters);
-        }
-
-        public static Dictionary<string, string> IsPatchable(Patch patch, List<string> fields, string regex)
-        {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            var value = patch.Value as JObject;
-            if (value != null)
-            {
-                foreach (var property in value)
-                {
-                    if (Regex.IsMatch(property.Key.ToLower(), regex))
-                    {
-                        dict.Add(property.Key.ToLower(), property.Value.ToString());
-                    }
-                    else
-                    {
-                        _errors.Add(new Error(1205, new ErrorProps { Field = property.Key, Value = property.Value.ToString() }));
-                    }
-                }
-            }
-            else
-            {
-                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "object" }));
-            }
-            return dict;
-        }
-
-        public void FieldsExists(Dictionary<string, string> dict, List<string> fields)
-        {
-            foreach (var field in fields)
-            {
-                if (!dict.ContainsKey(field))
-                {
-                    _errors.Add(new Error(1102, new ErrorProps { SubField = field, Field = "value", Type = "object" }));
-                }
-            }
         }
 
         public bool GetModelStateErrors(ModelStateDictionary ModelState)

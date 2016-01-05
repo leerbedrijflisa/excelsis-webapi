@@ -4,7 +4,7 @@ namespace Lisa.Excelsis.WebApi
 {
     public class ExamValidator
     {
-        public static void ValidateExamPatches(object resource, IEnumerable<Patch> patches)
+        public static void ValidatePatches(object resource, IEnumerable<Patch> patches)
         {
             foreach (Patch patch in patches)
             {
