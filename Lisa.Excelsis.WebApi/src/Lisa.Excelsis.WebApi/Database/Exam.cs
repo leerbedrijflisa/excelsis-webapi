@@ -93,18 +93,13 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
             }
 
-            if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
-            {
-                _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
-            }
-
             if (_errors.Any())
             {
                 return null;
             }
 
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
-                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, @Status);";
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, 'draft');";
             var parameters = new
             {
                 Name = exam.Name,
@@ -112,8 +107,7 @@ namespace Lisa.Excelsis.WebApi
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo,
                 Subject = exam.Subject,
-                SubjectId = subjectId,
-                Status = exam.Status
+                SubjectId = subjectId
             };
             return _gateway.Insert(query, parameters);
         }
@@ -134,7 +128,7 @@ namespace Lisa.Excelsis.WebApi
                         {
                             switch (patch.Action)
                             {
-                                case "add":
+                                case "add":// patch.field = categories/{digit}/criteria
                                     if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                     {
                                         if (CategoryExists(id, Convert.ToInt32(field[1])))
@@ -156,6 +150,17 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     break;
                                 case "replace":
+                                    if (Regex.IsMatch(patch.Field, @"^status$"))
+                                    {
+                                        if (ExamExists(id))
+                                        {
+                                            ReplaceStatus(id, patch.Field, patch.Value.ToString());
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "Exam", value = id }));
+                                        }
+                                    }
                                     break;
                                 case "remove":
                                     break;
@@ -180,6 +185,26 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
         }
+
+        public void ReplaceStatus(int id, string field, string value)
+        {
+            string fieldLower = field.ToLower();
+            if (fieldLower != "draft" && fieldLower != "published")
+            {
+                _errors.Add(new Error(1204, new { field = "status", value = field.ToString(), permitted = new string[] { "draft", "published" } }));
+            }
+
+            var query = @"UPDATE Exams SET status = @value
+                          WHERE Exams.id = @id";
+
+            var parameters = new
+            {
+                id = id,
+                value = value
+            };
+            _gateway.Update(query, parameters);
+        }
+
         public bool ExamExists(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams
