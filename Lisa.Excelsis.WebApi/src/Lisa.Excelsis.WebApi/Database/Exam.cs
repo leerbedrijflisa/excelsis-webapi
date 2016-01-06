@@ -128,7 +128,7 @@ namespace Lisa.Excelsis.WebApi
                         {
                             switch (patch.Action)
                             {
-                                case "add":
+                                case "add":// patch.field = categories/{digit}/criteria
                                     if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                     {
                                         if (CategoryExists(id, Convert.ToInt32(field[1])))
@@ -150,6 +150,17 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     break;
                                 case "replace":
+                                    if (Regex.IsMatch(patch.Field, @"^status$"))
+                                    {
+                                        if (ExamExists(id))
+                                        {
+                                            ReplaceStatus(id, patch.Field, patch.Value.ToString());
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "Exam", value = id }));
+                                        }
+                                    }
                                     break;
                                 case "remove":
                                     break;
@@ -174,6 +185,26 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
         }
+
+        public void ReplaceStatus(int id, string field, string value)
+        {
+            string fieldLower = field.ToLower();
+            if (fieldLower != "draft" && fieldLower != "published")
+            {
+                _errors.Add(new Error(1204, new { field = "status", value = field.ToString(), permitted = new string[] { "draft", "published" } }));
+            }
+
+            var query = @"UPDATE Exams SET status = @value
+                          WHERE Exams.id = @id";
+
+            var parameters = new
+            {
+                id = id,
+                value = value
+            };
+            _gateway.Update(query, parameters);
+        }
+
         public bool ExamExists(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams
