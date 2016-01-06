@@ -36,6 +36,8 @@ CREATE TABLE [dbo].[Criteria] (
 CREATE TABLE [dbo].[Assessors] (
     [Id]            INT            IDENTITY (1, 1) NOT NULL,
     [UserName]      NVARCHAR (MAX) NULL,
+	[FirstName]      NVARCHAR (MAX) NULL,
+	[LastName]      NVARCHAR (MAX) NULL,
     [Email]         NVARCHAR (MAX) NULL,
     [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
@@ -86,12 +88,12 @@ CREATE TABLE [dbo].[Categories]
 )
 
 GO
-INSERT INTO Assessors ([UserName], [Email])
+INSERT INTO Assessors ([UserName], [FirstName], [LastName], [Email])
     VALUES
-    ('joostronkesagerbeek', 'joostronkesagerbeek@davinci.nl'),
-    ('petersnoek', 'petersnoek@davinci.nl'),
-    ('fritssilano', 'fritssilano@davinci.nl'),
-    ('chantaltouw', 'chantaltouw@davinci.nl');
+    ('joostronkesagerbeek', 'Joost', 'Ronkes Agerbeek', 'joostronkesagerbeek@davinci.nl'),
+    ('petersnoek', 'Peter', 'Snoek', 'petersnoek@davinci.nl'),
+    ('fritssilano', 'Frits', 'Silano', 'fritssilano@davinci.nl'),
+    ('chantaltouw', 'Chantal', 'Touw', 'chantaltouw@davinci.nl');
 
 INSERT INTO Exams ([Name], [Cohort], [Crebo], [Subject], [SubjectId], [NameId], [Status])
     VALUES 
