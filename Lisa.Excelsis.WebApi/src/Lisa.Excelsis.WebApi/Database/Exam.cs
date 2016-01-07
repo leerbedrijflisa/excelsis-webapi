@@ -188,10 +188,10 @@ namespace Lisa.Excelsis.WebApi
 
         public void ReplaceStatus(int id, string field, string value)
         {
-            string fieldLower = field.ToLower();
-            if (fieldLower != "draft" && fieldLower != "published")
+            string valueLower = value.ToLower();
+            if (valueLower != "draft" && valueLower != "published")
             {
-                _errors.Add(new Error(1204, new { field = "status", value = field.ToString(), permitted = new string[] { "draft", "published" } }));
+                _errors.Add(new Error(1204, new { field = "status", value = value.ToString(), permitted = new string[] { "draft", "published" } }));
             }
 
             var query = @"UPDATE Exams SET status = @value
