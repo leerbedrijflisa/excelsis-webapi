@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
-
-namespace Lisa.Excelsis.WebApi
+﻿namespace Lisa.Excelsis.WebApi
 {
     public class ErrorMessages
     {

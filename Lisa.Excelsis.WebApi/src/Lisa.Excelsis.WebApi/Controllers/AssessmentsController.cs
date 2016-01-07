@@ -30,6 +30,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             List<Error> errors = new List<Error>();
+            AssessmentValidator validator = new AssessmentValidator();
 
             if (!ModelState.IsValid)
             {
@@ -53,13 +54,15 @@ namespace Lisa.Excelsis.WebApi
                 return new HttpNotFoundResult();
             }
 
-            _db.PatchAssessment(patches, id);
-                        
-            if (_db.Errors.Any())
+            var validateErrors = validator.ValidatePatches(id, patches);
+            errors.AddRange(validateErrors);
+
+            if (errors.Any())
             {
-                errors.AddRange(_db.Errors);
                 return new UnprocessableEntityObjectResult(errors);
             }
+
+            _db.PatchAssessment(patches, id);
 
             var result = _db.FetchAssessment(id);
             return new HttpOkObjectResult(result);

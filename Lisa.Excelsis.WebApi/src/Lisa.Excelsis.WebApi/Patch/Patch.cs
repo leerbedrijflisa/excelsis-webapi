@@ -6,15 +6,15 @@ namespace Lisa.Excelsis.WebApi
 {
     public class PatchValidator
     {
-        protected void Allow(string action, object resource, Patch patch, string regex, params Action<object, Patch>[] funcs)
+        protected void Allow(string action, int id, Patch patch, string pattern, params Action<int, Patch>[] funcs)
         {
-            if (Regex.IsMatch(patch.Field.ToLower(), regex))
+            if (Regex.IsMatch(patch.Field.ToLower(), pattern))
             {
                 if (patch.Action.ToLower() == action)
                 {
-                    foreach (Action<object, Patch> func in funcs)
+                    foreach (Action<int, Patch> func in funcs)
                     {
-                        func(resource, patch);
+                        func(id, patch);
                     }
                     patch.IsValidated = true;
                 }
