@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
-namespace Lisa.Excelsis
+namespace Lisa.Excelsis.WebApi
 {
     public static class Misc
     {

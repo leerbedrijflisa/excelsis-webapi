@@ -4,11 +4,6 @@ using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class QueryData
-    {
-        public string Query { get; set; }
-        public object Parameters { get; set; }
-    }
     public class Patcher
     {
         protected void Build(string action, int id, Patch patch, string pattern, Func<int, Patch, QueryData> func)
