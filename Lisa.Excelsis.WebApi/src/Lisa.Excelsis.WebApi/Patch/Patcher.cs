@@ -20,9 +20,11 @@ namespace Lisa.Excelsis.WebApi
 
         protected void ExecuteTransactions()
         {
-
+            _db.ProcessTransactions(transactions);
         }
 
         protected List<QueryData> transactions = new List<QueryData>();
+
+        private static readonly Database _db = new Database();
     }
 }

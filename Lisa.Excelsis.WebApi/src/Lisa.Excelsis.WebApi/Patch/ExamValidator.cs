@@ -32,7 +32,7 @@ namespace Lisa.Excelsis.WebApi
 
                 //Remove Category
                 Allow("remove", id, patch, @"^categories$", CategoryExists, ValueIsInt);
-                Allow("remove", id, patch, @"^categories/\d/criteria/$", CriterionExists, ValueIsInt);
+                Allow("remove", id, patch, @"^categories/\d/criteria$", CriterionRemoveExists, ValueIsInt);
 
                 //Move Criterion
                 Allow("move", id, patch, @"^categories/\d/criteria/\d$", CriterionExists, TargetExists, ValueIsInt);
@@ -49,9 +49,9 @@ namespace Lisa.Excelsis.WebApi
         //Check if resource exists
         private static void ExamExists(int id, Patch patch)
         {
-            var query = @"SELECT count(*) FROM Exams WHERE Id = @Id";
+            var query = @"SELECT count(*) as count FROM Exams WHERE Id = @Id";
             dynamic result = _db.Execute(query, new { Id = id });
-            if(result.count > 0)
+            if(result.count == 0)
             {
                 _errors.Add(new Error(1501, new ErrorProps { Field = "Exam", Value = id.ToString() }));
             }
@@ -60,24 +60,48 @@ namespace Lisa.Excelsis.WebApi
         private static void CriterionExists(int id, Patch patch)
         {
             var field = patch.Field.Split('/');
-            var query = @"SELECT count(*) FROM Criteria 
+            var query = @"SELECT count(*) as count FROM Criteria 
                           WHERE Id = @Id AND CategoryId = @Cid AND ExamId = @Eid";
             dynamic result = _db.Execute(query, new { Id = field[3], Cid = field[1], Eid = id});
-            if (result.count > 0)
+            if (result.count == 0)
             {
                 _errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = field[3], Parent = "Category", ParentId = field[1] }));
+            }
+        }
+
+        private static void CriterionRemoveExists(int id, Patch patch)
+        {
+            var field = patch.Field.Split('/');
+            var query = @"SELECT count(*) as count FROM Criteria 
+                          WHERE Id = @Id AND CategoryId = @Cid AND ExamId = @Eid";
+            dynamic result = _db.Execute(query, new { Id = patch.Value.ToString(), Cid = field[1], Eid = id });
+            if (result.count == 0)
+            {
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = patch.Value.ToString(), Parent = "Category", ParentId = field[1] }));
             }
         }
 
         private static void CategoryExists(int id, Patch patch)
         {
             var field = patch.Field.Split('/');
-            var query = @"SELECT count(*) FROM Categories 
+            var query = @"SELECT count(*) as count FROM Categories 
                           WHERE Id = @Id AND ExamId = @Eid";
             dynamic result = _db.Execute(query, new { Id = field[1], Eid = id });
-            if (result.count > 0)
+            if (result.count == 0)
             {
                 _errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = field[1], Parent = "Exam", ParentId = id.ToString() }));
+            }
+        }
+
+        private static void CategoryRemoveExists(int id, Patch patch)
+        {
+            var field = patch.Field.Split('/');
+            var query = @"SELECT count(*) as count FROM Categories 
+                          WHERE Id = @Id AND ExamId = @Eid";
+            dynamic result = _db.Execute(query, new { Id = patch.Value, Eid = id });
+            if (result.count == 0)
+            {
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = patch.Value.ToString(), Parent = "Exam", ParentId = id.ToString() }));
             }
         }
 

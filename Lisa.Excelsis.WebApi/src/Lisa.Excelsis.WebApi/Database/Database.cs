@@ -71,7 +71,23 @@ namespace Lisa.Excelsis.WebApi
             _errors.Clear();
         }
 
+        public void ProcessTransactions(IEnumerable<QueryData> transactions)
+        {
+            _gateway.ProcessTransaction(() =>
+            {
+                foreach(QueryData transaction in transactions)
+                {
+                    Execute(transaction.Query, transaction.Parameters);
+                }                
+            });
+        }
+
         public static List<Error> _errors { get; set; }
+
+        private static Action<string, object> Apply(Action<string, object> transaction)
+        {
+            return transaction;
+        }
 
         private string _fatalError { get; set; }
 

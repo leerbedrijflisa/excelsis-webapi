@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -34,7 +35,7 @@ namespace Lisa.Excelsis.WebApi
             var field = patch.Field.Split('/');
             data.Query = @" INSERT INTO [Marks] ([Name],[ObservationId],[AssessmentId])
                             VALUES (@Name, @ObservationId, @AssessmentId)";
-            data.Parameters = new { Name = patch.Value, ObservationId = field[1], AssessmentId = id };
+            data.Parameters = new { Name = patch.Value.ToString(), ObservationId = field[1], AssessmentId = id };
             return data;
         }
 
@@ -44,7 +45,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Observations] SET [Result] = @Result WHERE [Id] = Oid";
-            data.Parameters = new { Result = patch.Value, Oid = field[1] };
+            data.Parameters = new { Result = patch.Value.ToString(), Oid = field[1] };
             return data;
         }
 
@@ -52,7 +53,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Assessments] SET [StudentName] = @StudentName WHERE [Id] = Aid";
-            data.Parameters = new { StudentName = patch.Value, Aid = id };
+            data.Parameters = new { StudentName = patch.Value.ToString(), Aid = id };
             return data;
         }
 
@@ -60,7 +61,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Assessments] SET [StudentNumber] = @StudentNumber WHERE [Id] = Aid";
-            data.Parameters = new { StudentNumber = patch.Value, Aid = id };
+            data.Parameters = new { StudentNumber = patch.Value.ToString(), Aid = id };
             return data;
         }
 
@@ -68,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Assessments] SET [Assessed] = @Assessed WHERE [Id] = Aid";
-            data.Parameters = new { Assessed = patch.Value, Aid = id };
+            data.Parameters = new { Assessed = patch.Value.ToString(), Aid = id };
             return data;
         }
 
@@ -77,7 +78,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @" DELETE FROM [Marks] WHERE [Name] = @Name";
-            data.Parameters = new { Name = patch.Value };
+            data.Parameters = new { Name = patch.Value.ToString() };
             return data;
         }
     }

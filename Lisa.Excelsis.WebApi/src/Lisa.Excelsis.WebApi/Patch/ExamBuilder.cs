@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -32,7 +33,7 @@ namespace Lisa.Excelsis.WebApi
 
                 //Remove Category
                 Build("remove", id, patch, @"^categories$", RemoveCategory);
-                Build("remove", id, patch, @"^categories/\d/criteria/$", RemoveCriterion);
+                Build("remove", id, patch, @"^categories/\d/criteria$", RemoveCriterion);
 
                 //Move Criterion
                 Build("move", id, patch, @"^categories/\d/criteria/\d$", MoveCriterion);
@@ -48,6 +49,7 @@ namespace Lisa.Excelsis.WebApi
             CategoryAdd category = patch.Value.ToObject<CategoryAdd>();
             if (category != null)
             {
+                category.ExamId = id;
                 data.Query = @" INSERT INTO Categories ([Order],[Name],[ExamId])
                                 VALUES (@Order, @Name, @ExamId)";
                 data.Parameters = category;
@@ -62,8 +64,10 @@ namespace Lisa.Excelsis.WebApi
             CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
             if (criterion != null)
             {
-                data.Query = @" INSERT INTO Categories ([Order],[Name],[Title],[Description],[Weight],[ExamId],[CategoryId])
-                                VALUES (@Order, @Name, @Title, @Description, @Weight, @ExamId, @CategoryId)";
+                criterion.ExamId = id;
+                criterion.CategoryId = Convert.ToInt32(patch.Field.Split('/')[1]);
+                data.Query = @" INSERT INTO Criteria ([Order],[Title],[Description],[Weight],[ExamId],[CategoryId])
+                                VALUES (@Order, @Title, @Description, @Weight, @ExamId, @CategoryId)";
                 data.Parameters = criterion;
                 return data;
             }
@@ -76,7 +80,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Categories] SET [Order] = @Order WHERE [Id] = @Cid";
-            data.Parameters = new { Order = patch.Value, Cid = field[1] };
+            data.Parameters = new { Order = patch.Value.ToString(), Cid = field[1] };
             return data;
         }
 
@@ -85,7 +89,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Categories] SET [Name] = @Name WHERE [Id] = @Cid";
-            data.Parameters = new { Name = patch.Value, Cid = field[1] };
+            data.Parameters = new { Name = patch.Value.ToString(), Cid = field[1] };
             return data;
         }
 
@@ -94,7 +98,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Order] = @Order WHERE [Id] = @Cid";
-            data.Parameters = new { Name = patch.Value, Cid = field[3] };
+            data.Parameters = new { Name = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 
@@ -103,7 +107,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Title] = @Title WHERE [Id] = @Cid";
-            data.Parameters = new { Title = patch.Value, Cid = field[3] };
+            data.Parameters = new { Title = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 
@@ -112,7 +116,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Description] = @Description WHERE [Id] = @Cid";
-            data.Parameters = new { Description = patch.Value, Cid = field[3] };
+            data.Parameters = new { Description = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 
@@ -121,7 +125,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Weight] = @Weight WHERE [Id] = @Cid";
-            data.Parameters = new { Weight = patch.Value, Cid = field[3] };
+            data.Parameters = new { Weight = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 
@@ -130,7 +134,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Subject] = @Subject WHERE [Id] = @Eid;
                            UPDATE [Exams] SET [SubjectId] = @SubjectId WHERE [Id] = @Eid;";
-            data.Parameters = new { Subject = patch.Value, SubjectId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
+            data.Parameters = new { Subject = patch.Value.ToString(), SubjectId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
             return data;
         }
 
@@ -139,7 +143,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Name] = @Name WHERE [Id] = @Eid;
                            UPDATE [Exams] SET [NameId] = @NameId WHERE [Id] = @Eid;";
-            data.Parameters = new { Name = patch.Value, NameId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
+            data.Parameters = new { Name = patch.Value.ToString(), NameId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
             return data;
         }
 
@@ -147,7 +151,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Cohort] = @Cohort WHERE [Id] = @Eid";
-            data.Parameters = new { Cohort = patch.Value, Eid = id };
+            data.Parameters = new { Cohort = patch.Value.ToString(), Eid = id };
             return data;
         }
 
@@ -155,7 +159,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Crebo] = @Crebo WHERE [Id] = @Eid";
-            data.Parameters = new { Crebo = patch.Value, Eid = id };
+            data.Parameters = new { Crebo = patch.Value.ToString(), Eid = id };
             return data;
         }
 
@@ -163,7 +167,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Status] = @Status WHERE [Id] = @Eid";
-            data.Parameters = new { Status = patch.Value, Eid = id };
+            data.Parameters = new { Status = patch.Value.ToString(), Eid = id };
             return data;
         }
 
@@ -172,7 +176,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"DELETE FROM [Categories] WHERE [Id] = @Cid";
-            data.Parameters = new { Cid = patch.Value };
+            data.Parameters = new { Cid = patch.Value.ToString() };
             return data;
         }
 
@@ -180,7 +184,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"DELETE FROM [Criteria] WHERE [Id] = @Cid";
-            data.Parameters = new { Cid = patch.Value };
+            data.Parameters = new { Cid = patch.Value.ToString() };
             return data;
         }
 
@@ -190,7 +194,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Target.Split('/');
             data.Query = @"UPDATE [Criteria] SET [CategoryId] = @CategoryId WHERE [Id] = @Cid";
-            data.Parameters = new { CategoryId = field[1], Cid = patch.Value };
+            data.Parameters = new { CategoryId = field[1], Cid = patch.Value.ToString() };
             return data;
         }
     }
