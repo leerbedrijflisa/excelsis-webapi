@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -35,35 +36,106 @@ namespace Lisa.Excelsis.WebApi
         //Check if resource exists
         private static void AssessmentExists(int id, Patch patch)
         {
+            var query = @"SELECT count(*) as count FROM Assessments WHERE Id = @Id";
+            dynamic result = _db.Execute(query, new { Id = id });
+            if (result.count == 0)
+            {
+                _errors.Add(new Error(1501, new ErrorProps { Field = "Assessment", Value = id.ToString() }));
+            }
         }
 
         private static void ObservationExists(int id, Patch patch)
         {
+            var field = patch.Field.Split('/');
+            var query = @"SELECT count(*) as count FROM Observations 
+                          WHERE Id = @Id AND AssessmentId = @Aid";
+            dynamic result = _db.Execute(query, new { Id = field[1], Aid = id });
+            if (result.count == 0)
+            {
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Observations", Value = field[1], Parent = "Assessment", ParentId = id }));
+            }
         }
 
         //Check if value is valid
         private static void ValueIsDateTime(int id, Patch patch)
         {
+            if (ValueIsNotEmpty(patch))
+            {
+                if (!Regex.IsMatch(patch.Value.ToString(), @"^\b[a-zA-Z0-9_]+\b$"))
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
 
         private static void ValueIsResult(int id, Patch patch)
         {
+            if (ValueIsNotEmpty(patch))
+            {
+                if (!Regex.IsMatch(patch.Value.ToString(), @"^(seen|unseen|notrated)$"))
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
 
         private static void ValueIsStudentNumber(int id, Patch patch)
         {
+            if (ValueIsNotEmpty(patch))
+            {
+                // REGEX : 8 digits (min and max)
+                if (!Regex.IsMatch(patch.Value.ToString(), @"^\d{8}$"))
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
 
         private static void ValueIsStudentName(int id, Patch patch)
         {
+            if (ValueIsNotEmpty(patch))
+            {
+                // REGEX : words with spaces
+                if (!Regex.IsMatch(patch.Value.ToString(), @"^[a-zA-Z\s]*$"))
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
 
         private static void ValueIsMark(int id, Patch patch)
         {
+            if(ValueIsNotEmpty(patch))
+            {
+                // REGEX : one word without spaces, lower dashes allowed
+                if(!Regex.IsMatch(patch.Value.ToString(), @"^\b[a-zA-Z0-9_]+\b$"))
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
 
         private static void ValueIsString(int id, Patch patch)
         {
+            if (ValueIsNotEmpty(patch))
+            {
+                var value = patch.Value.ToString() as string;
+                if (value == null)
+                {
+                    _errors.Add(new Error(0, new ErrorProps { }));
+                }
+            }
         }
+
+        private static bool ValueIsNotEmpty(Patch patch)
+        {
+            if(patch.Value == null)
+            {
+                _errors.Add(new Error(0, new ErrorProps{ }));                
+            }
+            return (patch.Value == null);
+        }
+
+        private static readonly Database _db = new Database();
     }
 }

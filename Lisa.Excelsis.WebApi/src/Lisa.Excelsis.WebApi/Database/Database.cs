@@ -65,12 +65,7 @@ namespace Lisa.Excelsis.WebApi
             }
             return (fatalError);
         }
-
-        public void ClearErrors()
-        {
-            _errors.Clear();
-        }
-
+              
         public void ProcessTransactions(IEnumerable<QueryData> transactions)
         {
             _gateway.ProcessTransaction(() =>
@@ -84,11 +79,11 @@ namespace Lisa.Excelsis.WebApi
 
         public static List<Error> _errors { get; set; }
 
-        private static Action<string, object> Apply(Action<string, object> transaction)
+        public void ClearErrors()
         {
-            return transaction;
+            _errors.Clear();
         }
-
+       
         private string _fatalError { get; set; }
 
         private Gateway _gateway = new Gateway(Environment.GetEnvironmentVariable("ConnectionString"));
