@@ -37,6 +37,10 @@ namespace Lisa.Excelsis.WebApi
                     IsValid = false;
                     _errors.Add(new Error(0, new ErrorProps { }));
                 }
+                else if( _errors.Count > 0)
+                {
+                    IsValid = false;
+                }
             }
             return IsValid;
         }

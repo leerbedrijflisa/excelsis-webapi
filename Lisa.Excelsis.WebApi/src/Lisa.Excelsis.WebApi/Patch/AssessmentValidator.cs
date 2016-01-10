@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -52,18 +53,19 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _db.Execute(query, new { Id = field[1], Aid = id });
             if (result.count == 0)
             {
-                _errors.Add(new Error(1502, new ErrorProps { Field = "Observations", Value = field[1], Parent = "Assessment", ParentId = id }));
+                _errors.Add(new Error(1502, new ErrorProps { Field = "Observations", Value = field[1], Parent = "Assessment", ParentId = id.ToString() }));
             }
         }
 
         //Check if value is valid
         private static void ValueIsDateTime(int id, Patch patch)
         {
+            DateTime dateTime;
             if (ValueIsNotEmpty(patch))
             {
-                if (!Regex.IsMatch(patch.Value.ToString(), @"^\b[a-zA-Z0-9_]+\b$"))
+                if (!DateTime.TryParse(patch.Value.ToString(), out dateTime))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "datetime"}));
                 }
             }
         }
@@ -74,7 +76,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (!Regex.IsMatch(patch.Value.ToString(), @"^(seen|unseen|notrated)$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Permitted1 = "seen", Permitted2 = "unseen", Permitted3 = "notrated"}));
                 }
             }
         }
@@ -86,7 +88,7 @@ namespace Lisa.Excelsis.WebApi
                 // REGEX : 8 digits (min and max)
                 if (!Regex.IsMatch(patch.Value.ToString(), @"^\d{8}$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Count = 8}));
                 }
             }
         }
@@ -98,7 +100,7 @@ namespace Lisa.Excelsis.WebApi
                 // REGEX : words with spaces
                 if (!Regex.IsMatch(patch.Value.ToString(), @"^[a-zA-Z\s]*$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1201, new ErrorProps { Field = "value", Value = patch.Value.ToString()}));
                 }
             }
         }
@@ -110,7 +112,7 @@ namespace Lisa.Excelsis.WebApi
                 // REGEX : one word without spaces, lower dashes allowed
                 if(!Regex.IsMatch(patch.Value.ToString(), @"^\b[a-zA-Z0-9_]+\b$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1200, new ErrorProps { Field = "value", Value = patch.Value.ToString()}));
                 }
             }
         }
@@ -122,7 +124,7 @@ namespace Lisa.Excelsis.WebApi
                 var value = patch.Value.ToString() as string;
                 if (value == null)
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
                 }
             }
         }
@@ -131,9 +133,9 @@ namespace Lisa.Excelsis.WebApi
         {
             if(patch.Value == null)
             {
-                _errors.Add(new Error(0, new ErrorProps{ }));                
+                _errors.Add(new Error(1101, new ErrorProps{ Field = "value" }));                
             }
-            return (patch.Value == null);
+            return (patch.Value != null);
         }
 
         private static readonly Database _db = new Database();

@@ -161,7 +161,7 @@ namespace Lisa.Excelsis.WebApi
         public bool AssessmentExists(int id)
         {
             var query = @"SELECT COUNT(*) as count FROM Assessments
-                          WHERE Id = @id";
+                          WHERE Id = @Id";
             dynamic result = _gateway.SelectSingle(query, new { Id = id });
 
             return (result.count > 0);

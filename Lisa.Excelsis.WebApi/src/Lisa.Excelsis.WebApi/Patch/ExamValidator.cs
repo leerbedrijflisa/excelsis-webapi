@@ -126,7 +126,7 @@ namespace Lisa.Excelsis.WebApi
                 var value = patch.Value.ToString() as string;
                 if (value == null)
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
                 }
             }
         }
@@ -137,7 +137,7 @@ namespace Lisa.Excelsis.WebApi
             {               
                 if (Regex.IsMatch(patch.Value.ToString(), @"\d+"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = patch.Value.ToString()}));
                 }
             }
         }
@@ -148,7 +148,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (Regex.IsMatch(patch.Target.ToString(), @"\d+"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = patch.Value.ToString() }));
                 }
             }
         }
@@ -158,7 +158,7 @@ namespace Lisa.Excelsis.WebApi
             CategoryAdd category = patch.Value.ToObject<CategoryAdd>();
             if (category == null)
             {
-                _errors.Add(new Error(0, new ErrorProps { }));
+                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
             }
         }
 
@@ -167,7 +167,7 @@ namespace Lisa.Excelsis.WebApi
             CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
             if (criterion == null)
             {
-                _errors.Add(new Error(0, new ErrorProps { }));
+                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
             }
         }
 
@@ -177,7 +177,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (Regex.IsMatch(patch.Value.ToString(), @"^(fail|pass|excellent)$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
                 }
             }
         }
@@ -188,7 +188,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (Regex.IsMatch(patch.Value.ToString(), @"^(19|20)\d{2}$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1207, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Count = 4, Min = 1900, Max = 2099 }));
                 }
             }
         }
@@ -199,7 +199,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (Regex.IsMatch(patch.Value.ToString(), @"^\d{8}$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Count = 8}));
                 }
             }
         }
@@ -210,7 +210,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 if (Regex.IsMatch(patch.Value.ToString(), @"^(draft|published)$"))
                 {
-                    _errors.Add(new Error(0, new ErrorProps { }));
+                    _errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Permitted1 = "draft", Permitted2 = "published", Permitted3 = "" }));
                 }
             }
         }
@@ -219,7 +219,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (patch.Value == null)
             {
-                _errors.Add(new Error(0, new ErrorProps { }));
+                _errors.Add(new Error(1101, new ErrorProps { Field = "value" }));
             }
             return (patch.Value == null);
         }
@@ -228,9 +228,9 @@ namespace Lisa.Excelsis.WebApi
         {
             if (patch.Target == null)
             {
-                _errors.Add(new Error(0, new ErrorProps { }));
+                _errors.Add(new Error(1101, new ErrorProps { Field = "target" }));
             }
-            return (patch.Value == null);
+            return (patch.Value != null);
         }
 
         private static readonly Database _db = new Database();
