@@ -8,7 +8,7 @@ namespace Lisa.Excelsis.WebApi.Controllers
         [HttpGet]
         public IActionResult Get()
         {
-            return new HttpOkObjectResult(new { Version = "1.0.0-Alpha-3" });
+            return new HttpOkObjectResult(new { Version = "1.0.0-Alpha-4" });
         }
     }
 }
