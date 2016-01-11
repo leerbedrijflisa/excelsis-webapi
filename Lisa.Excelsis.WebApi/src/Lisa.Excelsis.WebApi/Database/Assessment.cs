@@ -185,7 +185,7 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
                                     }
                                     break;
                                 case "replace":
@@ -206,7 +206,7 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
                                     }
                                     break;
                                 case "remove":
@@ -223,7 +223,7 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
                                     }
                                     break;
                                 default:
@@ -288,7 +288,7 @@ namespace Lisa.Excelsis.WebApi
 
         private object SelectAssessors(AssessmentPost assessment)
         {
-            if (assessment.Assessors.Any())
+            if (assessment.Assessors != null)
             {
                 var assessors = assessment.Assessors.Select(assessor => "'" + assessor + "'");
 

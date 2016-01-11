@@ -57,7 +57,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else
                     {
-                        _errors.Add(new Error(1205, new { field = property.Key }));
+                        _errors.Add(new Error(1205, new { field = property.Key, value = property.Value.ToString() }));
                     }
                 }
             }
@@ -83,21 +83,26 @@ namespace Lisa.Excelsis.WebApi
         {
             bool fatalError = false;
             _errors = new List<Error>();
-            string fatalErrorMessage = string.Empty;
             var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
             foreach (var property in modelStateErrors)
             {
-                var propertyName = property.Key;
                 foreach (var error in property.Value.Errors)
                 {
                     if (error.Exception == null)
                     {
-                        _errors.Add(new Error(1101, new { field = propertyName }));
+                        _errors.Add(new Error(1101, new { field = property.Key }));
                     }
                     else
                     {
-                        fatalError = true;
-                        _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                        if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                        {
+                            _errors.Add(new Error(1103, new { field = property.Key } ));
+                        }
+                        else
+                        {
+                            fatalError = true;
+                            _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                        }
                     }
                 }
             }

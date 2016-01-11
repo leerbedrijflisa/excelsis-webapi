@@ -19,6 +19,9 @@ namespace Lisa.Excelsis.WebApi
                 case 1102:
                         message = string.Format("Subfield '{0}' is required in the {1} named '{2}'.", obj.subField, obj.type, obj.field);
                     break;
+                case 1103:
+                        message = string.Format("Field '{0}' is not allowed in the request body.", obj.field);
+                    break;
                 case 1200:
                         message = string.Format("The field '{0}' with value '{1}' can only contain letters.", obj.field, obj.value);
                     break;
@@ -37,10 +40,10 @@ namespace Lisa.Excelsis.WebApi
                         message = string.Format("The field '{0}' with value '{1}' can only contain {2}.", obj.field, obj.value, values);
                     break;
                 case 1205:
-                        message = string.Format("The field '{0}' is not patchable.", obj.field);
+                        message = string.Format("The field '{0}' with value '{1}' is not patchable.", obj.field, obj.value);
                     break;
                 case 1206:
-                        message = string.Format("The field '{0}' with value '{1}' must contain at least one contain letter or number.", obj.field, obj.value);
+                        message = string.Format("The field '{0}' with value '{1}' must contain at least one letter or number.", obj.field, obj.value);
                     break;
                 case 1207:
                         message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digits between the range {3} and {4}.", obj.field, obj.value, obj.count, obj.min, obj.max);

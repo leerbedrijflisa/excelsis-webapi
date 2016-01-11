@@ -56,7 +56,7 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        public bool CategoryExists(int examId, int id)
+        public bool CategoryExists(int examId, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Categories
                           WHERE ExamId = @ExamId AND Id = @Id";
