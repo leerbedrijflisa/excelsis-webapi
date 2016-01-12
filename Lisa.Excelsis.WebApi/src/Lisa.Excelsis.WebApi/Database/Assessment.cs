@@ -11,7 +11,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@Number, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@Id, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
-                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
+                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName, Assessors.FirstName as #Assessors_FirstName, Assessors.LastName as #Assessors_LastName
                                  Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
                                  Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result,
                                  Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
@@ -58,7 +58,7 @@ namespace Lisa.Excelsis.WebApi
 
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Exams.Id as Exam_@ID, Exams.Name as Exam_Name, Exams.Cohort as Exam_Cohort, Exams.Crebo as Exam_Crebo, Exams.Subject as Exam_Subject,
-                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName
+                                 Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,  Assessors.FirstName as #Assessors_FirstName, Assessors.LastName as #Assessors_LastName
                           FROM Assessments
                           LEFT JOIN Exams ON Exams.Id = Assessments.Exam_Id
                           LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
