@@ -93,18 +93,13 @@ namespace Lisa.Excelsis.WebApi
                 _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
             }
 
-            if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
-            {
-                _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
-            }
-
             if (_errors.Any())
             {
                 return null;
             }
 
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
-                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, @Status);";
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, 'draft');";
             var parameters = new
             {
                 Name = exam.Name,
@@ -112,8 +107,7 @@ namespace Lisa.Excelsis.WebApi
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo,
                 Subject = exam.Subject,
-                SubjectId = subjectId,
-                Status = exam.Status
+                SubjectId = subjectId
             };
             return _gateway.Insert(query, parameters);
         }
@@ -130,16 +124,18 @@ namespace Lisa.Excelsis.WebApi
                     {
                         patch.Field.ToLower();
                         var field = patch.Field.Split('/');
-                        if (patch.Value != null)
+                        
+
+                        switch (patch.Action)
                         {
-                            switch (patch.Action)
-                            {
-                                case "add":
+                            case "add":// patch.field = categories/{digit}/criteria
+                                if (patch.Value != null)
+                                {
                                     if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
                                     {
-                                        if (CategoryExists(id, Convert.ToInt32(field[1])))
+                                        if (CategoryExists(id, field[1]))
                                         {
-                                            AddCriterion(id, Convert.ToInt32(field[1]), patch);
+                                            AddCriterion(id, field[1], patch);
                                         }
                                         else
                                         {
@@ -152,21 +148,85 @@ namespace Lisa.Excelsis.WebApi
                                     }
                                     else
                                     {
-                                        _errors.Add(new Error(1205, new { field = patch.Field }));
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
                                     }
-                                    break;
-                                case "replace":
-                                    break;
-                                case "remove":
-                                    break;
-                                default:
-                                    _errors.Add(new Error(1303, new { value = patch.Action }));
-                                    break;
-                            }
-                        }
-                        else
-                        {
-                            _errors.Add(new Error(1101, new { field = "value" }));
+                                } 
+                                else
+                                {
+                                    _errors.Add(new Error(1101, new { field = "value" }));
+                                }
+                                break;
+                            case "replace":
+                                if (patch.Value != null)
+                                {
+                                    if (Regex.IsMatch(patch.Field, @"^status$"))
+                                    {
+                                        if (ExamExists(id))
+                                        {
+                                            ReplaceStatus(id, patch.Field, patch.Value.ToString());
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1300, new { field = "Exam", value = id }));
+                                        }
+                                    }
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(1101, new { field = "value" }));
+                                }
+                                break;
+                            case "move":
+                                if(patch.Target != null)
+                                {
+                                    var target = patch.Target.Split('/');
+                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria/\d+$"))
+                                    {
+                                        if (Regex.IsMatch(patch.Target, @"^categories/\d+$"))
+                                        {
+                                            if (CategoryExists(id, field[1]))
+                                            {
+                                                if (CategoryExists(id, target[1]))
+                                                {
+                                                    if (CriterionExists(id, field[1],field[3]))
+                                                    {
+                                                        MoveCriterion(id, field[3], target[1]);
+                                                    }
+                                                    else
+                                                    {
+                                                        _errors.Add(new Error(1300, new { field = "criterion", value = field[3] }));
+                                                    }
+                                                }
+                                                else
+                                                {
+                                                    _errors.Add(new Error(1300, new { field = "category", value = target[1] }));
+                                                }
+                                            }
+                                            else
+                                            {
+                                                _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
+                                            }
+                                        }
+                                        else
+                                        {
+                                            _errors.Add(new Error(1205, new { field = "target", value = patch.Target }));
+                                        }
+                                    }
+                                    else
+                                    {
+                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
+                                    }
+                                }
+                                else
+                                {
+                                    _errors.Add(new Error(1101, new { field = "target" }));
+                                }
+                                break;
+                            case "remove":
+                                break;
+                            default:
+                                _errors.Add(new Error(1303, new { value = patch.Action }));
+                                break;
                         }
                     }
                     else
@@ -180,6 +240,26 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
         }
+
+        public void ReplaceStatus(int id, string field, string value)
+        {
+            string valueLower = value.ToLower();
+            if (valueLower != "draft" && valueLower != "published")
+            {
+                _errors.Add(new Error(1204, new { field = "status", value = value.ToString(), permitted = new string[] { "draft", "published" } }));
+            }
+
+            var query = @"UPDATE Exams SET status = @value
+                          WHERE Exams.id = @id";
+
+            var parameters = new
+            {
+                id = id,
+                value = value
+            };
+            _gateway.Update(query, parameters);
+        }
+
         public bool ExamExists(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams

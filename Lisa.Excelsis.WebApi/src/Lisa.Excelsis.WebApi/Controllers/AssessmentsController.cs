@@ -12,11 +12,6 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get([FromQuery] Filter filter)
         {
             IEnumerable<object> result = _db.FetchAssessments(filter);
-            if (result.Count() == 0)
-            {
-                return new HttpNotFoundResult();
-            }
-
             return new HttpOkObjectResult(result);
         }
 
@@ -39,13 +34,19 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
+                if (_db.GetModelStateErrors(ModelState))
+                {
+                    return new BadRequestObjectResult(_db.FatalError);
+                }
+                else
+                {
+                    return new UnprocessableEntityObjectResult(_db.Errors);
+                }
             }
 
             if (patches == null)
             {
-                errors.Add(new Error(1100));
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(new Error(1100));
             }
 
             if (!_db.AssessmentExists(id))
@@ -55,10 +56,9 @@ namespace Lisa.Excelsis.WebApi
 
             _db.PatchAssessment(patches, id);
 
-            errors.AddRange(_db.Errors);
-            if (errors != null && errors.Any())
+            if (_db.Errors.Any())
             {
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(_db.Errors);
             }
 
             var result = _db.FetchAssessment(id);
@@ -69,18 +69,24 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
-            List<Error> errors = new List<Error>();
             subject = _db.CleanParam(subject);
             name = _db.CleanParam(name);
 
             if (!ModelState.IsValid)
             {
-                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
+                if (_db.GetModelStateErrors(ModelState))
+                {
+                    return new BadRequestObjectResult(_db.FatalError);
+                }
+                else
+                {
+                    return new UnprocessableEntityObjectResult(_db.Errors);
+                }
             }
 
             if (assessment == null)
             {
-                return new BadRequestResult();
+                return new UnprocessableEntityObjectResult(new Error(1100));
             }
 
             dynamic examResult = _db.FetchExam(subject, name, cohort);
@@ -91,10 +97,9 @@ namespace Lisa.Excelsis.WebApi
 
             var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);
 
-            errors.AddRange(_db.Errors);
-            if (errors != null && errors.Any())
+            if (_db.Errors.Any())
             {
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(_db.Errors);
             }
 
             var result = _db.FetchAssessment(id);

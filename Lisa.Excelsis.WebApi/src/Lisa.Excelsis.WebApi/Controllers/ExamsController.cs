@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -12,10 +11,6 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Get([FromQuery] Filter filter)
         {
             IEnumerable<object> result = _db.FetchExams(filter);
-            if (result.Count() == 0)
-            {
-                return new HttpNotFoundResult();
-            }
             return new HttpOkObjectResult(result);
         }
 
@@ -25,11 +20,6 @@ namespace Lisa.Excelsis.WebApi
             subject = _db.CleanParam(subject);
 
             IEnumerable<object> result = _db.FetchExams(filter, subject, cohort);
-            if (result.Count() == 0)
-            {
-                return new HttpNotFoundResult();
-            }
-
             return new HttpOkObjectResult(result);
         }
 
@@ -50,16 +40,21 @@ namespace Lisa.Excelsis.WebApi
         [HttpPatch("{id}")]
         public IActionResult Patch([FromBody] List<Patch> patches, int id)
         {
-            List<Error> errors = new List<Error>();
-
             if (!ModelState.IsValid)
             {
-                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
+                if (_db.GetModelStateErrors(ModelState))
+                {
+                    return new BadRequestObjectResult(_db.FatalError);
+                }
+                else
+                {
+                    return new UnprocessableEntityObjectResult(_db.Errors);
+                }
             }
 
             if (patches == null)
             {
-                return new BadRequestResult();
+                return new UnprocessableEntityObjectResult(new Error(1100));
             }
 
             if (!_db.ExamExists(id))
@@ -69,10 +64,9 @@ namespace Lisa.Excelsis.WebApi
 
             _db.PatchExam(patches, id);
 
-            errors.AddRange(_db.Errors);
-            if (errors != null && errors.Any())
+            if (_db.Errors.Any())
             {
-                return new BadRequestObjectResult(errors);
+                return new BadRequestObjectResult(_db.Errors);
             }
 
             var result = _db.FetchExam(id);
@@ -86,12 +80,19 @@ namespace Lisa.Excelsis.WebApi
 
             if (!ModelState.IsValid)
             {
-                return (_db.GetModelStateErrors(ModelState)) ? new BadRequestObjectResult(_db.FatalError) : new BadRequestObjectResult(_db.Errors);
+                if (_db.GetModelStateErrors(ModelState))
+                {
+                    return new BadRequestObjectResult(_db.FatalError);
+                }
+                else
+                {
+                    return new UnprocessableEntityObjectResult(_db.Errors);
+                }
             }
 
             if (exam == null)
             {
-                return new BadRequestResult();
+                return new UnprocessableEntityObjectResult(new Error(1100));
             }
 
             if (_db.ExamExists(exam))
@@ -99,17 +100,15 @@ namespace Lisa.Excelsis.WebApi
                 errors.Add(new Error(1301, new { subject = exam.Subject, cohort = exam.Cohort, name = exam.Name, crebo = exam.Crebo }));
             }
 
-            if (errors != null && errors.Any())
+            if (errors.Any())
             {
                 return new UnprocessableEntityObjectResult(errors);
             }
 
             var id = _db.AddExam(exam);
-
-            errors.AddRange(_db.Errors);
-            if (errors != null && errors.Any())
+            if (_db.Errors.Any())
             {
-                return new UnprocessableEntityObjectResult(errors);
+                return new UnprocessableEntityObjectResult(_db.Errors);
             }
 
             var result = _db.FetchExam(id);
