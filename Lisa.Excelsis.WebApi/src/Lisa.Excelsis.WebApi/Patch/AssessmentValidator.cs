@@ -13,17 +13,17 @@ namespace Lisa.Excelsis.WebApi
             foreach (Patch patch in patches)
             {
                 //Add Mark
-                Allow("add", id, patch, @"^observations/\d/marks$", ObservationExists, ValueIsMark);
+                Allow("add", id, patch, @"^observations/\d+/marks$", ObservationExists, ValueIsMark);
 
                 //Replace Observation
-                Allow("replace", id, patch, @"^observations/\d/result$", ObservationExists, ValueIsResult);
+                Allow("replace", id, patch, @"^observations/\d+/result$", ObservationExists, ValueIsResult);
                 //Replace  Assessment
                 Allow("replace", id, patch, @"^studentname$", AssessmentExists, ValueIsStudentName);
                 Allow("replace", id, patch, @"^studentnumber$", AssessmentExists, ValueIsStudentNumber);
                 Allow("replace", id, patch, @"^assessed$", AssessmentExists, ValueIsDateTime);
 
                 //Remove Mark
-                Allow("remove", id, patch, @"^observations/\d/marks", ObservationExists, ValueIsMark);
+                Allow("remove", id, patch, @"^observations/\d+/marks", ObservationExists, ValueIsMark);
             }
 
             if (!IsValid(patches))
@@ -63,6 +63,7 @@ namespace Lisa.Excelsis.WebApi
             DateTime dateTime;
             if (ValueIsNotEmpty(patch))
             {
+                DateTime convertedDate = Convert.ToDateTime(patch.Value.ToString());
                 if (!DateTime.TryParse(patch.Value.ToString(), out dateTime))
                 {
                     _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "datetime"}));

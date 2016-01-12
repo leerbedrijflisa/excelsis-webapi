@@ -14,16 +14,16 @@ namespace Lisa.Excelsis.WebApi
                 //Add Category
                 Build("add", id, patch, @"^categories$", AddCategory);
                 //Add Criterion
-                Build("add", id, patch, @"^categories/\d/criteria$", AddCriterion);
+                Build("add", id, patch, @"^categories/\d+/criteria$", AddCriterion);
 
                 //Replace Category
-                Build("replace", id, patch, @"^categories/\d/order$", ReplaceCategoryOrder);
-                Build("replace", id, patch, @"^categories/\d/name$", ReplaceCategoryName);
+                Build("replace", id, patch, @"^categories/\d+/order$", ReplaceCategoryOrder);
+                Build("replace", id, patch, @"^categories/\d+/name$", ReplaceCategoryName);
                 //Replace Criterion
-                Build("replace", id, patch, @"^categories/\d/criteria/\d/order$", ReplaceCriterionOrder);
-                Build("replace", id, patch, @"^categories/\d/criteria/\d/title$", ReplaceCriterionTitle);
-                Build("replace", id, patch, @"^categories/\d/criteria/\d/description$", ReplaceCriterionDescription);
-                Build("replace", id, patch, @"^categories/\d/criteria/\d/weight$", ReplaceCriterionWeight);
+                Build("replace", id, patch, @"^categories/\d+/criteria/\d+/order$", ReplaceCriterionOrder);
+                Build("replace", id, patch, @"^categories/\d+/criteria/\d+/title$", ReplaceCriterionTitle);
+                Build("replace", id, patch, @"^categories/\d+/criteria/\d+/description$", ReplaceCriterionDescription);
+                Build("replace", id, patch, @"^categories/\d+/criteria/\d+/weight$", ReplaceCriterionWeight);
                 //Replace Exam
                 Build("replace", id, patch, @"^subject$", ReplaceExamSubject);
                 Build("replace", id, patch, @"^name$", ReplaceExamName);
@@ -33,10 +33,10 @@ namespace Lisa.Excelsis.WebApi
 
                 //Remove Category
                 Build("remove", id, patch, @"^categories$", RemoveCategory);
-                Build("remove", id, patch, @"^categories/\d/criteria$", RemoveCriterion);
+                Build("remove", id, patch, @"^categories/\d+/criteria$", RemoveCriterion);
 
                 //Move Criterion
-                Build("move", id, patch, @"^categories/\d/criteria/\d$", MoveCriterion);
+                Build("move", id, patch, @"^categories/\d+/criteria/\d+$", MoveCriterion);
             }
 
             ExecuteTransactions();

@@ -12,17 +12,17 @@ namespace Lisa.Excelsis.WebApi
             foreach (Patch patch in patches)
             {
                 //Add Mark
-                Build("add", id, patch, @"^observations/\d/marks$", AddMark);
+                Build("add", id, patch, @"^observations/\d+/marks$", AddMark);
 
                 //Replace Observation
-                Build("replace", id, patch, @"^observations/\d/result$", ReplaceResult);
+                Build("replace", id, patch, @"^observations/\d+/result$", ReplaceResult);
                 //Replace  Assessment
                 Build("replace", id, patch, @"^studentname$", ReplaceStudentName);
                 Build("replace", id, patch, @"^studentnumber$", ReplaceStudentNumber);
                 Build("replace", id, patch, @"^assessed$", ReplaceAssessed);
 
                 //Remove Mark
-                Build("remove", id, patch, @"^observations/\d/marks", RemoveMark);
+                Build("remove", id, patch, @"^observations/\d+/marks", RemoveMark);
             }
 
             ExecuteTransactions();

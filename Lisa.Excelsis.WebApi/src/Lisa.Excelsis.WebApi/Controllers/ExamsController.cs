@@ -68,6 +68,10 @@ namespace Lisa.Excelsis.WebApi
             var validateErrors = validator.ValidatePatches(id, patches);
             errors.AddRange(validateErrors);
 
+            if(validator.FatalError.Length > 0)
+            {
+                return new BadRequestObjectResult(validator.FatalError);
+            }
 
             if (errors.Any())
             {            

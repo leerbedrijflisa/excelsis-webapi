@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -8,22 +11,23 @@ namespace Lisa.Excelsis.WebApi
         public IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patches)
         {
             _errors = new List<Error>();
+            _fatalError = string.Empty;
 
             foreach (Patch patch in patches)
             {     
                 //Add Category
                 Allow("add", id, patch, @"^categories$", ExamExists, ValueIsCategoryObject);
                 //Add Criterion
-                Allow("add", id, patch, @"^categories/\d/criteria$", CategoryExists, ValueIsCriteriaObject);
+                Allow("add", id, patch, @"^categories/\d+/criteria$", CategoryExists, ValueIsCriteriaObject);
 
                 //Replace Category
-                Allow("replace", id, patch, @"^categories/\d/order$", CategoryExists, ValueIsInt);
-                Allow("replace", id, patch, @"^categories/\d/name$", CategoryExists, ValueIsString);
+                Allow("replace", id, patch, @"^categories/\d+/order$", CategoryExists, ValueIsInt);
+                Allow("replace", id, patch, @"^categories/\d+/name$", CategoryExists, ValueIsString);
                 //Replace Criterion
-                Allow("replace", id, patch, @"^categories/\d/criteria/\d/order$", CriterionExists, ValueIsInt);
-                Allow("replace", id, patch, @"^categories/\d/criteria/\d/title$", CriterionExists, ValueIsString);
-                Allow("replace", id, patch, @"^categories/\d/criteria/\d/description$", CriterionExists, ValueIsString);
-                Allow("replace", id, patch, @"^categories/\d/criteria/\d/weight$", CriterionExists, ValueIsWeight);
+                Allow("replace", id, patch, @"^categories/\d+/criteria/\d+/order$", CriterionExists, ValueIsInt);
+                Allow("replace", id, patch, @"^categories/\d+/criteria/\d+/title$", CriterionExists, ValueIsString);
+                Allow("replace", id, patch, @"^categories/\d+/criteria/\d+/description$", CriterionExists, ValueIsString);
+                Allow("replace", id, patch, @"^categories/\d+/criteria/\d+/weight$", CriterionExists, ValueIsWeight);
                 //Replace Exam
                 Allow("replace", id, patch, @"^subject$", ExamExists, ValueIsString);
                 Allow("replace", id, patch, @"^name$", ExamExists, ValueIsString);
@@ -33,10 +37,10 @@ namespace Lisa.Excelsis.WebApi
 
                 //Remove Category
                 Allow("remove", id, patch, @"^categories$", CategoryExists, ValueIsInt);
-                Allow("remove", id, patch, @"^categories/\d/criteria$", CriterionRemoveExists, ValueIsInt);
+                Allow("remove", id, patch, @"^categories/\d+/criteria$", CriterionRemoveExists, ValueIsInt);
 
                 //Move Criterion
-                Allow("move", id, patch, @"^categories/\d/criteria/\d$", CriterionExists, CategoryTargetExists, ValueIsInt);
+                Allow("move", id, patch, @"^categories/\d+/criteria/\d+$", CriterionExists, CategoryTargetExists, ValueIsInt);
             }
 
             if (!IsValid(patches))
@@ -164,10 +168,29 @@ namespace Lisa.Excelsis.WebApi
 
         private static void ValueIsCriteriaObject(int id, Patch patch)
         {
-            CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
-            if (criterion == null)
+            DataAnnotationErrors = new List<Error>();            
+            var results = new List<ValidationResult>();
+            bool isValid = false;
+
+            try {
+                CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
+                isValid = Misc.TryValidate(criterion, out results);
+            }
+            catch(Exception e)
             {
-                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
+                _fatalError = e.Message;
+            }
+
+            if (!isValid)
+            {
+                _errors.AddRange(DataAnnotationErrors);
+                foreach (var validationResult in results)
+                {
+                    if (validationResult.MemberNames.Count() > 0)
+                    {
+                        _errors.Add(new Error(1101, new ErrorProps { Field = validationResult.MemberNames.First() }));
+                    }
+                }                
             }
         }
 
