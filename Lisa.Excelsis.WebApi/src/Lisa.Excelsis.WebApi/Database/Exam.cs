@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -14,14 +13,7 @@ namespace Lisa.Excelsis.WebApi
                              AND Exams.SubjectId = @Subject
                              AND Exams.Cohort = @Cohort
                            ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
-
-            var parameters = new {
-                Subject = subject,
-                Name = name,
-                Cohort = cohort
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Subject = subject, Name = name, Cohort = cohort });
         }
 
         public object FetchExam(object id)
@@ -29,25 +21,14 @@ namespace Lisa.Excelsis.WebApi
             var query = FetchExamQuery +
                         @" WHERE Exams.Id = @Id
                             ORDER BY Categories.[Order] ASC, Criteria.[Order] ASC";
-
-            var parameters = new {
-                Id = id
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Id = id });
         }
 
         public IEnumerable<object> FetchExams(Filter filter)
         {
             var query = FetchExamsQuery +
                         @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-
-            var parameters = new
-            {
-                Assessor = filter.Assessors ?? string.Empty
-            };
-
-            return _gateway.SelectMany(query, parameters);
+            return _gateway.SelectMany(query, new { Assessor = filter.Assessors ?? string.Empty });
         }
 
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
@@ -69,33 +50,33 @@ namespace Lisa.Excelsis.WebApi
         public object AddExam(ExamPost exam)
         {
             _errors = new List<Error>();
-            string subjectId = CleanParam(exam.Subject);
-            string nameId = CleanParam(exam.Name);
+            string subjectId = Misc.CleanParam(exam.Subject);
+            string nameId = Misc.CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
 
             if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
             {
-                _errors.Add(new Error(1203, new { field = "crebo", value = exam.Crebo, count = 5 }));
+                _errors.Add(new Error(1203, new ErrorProps { Field = "crebo", Value = exam.Crebo, Count = 5 }));
             }
 
             if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
             {
-                _errors.Add(new Error(1207, new { field = "cohort", value = exam.Cohort, count = 4 , min = 1900, max = 2099 }));
+                _errors.Add(new Error(1207, new ErrorProps { Field = "cohort", Value = exam.Cohort, Count = 4 , Min = 1900, Max = 2099 }));
             }
 
             if (subjectId == string.Empty)
             {
-                _errors.Add(new Error(1206, new { field = "Subject", value = exam.Subject }));
+                _errors.Add(new Error(1206, new ErrorProps { Field = "Subject", Value = exam.Subject }));
             }
 
             if (nameId == string.Empty)
             {
-                _errors.Add(new Error(1206, new { field = "Name", value = exam.Name }));
+                _errors.Add(new Error(1206, new ErrorProps { Field = "Name", Value = exam.Name }));
             }
 
             if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
             {
-                _errors.Add(new Error(1204, new { field = "status", value = exam.Status, permitted = new string[] { "draft", "published" } }));
+                _errors.Add(new Error(1204, new ErrorProps { Field = "status", Value = exam.Status, Permitted1 = "draft", Permitted2 = "published" }));
             }
 
             if (_errors.Any())
@@ -120,113 +101,10 @@ namespace Lisa.Excelsis.WebApi
 
         public void PatchExam(IEnumerable<Patch> patches, int id)
         {
-            _errors = new List<Error>();
-            foreach (Patch patch in patches)
-            {
-                if(patch.Action != null)
-                {
-                    patch.Action.ToLower();
-                    if (patch.Field != null)
-                    {
-                        patch.Field.ToLower();
-                        var field = patch.Field.Split('/');
-                        
-                        switch (patch.Action)
-                        {
-                            case "add":
-                                if (patch.Value != null)
-                                {
-                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria$"))
-                                    {
-                                        if (CategoryExists(id, field[1]))
-                                        {
-                                            AddCriterion(id, field[1], patch);
-                                        }
-                                        else
-                                        {
-                                            _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
-                                        }
-                                    }
-                                    else if (Regex.IsMatch(patch.Field, @"^categories$"))
-                                    {
-                                        AddCategory(id, patch);
-                                    }
-                                    else
-                                    {
-                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
-                                    }
-                                }
-                                else
-                                {
-                                    _errors.Add(new Error(1101, new { field = "value" }));
-                                }
-                                break;
-                            case "replace":
-                                break;
-                            case "move":
-                                if(patch.Target != null)
-                                {
-                                    var target = patch.Target.Split('/');
-                                    if (Regex.IsMatch(patch.Field, @"^categories/\d+/criteria/\d+$"))
-                                    {
-                                        if (Regex.IsMatch(patch.Target, @"^categories/\d+$"))
-                                        {
-                                            if (CategoryExists(id, field[1]))
-                                            {
-                                                if (CategoryExists(id, target[1]))
-                                                {
-                                                    if (CriterionExists(id, field[1],field[3]))
-                                                    {
-                                                        MoveCriterion(id, field[3], target[1]);
-                                                    }
-                                                    else
-                                                    {
-                                                        _errors.Add(new Error(1300, new { field = "criterion", value = field[3] }));
-                                                    }
-                                                }
-                                                else
-                                                {
-                                                    _errors.Add(new Error(1300, new { field = "category", value = target[1] }));
-                                                }
-                                            }
-                                            else
-                                            {
-                                                _errors.Add(new Error(1300, new { field = "category", value = field[1] }));
-                                            }
-                                        }
-                                        else
-                                        {
-                                            _errors.Add(new Error(1205, new { field = "target", value = patch.Target }));
-                                        }
-                                    }
-                                    else
-                                    {
-                                        _errors.Add(new Error(1205, new { field = "field", value = patch.Field }));
-                                    }
-                                }
-                                else
-                                {
-                                    _errors.Add(new Error(1101, new { field = "target" }));
-                                }
-                                break;
-                            case "remove":
-                                break;
-                            default:
-                                _errors.Add(new Error(1303, new { value = patch.Action }));
-                                break;
-                        }
-                    }
-                    else
-                    {
-                        _errors.Add(new Error(1101, new { field = "field" }));
-                    }
-                }
-                else
-                {
-                    _errors.Add(new Error(1101, new { field = "action" }));
-                }
-            }
+            ExamBuilder builder = new ExamBuilder();
+            builder.BuildPatches(id, patches);
         }
+        
         public bool ExamExists(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams
@@ -237,8 +115,8 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Name = CleanParam(exam.Name),
-                Subject = CleanParam(exam.Subject),
+                Name = Misc.CleanParam(exam.Name),
+                Subject = Misc.CleanParam(exam.Subject),
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo ?? string.Empty
             };
@@ -284,14 +162,14 @@ namespace Lisa.Excelsis.WebApi
                 return @"SELECT Id, Name, Cohort, Crebo, Subject, Status
                           FROM Exams
                           LEFT JOIN (	
-	                          SELECT TOP 10 Exam_Id, MAX(Assessments.Assessed) as Assessed
+	                          SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
 	                          FROM Assessments	
-	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.Assessment_Id = Assessments.Id
-	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.Assessor_Id
+	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
+	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId
 	                          WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
 	                          AND Assessors.UserName = @Assessor
-	                          GROUP BY Exam_Id
-                          ) Assessments ON Exams.Id = Assessments.Exam_Id";
+	                          GROUP BY ExamId
+                          ) Assessments ON Exams.Id = Assessments.ExamId";
             }
         }
     }

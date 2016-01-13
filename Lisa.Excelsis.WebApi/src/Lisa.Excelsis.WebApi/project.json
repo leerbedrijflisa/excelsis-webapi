@@ -3,7 +3,7 @@
   "version": "1.0.0-*",
 
   "dependencies": {
-    "Lisa.Common.Sql": "1.0.0-alpha-2",
+    "Lisa.Common.Sql": "1.0.0-alpha-4",
     "Microsoft.AspNet.Cors": "6.0.0-beta8",
     "Microsoft.AspNet.IISPlatformHandler": "1.0.0-beta8",
     "Microsoft.AspNet.Mvc": "6.0.0-beta8",

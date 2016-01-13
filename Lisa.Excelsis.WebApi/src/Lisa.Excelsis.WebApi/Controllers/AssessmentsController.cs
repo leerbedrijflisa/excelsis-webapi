@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -31,6 +30,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             List<Error> errors = new List<Error>();
+            AssessmentValidator validator = new AssessmentValidator();
 
             if (!ModelState.IsValid)
             {
@@ -54,12 +54,15 @@ namespace Lisa.Excelsis.WebApi
                 return new HttpNotFoundResult();
             }
 
-            _db.PatchAssessment(patches, id);
+            var validateErrors = validator.ValidatePatches(id, patches);
+            errors.AddRange(validateErrors);
 
-            if (_db.Errors.Any())
+            if (errors.Any())
             {
-                return new UnprocessableEntityObjectResult(_db.Errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
+
+            _db.PatchAssessment(patches, id);
 
             var result = _db.FetchAssessment(id);
             return new HttpOkObjectResult(result);
@@ -69,8 +72,8 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
-            subject = _db.CleanParam(subject);
-            name = _db.CleanParam(name);
+            subject = Misc.CleanParam(subject);
+            name = Misc.CleanParam(name);
 
             if (!ModelState.IsValid)
             {
