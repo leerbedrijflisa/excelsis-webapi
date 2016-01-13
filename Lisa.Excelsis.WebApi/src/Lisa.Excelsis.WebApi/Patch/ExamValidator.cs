@@ -8,7 +8,7 @@ namespace Lisa.Excelsis.WebApi
 {
     public class ExamValidator : PatchValidator
     {
-        public IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patches)
+        public void ValidatePatches(int id, IEnumerable<Patch> patches)
         {
             _errors = new List<Error>();
             _fatalError = string.Empty;
@@ -42,13 +42,6 @@ namespace Lisa.Excelsis.WebApi
                 //Move Criterion
                 Allow("move", id, patch, @"^categories/\d+/criteria/\d+$", CriterionExists, CategoryTargetExists, ValueIsInt);
             }
-
-            if (!IsValid(patches))
-            {
-                return Errors();
-            }
-
-            return new List<Error>();
         }
 
         //Check if resource exists

@@ -1,5 +1,8 @@
-﻿using System;
+﻿using Microsoft.AspNet.Mvc;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -47,18 +50,20 @@ namespace Lisa.Excelsis.WebApi
             return IsValid;
         }
 
-        protected List<Error> Errors()
+        public bool IsPatchValid()
         {
-            return _errors;
-        }
-
-        public string FatalError
-        {
-            get
+            if (_fatalError.Length > 0)
             {
-                return _fatalError;
+                PatchErrors = new BadRequestObjectResult(JsonConvert.SerializeObject(_fatalError));
             }
+            else if (_errors.Any())
+            {
+                PatchErrors = new UnprocessableEntityObjectResult(_errors);
+            }
+
+            return (_fatalError.Length == 0 && !_errors.Any());
         }
+        public IActionResult PatchErrors { get; private set; }
 
         protected static string _fatalError { get; set; }
 

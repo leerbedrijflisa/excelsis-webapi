@@ -40,42 +40,22 @@ namespace Lisa.Excelsis.WebApi
         [HttpPatch("{id}")]
         public IActionResult Patch([FromBody] List<Patch> patches, int id)
         {
-            List<Error> errors = new List<Error>();
             ExamValidator validator = new ExamValidator();
-
-            if (!ModelState.IsValid)
-            {
-                if (_db.GetModelStateErrors(ModelState))
-                {
-                    return new BadRequestObjectResult(_db.FatalError);
-                }
-                else
-                {
-                    return new UnprocessableEntityObjectResult(_db.Errors);
-                }
-            }
-
-            if (patches == null)
-            {
-                return new UnprocessableEntityObjectResult(new Error(1100));
-            }
 
             if (!_db.ExamExists(id))
             {
                 return new HttpNotFoundResult();
             }
 
-            var validateErrors = validator.ValidatePatches(id, patches);
-            errors.AddRange(validateErrors);
-
-            if(validator.FatalError.Length > 0)
+            if (!_db.IsModelStateValid(ModelState, patches))
             {
-                return new BadRequestObjectResult(validator.FatalError);
+                return _db.ModelStateErrors;
             }
 
-            if (errors.Any())
-            {            
-                return new UnprocessableEntityObjectResult(errors);
+            validator.ValidatePatches(id, patches);
+            if (!validator.IsPatchValid())
+            {
+                return validator.PatchErrors;
             }
 
             _db.PatchExam(patches, id);
@@ -87,35 +67,16 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)
         {
-            List<Error> errors = new List<Error>();
-
-            if (!ModelState.IsValid)
+            if (_db.IsModelStateValid(ModelState, exam))
             {
-                if (_db.GetModelStateErrors(ModelState))
-                {
-                    return new BadRequestObjectResult(_db.FatalError);
-                }
-                else
-                {
-                    return new UnprocessableEntityObjectResult(_db.Errors);
-                }
-            }
-
-            if (exam == null)
-            {
-                return new UnprocessableEntityObjectResult(new Error(1100));
+                return _db.ModelStateErrors;
             }
 
             if (_db.ExamExists(exam))
             {
-                errors.Add(new Error(1301, new ErrorProps { Subject = exam.Subject, Cohort = exam.Cohort, Name = exam.Name, Crebo = exam.Crebo }));
+                return new UnprocessableEntityObjectResult(new Error(1301, new ErrorProps { Subject = exam.Subject, Cohort = exam.Cohort, Name = exam.Name, Crebo = exam.Crebo }));
             }
-
-            if (errors.Any())
-            {
-                return new UnprocessableEntityObjectResult(errors);
-            }
-
+            
             var id = _db.AddExam(exam);
             if (_db.Errors.Any())
             {

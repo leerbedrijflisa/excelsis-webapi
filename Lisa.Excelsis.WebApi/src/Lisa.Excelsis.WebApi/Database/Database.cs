@@ -5,6 +5,7 @@ using System.Text.RegularExpressions;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using System.Linq;
 using Newtonsoft.Json;
+using Microsoft.AspNet.Mvc;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -36,34 +37,49 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectSingle(query, parameters);
         }
 
-        public bool GetModelStateErrors(ModelStateDictionary ModelState)
+        public IActionResult ModelStateErrors { get; private set; }
+
+        public bool IsModelStateValid(ModelStateDictionary ModelState, dynamic model)
         {
-            bool fatalError = false;
             _errors = new List<Error>();
-            var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
-            foreach (var property in modelStateErrors)
-            {
-                foreach (var error in property.Value.Errors)
+
+            if (model == null)
+            {               
+                ModelStateErrors = new BadRequestResult();
+                return false;
+            }
+
+            if (!ModelState.IsValid)
+            {              
+                  
+                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
+                foreach (var property in modelStateErrors)
                 {
-                    if (error.Exception == null)
+                    foreach (var error in property.Value.Errors)
                     {
-                        _errors.Add(new Error(1101, new ErrorProps { Field = property.Key }));
-                    }
-                    else
-                    {
-                        if (Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                        if (error.Exception == null)
                         {
-                            _errors.Add(new Error(1103, new ErrorProps { Field = property.Key }));
+                            _errors.Add(new Error(1101, new ErrorProps { Field = property.Key }));
                         }
                         else
                         {
-                            fatalError = true;
-                            _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                            if (Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                            {
+                                _errors.Add(new Error(1103, new ErrorProps { Field = property.Key }));
+                            }
+                            else
+                            {
+                                ModelStateErrors = new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
+                                return false;
+                            }
                         }
                     }
                 }
+
+                ModelStateErrors = new UnprocessableEntityObjectResult(_errors);
+                return false;
             }
-            return (fatalError);
+            return true;
         }
               
         public void ProcessTransactions(IEnumerable<QueryData> transactions)

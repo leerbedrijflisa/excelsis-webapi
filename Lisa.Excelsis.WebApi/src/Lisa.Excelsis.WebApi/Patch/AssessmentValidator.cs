@@ -6,7 +6,7 @@ namespace Lisa.Excelsis.WebApi
 {
     public class AssessmentValidator : PatchValidator
     {
-        public IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patches)
+        public void ValidatePatches(int id, IEnumerable<Patch> patches)
         {
             _errors = new List<Error>();
 
@@ -25,13 +25,6 @@ namespace Lisa.Excelsis.WebApi
                 //Remove Mark
                 Allow("remove", id, patch, @"^observations/\d+/marks", ObservationExists, ValueIsMark);
             }
-
-            if (!IsValid(patches))
-            {
-                return Errors();
-            }
-
-            return new List<Error>();
         }
 
         //Check if resource exists
