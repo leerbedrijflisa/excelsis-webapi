@@ -50,8 +50,7 @@ namespace Lisa.Excelsis.WebApi
             }
 
             if (!ModelState.IsValid)
-            {              
-                  
+            {                                
                 var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
                 foreach (var property in modelStateErrors)
                 {
@@ -94,12 +93,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         public static List<Error> _errors { get; set; }
-
-        public void ClearErrors()
-        {
-            _errors.Clear();
-        }
-       
+        
         private string _fatalError { get; set; }
 
         private Gateway _gateway = new Gateway(Environment.GetEnvironmentVariable("ConnectionString"));

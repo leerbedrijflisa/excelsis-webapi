@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class ExamValidator : PatchValidator
+    public class ExamValidator : Validator
     {
         public void ValidatePatches(int id, IEnumerable<Patch> patches)
         {
@@ -42,6 +40,14 @@ namespace Lisa.Excelsis.WebApi
                 //Move Criterion
                 Allow("move", id, patch, @"^categories/\d+/criteria/\d+$", CriterionExists, CategoryTargetExists, ValueIsInt);
             }
+
+            SetRemainingPatchErrors(patches);
+        }
+
+        public void ValidatePosts(ExamPost exam)
+        {
+            _errors = new List<Error>();
+            ValidateDataAnnotations(exam);
         }
 
         //Check if resource exists
@@ -151,39 +157,27 @@ namespace Lisa.Excelsis.WebApi
         }
 
         private static void ValueIsCategoryObject(int id, Patch patch)
-        {
-            CategoryAdd category = patch.Value.ToObject<CategoryAdd>();
-            if (category == null)
+        {            
+            try
             {
-                _errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = patch.Value.ToString(), Type = "string" }));
+                CategoryAdd category = patch.Value.ToObject<CategoryAdd>();
+                ValidateDataAnnotations(category);
+            }
+            catch (Exception e)
+            {
+                _fatalError = e.Message;
             }
         }
 
         private static void ValueIsCriteriaObject(int id, Patch patch)
-        {
-            DataAnnotationErrors = new List<Error>();            
-            var results = new List<ValidationResult>();
-            bool isValid = false;
-
+        {   
             try {
                 CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
-                isValid = Misc.TryValidate(criterion, out results);
+                ValidateDataAnnotations(criterion);
             }
             catch(Exception e)
             {
                 _fatalError = e.Message;
-            }
-
-            if (!isValid)
-            {
-                _errors.AddRange(DataAnnotationErrors);
-                foreach (var validationResult in results)
-                {
-                    if (validationResult.MemberNames.Count() > 0)
-                    {
-                        _errors.Add(new Error(1101, new ErrorProps { Field = validationResult.MemberNames.First() }));
-                    }
-                }                
             }
         }
 

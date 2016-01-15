@@ -121,23 +121,6 @@ namespace Lisa.Excelsis.WebApi
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)
         {
             _errors = new List<Error>();
-            if (assessment.Student != null)
-            {
-                if (assessment.Student.Name != null && !Regex.IsMatch(assessment.Student.Name, @"^\s*(\w+\s)*\w+\s*$"))
-                {
-                    _errors.Add(new Error(1201, new ErrorProps { Field = "studentname", Value = assessment.Student.Name }));
-                }
-
-                if (assessment.Student.Number != null && !Regex.IsMatch(assessment.Student.Number, @"^\d{8}$"))
-                {
-                    _errors.Add(new Error(1203, new ErrorProps { Field = "studentnumber", Value = assessment.Student.Number, Count = 8 }));
-                }
-            }
-            else
-            {
-                assessment.Student = new Student();
-            }
-
             object assessorResult = SelectAssessors(assessment);
 
             if (_errors.Count() == 0)

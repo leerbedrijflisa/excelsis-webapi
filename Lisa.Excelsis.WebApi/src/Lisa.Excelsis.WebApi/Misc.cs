@@ -22,7 +22,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var context = new ValidationContext(@object, serviceProvider: null, items: null);
             results = new List<ValidationResult>();
-            return Validator.TryValidateObject(
+            return System.ComponentModel.DataAnnotations.Validator.TryValidateObject(
                 @object, context, results,
                 validateAllProperties: true
             );

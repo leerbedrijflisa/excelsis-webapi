@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.ComponentModel.DataAnnotations;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -35,15 +36,14 @@ namespace Lisa.Excelsis.WebApi
                 }
                 else
                 {
-
                     ErrorProps.Field = ErrorProps.Field ?? validationContext.DisplayName;
                     ErrorProps.Value = ErrorProps.Value ?? value.ToString();
-                    PatchValidator.DataAnnotationErrors.Add(new Error(ErrorCode, ErrorProps));
+                    Validator.DataAnnotationErrors.Add(new Error(ErrorCode, ErrorProps));
                 }
             }
             else
             {
-                PatchValidator.DataAnnotationErrors.Add(new Error(1101,new ErrorProps { Field = validationContext.DisplayName }));
+                Validator.DataAnnotationErrors.Add(new Error(1101,new ErrorProps { Field = validationContext.DisplayName }));
             }
 
             return new ValidationResult("");

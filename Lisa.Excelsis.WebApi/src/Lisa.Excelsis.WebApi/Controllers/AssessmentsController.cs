@@ -36,13 +36,13 @@ namespace Lisa.Excelsis.WebApi
                 return new HttpNotFoundResult();
             }
 
-            if (_db.IsModelStateValid(ModelState, patches))
+            if (!_db.IsModelStateValid(ModelState, patches))
             {
                 return _db.ModelStateErrors;
             }
 
             validator.ValidatePatches(id, patches);
-            if (validator.IsPatchValid())
+            if (!validator.IsPatchValid())
             {
                 return validator.PatchErrors;
             }
@@ -57,20 +57,28 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
+            AssessmentValidator validator = new AssessmentValidator();
+            
             subject = Misc.CleanParam(subject);
             name = Misc.CleanParam(name);
 
-            if (_db.IsModelStateValid(ModelState, assessment))
-            {
-                return _db.ModelStateErrors;
-            }
-
             dynamic examResult = _db.FetchExam(subject, name, cohort);
-            if(examResult == null)
+            if (examResult == null)
             {
                 return new HttpNotFoundResult();
             }
 
+            if (!_db.IsModelStateValid(ModelState, assessment))
+            {
+                return _db.ModelStateErrors;
+            }
+
+            validator.ValidatePosts(assessment);
+            if (!validator.IsPostValid())
+            {
+                return validator.PostErrors;
+            }
+            
             var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);
             if (_db.Errors.Any())
             {

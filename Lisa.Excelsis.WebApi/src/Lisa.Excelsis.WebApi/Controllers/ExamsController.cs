@@ -67,7 +67,9 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost]
         public IActionResult Post([FromBody] ExamPost exam)
         {
-            if (_db.IsModelStateValid(ModelState, exam))
+            ExamValidator validator = new ExamValidator();
+
+            if (!_db.IsModelStateValid(ModelState, exam))
             {
                 return _db.ModelStateErrors;
             }
@@ -76,7 +78,13 @@ namespace Lisa.Excelsis.WebApi
             {
                 return new UnprocessableEntityObjectResult(new Error(1301, new ErrorProps { Subject = exam.Subject, Cohort = exam.Cohort, Name = exam.Name, Crebo = exam.Crebo }));
             }
-            
+
+            validator.ValidatePosts(exam);
+            if (!validator.IsPostValid())
+            {
+                return validator.PostErrors;
+            }
+
             var id = _db.AddExam(exam);
             if (_db.Errors.Any())
             {

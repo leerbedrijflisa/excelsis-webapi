@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class ExamBuilder : Patcher
+    public class ExamBuilder : PatchBuilder
     {
         public void BuildPatches(int id, IEnumerable<Patch> patches)
         {

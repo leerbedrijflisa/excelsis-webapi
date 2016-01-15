@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public class AssessmentBuilder : Patcher
+    public class AssessmentBuilder : PatchBuilder
     {
         public void BuildPatches(int id, IEnumerable<Patch> patches)
         {
