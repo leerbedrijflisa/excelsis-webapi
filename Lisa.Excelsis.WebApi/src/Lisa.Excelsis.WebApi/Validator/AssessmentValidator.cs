@@ -6,26 +6,35 @@ namespace Lisa.Excelsis.WebApi
 {
     class AssessmentValidator : Validator<AssessmentPost>
     {
-        public override IEnumerable<Error> ValidatePatch(Patch patch)
+        public override IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patches)
         {
-            return new Error[]
+            List<Error> errors = new List<Error>();
+            ResourceId = id;
+
+            foreach (var patch in patches)
             {
                 //Add Mark
-                Allow<string>(patch, "add",     @"^observations/\d+/marks$",    validateField: ObservationExists,
-                                                                                validateValue: ValueIsMark),
-                //Replace Observation
-                Allow<string>(patch, "replace", @"^observations/\d+/result$",   validateField: ObservationExists,
-                                                                                validateValue: ValueIsResult),
-                //Replace  Assessment
-                Allow<string>(patch, "replace", @"^studentname$",               validateValue: ValueIsStudentName),
-                Allow<string>(patch, "replace", @"^studentnumber$",             validateValue: ValueIsStudentNumber),
-                Allow<DateTime>(patch, "replace", @"^assessed$",                validateValue: ValueIsDateTime),
+                var _errors = new Error[] {
+                    Allow<string>(patch, "add", @"^observations/\d+/marks$", validateField: ObservationExists,
+                                                                             validateValue: ValueIsMark),
+                    //Replace Observation
+                    Allow<string>(patch, "replace", @"^observations/\d+/result$", validateField: ObservationExists,
+                                                                                  validateValue: ValueIsResult),
+                    //Replace  Assessment
+                    Allow<string>(patch, "replace", @"^studentname$", validateValue: ValueIsStudentName),
+                    Allow<string>(patch, "replace", @"^studentnumber$", validateValue: ValueIsStudentNumber),
+                    Allow<DateTime>(patch, "replace", @"^assessed$", validateValue: ValueIsDateTime),
 
-                //Remove Mark
-                Allow<string>(patch, "remove",  @"^observations/\d+/marks",     validateField: ObservationExists,
-                                                                                validateValue: ValueIsMark),
-                SetRemainingPatchError(patch)
-            };   
+                    //Remove Mark
+                    Allow<string>(patch, "remove", @"^observations/\d+/marks", validateField: ObservationExists,
+                                                                               validateValue: ValueIsMark)                   
+                };
+
+                errors.AddRange(_errors);
+                errors.AddRange(SetRemainingPatchError(patches));
+            }
+            ResourceId = null;
+            return errors;
         }
 
         public override IEnumerable<Error> ValidatePost(AssessmentPost assessment)
@@ -35,24 +44,13 @@ namespace Lisa.Excelsis.WebApi
                 Allow<string>(assessment.Student.Name, validateValue: ValueIsStudentName),
             };
         }
-
-        //Check if resource exists
-        private Error AssessmentExists(int id, string value, dynamic parameters)
+        
+        //Check if resource exists        
+        private Error ObservationExists(dynamic parameters)
         {
-            if (_db.AssessmentExists(id))
+            if (_db.ObservationExists(ResourceId, parameters.Parent))
             {
-                return new Error(1501, new ErrorProps { Field = "Assessment", Value = id.ToString() });
-            }
-
-            return null;
-        }
-
-        private Error ObservationExists(int id, dynamic patch)
-        {
-            var field = patch.Field.Split('/');
-            if (_db.ObservationExists(id, field[1]))
-            {
-                return new Error(1502, new ErrorProps { Field = "Observations", Value = field[1], Parent = "Assessment", ParentId = id.ToString() });
+                return new Error(1502, new ErrorProps { Field = "Observations", Value = parameters.Parent, Parent = "Assessment", ParentId = ResourceId.ToString() });
             }
 
             return null;

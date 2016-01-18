@@ -2,7 +2,7 @@
 {
     partial class Database
     {
-        public bool CriterionExists(int examId, object cid, object id)
+        public bool CriterionExists(object examId, object cid, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Criteria
                           WHERE ExamId = @ExamId AND CategoryId = @Cid AND Id = @Id";

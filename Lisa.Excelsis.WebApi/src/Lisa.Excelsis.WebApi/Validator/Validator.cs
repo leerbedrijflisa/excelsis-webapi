@@ -1,8 +1,5 @@
-﻿using Microsoft.AspNet.Mvc;
-using Newtonsoft.Json;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -10,11 +7,13 @@ namespace Lisa.Excelsis.WebApi
 {
     abstract class Validator<T>
     {
-        public abstract IEnumerable<Error> ValidatePatch(Patch patch);
+        protected int? ResourceId { get; set; }
+
+        public abstract IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patch);
 
         public abstract IEnumerable<Error> ValidatePost(T post);
 
-        protected Error Allow<T>(Patch patch, string action, string pattern, Func<object, Error> validateField = null , Func<T, Error> validateValue = null)
+        protected Error Allow<T>(Patch patch, string action, string pattern, Func<dynamic, Error> validateField = null , Func<T, Error> validateValue = null)
         {
             if (Regex.IsMatch(patch.Field.ToLower(), pattern))
             {
@@ -24,10 +23,9 @@ namespace Lisa.Excelsis.WebApi
                     {
                         var field = patch.Field.Split('/');
                         Dictionary<string, string> fieldParams = new Dictionary<string, string>();
-                        fieldParams["resource"] = "";
-                        fieldParams["parent"] = field[1];
-                        fieldParams["child"] = field[3];
-                        return validateField(fieldParams));
+                        fieldParams["parent"] = field[1] ?? patch.Value.ToString();
+                        fieldParams["child"] = field[3] ?? patch.Value.ToString();
+                        return validateField(fieldParams);
                     }
 
                     if (validateValue != null)
@@ -47,44 +45,22 @@ namespace Lisa.Excelsis.WebApi
             return validateValue(value.ToObject<T>());
         }
 
-        protected Error SetRemainingPatchError(Patch patch)
-        {         
-            if(!patch.IsValidField)
-            {
-                return new Error(0, new ErrorProps { });
-            }
-            else if (patch.IsValidField && !patch.IsValidated)
-            {
-                return new Error(0, new ErrorProps { });
-            }
-            return null;            
-        }
-
-        public bool IsPatchValid()
+        protected IEnumerable<Error> SetRemainingPatchError(IEnumerable<Patch> patches)
         {
-            if (_fatalError.Length > 0)
+            List<Error> errors = new List<Error>();
+
+            foreach (var patch in patches)
             {
-                PatchErrors = new BadRequestObjectResult(JsonConvert.SerializeObject(_fatalError));
+                if (!patch.IsValidField)
+                {
+                    errors.Add(new Error(0, new ErrorProps { }));
+                }
+                else if (patch.IsValidField && !patch.IsValidated)
+                {
+                    errors.Add(new Error(0, new ErrorProps { }));
+                }
             }
-            else if (_errors.Any())
-            {
-                PatchErrors = new UnprocessableEntityObjectResult(_errors);
-            }
-
-            return (_fatalError.Length == 0 && !_errors.Any());
+            return (errors.Any())? errors : null;            
         }
-
-        public bool IsPostValid()
-        {
-            return !_errors.Any();
-        }
-
-        public IActionResult PatchErrors { get; private set; }
-
-        public IActionResult PostErrors { get; private set; }
-
-        protected static string _fatalError { get; set; }
-
-        private List<Error> _errors = new List<Error>();
     }
 }

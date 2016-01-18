@@ -30,6 +30,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             AssessmentValidator validator = new AssessmentValidator();
+            List<Error> errors = new List<Error>();
 
             if (!_db.AssessmentExists(id))
             {
@@ -41,10 +42,10 @@ namespace Lisa.Excelsis.WebApi
                 return _db.ModelStateErrors;
             }
 
-            validator.ValidatePatches(id, patches);
-            if (!validator.IsPatchValid())
+            errors.AddRange(validator.ValidatePatches(id, patches));
+            if (errors.Any())
             {
-                return validator.PatchErrors;
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             _db.PatchAssessment(patches, id);
@@ -58,7 +59,8 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
             AssessmentValidator validator = new AssessmentValidator();
-            
+            List<Error> errors = new List<Error>();
+
             subject = Misc.CleanParam(subject);
             name = Misc.CleanParam(name);
 
@@ -73,18 +75,13 @@ namespace Lisa.Excelsis.WebApi
                 return _db.ModelStateErrors;
             }
 
-            validator.ValidatePosts(assessment);
-            if (!validator.IsPostValid())
+            errors.AddRange(validator.ValidatePost(assessment));
+            if (errors.Any())
             {
-                return validator.PostErrors;
-            }
-            
-            var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);
-            if (_db.Errors.Any())
-            {
-                return new UnprocessableEntityObjectResult(_db.Errors);
+                return new UnprocessableEntityObjectResult(errors);
             }
 
+            var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);           
             var result = _db.FetchAssessment(id);
             string location = Url.RouteUrl("assessment", new { id = id }, Request.Scheme);
             return new CreatedResult(location, result);

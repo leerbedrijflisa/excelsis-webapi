@@ -23,7 +23,7 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        public bool ObservationExists(int assessmentId, int id)
+        public bool ObservationExists(object assessmentId, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Observations
                           WHERE AssessmentId = @AssessmentId AND Id = @id";

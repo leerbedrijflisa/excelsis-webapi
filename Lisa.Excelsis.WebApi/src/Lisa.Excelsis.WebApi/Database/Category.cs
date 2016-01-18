@@ -10,7 +10,7 @@
             return _gateway.SelectSingle(query, new { Id = id, ExamId = examId });
         }
         
-        public bool CategoryExists(int examId, object id)
+        public bool CategoryExists(object examId, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Categories
                           WHERE ExamId = @ExamId AND Id = @Id";

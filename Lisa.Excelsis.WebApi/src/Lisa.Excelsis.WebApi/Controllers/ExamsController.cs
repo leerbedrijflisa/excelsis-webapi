@@ -41,6 +41,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Patch([FromBody] List<Patch> patches, int id)
         {
             ExamValidator validator = new ExamValidator();
+            List<Error> errors = new List<Error>();
 
             if (!_db.ExamExists(id))
             {
@@ -52,10 +53,10 @@ namespace Lisa.Excelsis.WebApi
                 return _db.ModelStateErrors;
             }
 
-            validator.ValidatePatches(id, patches);
-            if (!validator.IsPatchValid())
+            errors.AddRange(validator.ValidatePatches(id, patches));
+            if (errors.Any())
             {
-                return validator.PatchErrors;
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             _db.PatchExam(patches, id);
@@ -68,6 +69,7 @@ namespace Lisa.Excelsis.WebApi
         public IActionResult Post([FromBody] ExamPost exam)
         {
             ExamValidator validator = new ExamValidator();
+            List<Error> errors = new List<Error>();
 
             if (!_db.IsModelStateValid(ModelState, exam))
             {
@@ -79,18 +81,13 @@ namespace Lisa.Excelsis.WebApi
                 return new UnprocessableEntityObjectResult(new Error(1301, new ErrorProps { Subject = exam.Subject, Cohort = exam.Cohort, Name = exam.Name, Crebo = exam.Crebo }));
             }
 
-            validator.ValidatePosts(exam);
-            if (!validator.IsPostValid())
+            errors.AddRange(validator.ValidatePost(exam));
+            if (errors.Any())
             {
-                return validator.PostErrors;
+                return new UnprocessableEntityObjectResult(errors);
             }
 
             var id = _db.AddExam(exam);
-            if (_db.Errors.Any())
-            {
-                return new UnprocessableEntityObjectResult(_db.Errors);
-            }
-
             var result = _db.FetchExam(id);
             string location = Url.RouteUrl("exam", new { subject = Misc.CleanParam(exam.Subject), cohort = exam.Cohort, name = Misc.CleanParam(exam.Name) }, Request.Scheme);
             return new CreatedResult(location, result);

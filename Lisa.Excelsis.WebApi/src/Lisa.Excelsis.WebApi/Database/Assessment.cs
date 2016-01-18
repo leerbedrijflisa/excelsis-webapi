@@ -141,7 +141,7 @@ namespace Lisa.Excelsis.WebApi
             builder.BuildPatches(id, patches);
         }
         
-        public bool AssessmentExists(int id)
+        public bool AssessmentExists(object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Assessments
                           WHERE Id = @Id";
