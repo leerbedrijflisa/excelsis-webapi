@@ -1,4 +1,12 @@
 {
+  "iisSettings": {
+    "windowsAuthentication": false,
+    "anonymousAuthentication": true,
+    "iisExpress": {
+      "applicationUrl": "http://localhost:2927/",
+      "sslPort": 0
+    }
+  },
   "profiles": {
     "IIS Express": {
       "commandName": "IISExpress",
@@ -6,12 +14,13 @@
       "environmentVariables": {
         "ASPNET_ENV": "Development",
         "ConnectionString": "Data Source=(localdb)\\v11.0;Initial Catalog=ExcelsisDb;Integrated Security=True"
-      }
+      },
+      "sdkVersion": "dnx-clr-win-x86.1.0.0-rc1-update1"
     },
     "web": {
       "commandName": "web",
       "environmentVariables": {
-        "ASPNET_ENV": "Development"
+        "Hosting:Environment": "Development"
       }
     }
   }
