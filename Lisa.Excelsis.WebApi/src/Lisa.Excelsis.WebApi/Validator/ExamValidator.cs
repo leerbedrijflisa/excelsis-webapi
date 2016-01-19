@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -52,7 +53,12 @@ namespace Lisa.Excelsis.WebApi
                     Allow<int>(patch, "move",           new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)$"), null, CriterionExists, CategoryTargetExists)
                 };
                 errors.AddRange(_errors);
-                errors.AddRange(SetRemainingPatchError(patches));
+            }
+
+            var patchErrors = SetRemainingPatchError(patches);
+            if (patchErrors != null)
+            {
+                errors.AddRange(patchErrors);
             }
 
             ResourceId = null;
@@ -73,10 +79,9 @@ namespace Lisa.Excelsis.WebApi
         //Check if resource exists
         private Error CriterionExists(dynamic parameters)
         {
-            dynamic result = _db.CriterionExists(ResourceId, parameters.Parent, parameters.Child);
-            if (result.count == 0)
+            if (!_db.CriterionExists(ResourceId, parameters.Cid, parameters.Id))
             {
-                return new Error(1502, new ErrorProps { Field = "Criterion", Value = parameters.Child, Parent = "Category", ParentId = parameters.Parent });
+                return new Error(1502, new ErrorProps { Field = "Criterion", Value = parameters.Id, Parent = "Category", ParentId = parameters.Cid });
             }
 
             return null;
@@ -84,10 +89,9 @@ namespace Lisa.Excelsis.WebApi
 
         private Error CategoryExists(dynamic parameters)
         {
-            dynamic result = _db.CategoryExists(ResourceId, parameters.Parent);
-            if (result.count == 0)
+            if (!_db.CategoryExists(ResourceId, parameters.Parent))
             {
-                return new Error(1502, new ErrorProps { Field = "Category", Value = parameters.Parent, Parent = "Exam", ParentId = ResourceId.ToString() });
+                return new Error(1502, new ErrorProps { Field = "Category", Value = parameters.Id, Parent = "Exam", ParentId = ResourceId.ToString() });
             }
 
             return null;
@@ -101,9 +105,8 @@ namespace Lisa.Excelsis.WebApi
                 //TODO: return error
                 return new Error(0, new ErrorProps { });
             }
-
-            dynamic result = _db.CategoryExists(ResourceId, match.Groups["Cid"].Value);
-            if (result.count == 0)
+            
+            if (!_db.CategoryExists(ResourceId, match.Groups["Cid"].Value))
             {
                 return new Error(1502, new ErrorProps { Field = "Category", Value = match.Groups["Cid"].Value, Parent = "Exam", ParentId = ResourceId.ToString() });
             }
@@ -145,29 +148,22 @@ namespace Lisa.Excelsis.WebApi
 
         private Error ValueIsCategoryObject(CategoryAdd value, dynamic parameters)
         {
-            //    try
-            //    {
-            //        CategoryAdd category = patch.Value.ToObject<CategoryAdd>();
-            //        ValidateDataAnnotations(category);
-            //    }
-            //    catch (Exception e)
-            //    {
-            //        _fatalError = e.Message;
-            //    }
-            return null;
+            var errors = new Error[] {
+                Allow<string>("name", value.Name, validateValue: ValueIsString),
+                Allow<int>("order", value.Order, validateValue: ValueIsInt)
+            };
+            return errors.FirstOrDefault();
         }
 
         private Error ValueIsCriteriaObject(CriterionAdd value, dynamic parameters)
         {
-            //    try {
-            //        CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
-            //        ValidateDataAnnotations(criterion);
-            //    }
-            //    catch(Exception e)
-            //    {
-            //        _fatalError = e.Message;
-            //    }
-            return null;
+            var errors = new Error[] {
+                Allow<string>("order", value.Order, validateValue: ValueIsString),
+                Allow<string>("title", value.Title, validateValue: ValueIsString),
+                Allow<string>("description", value.Description, validateValue: ValueIsString),
+                Allow<string>("weight", value.Weight, validateValue: ValueIsWeight)
+            };
+            return errors.FirstOrDefault();
         }
 
         private Error ValueIsWeight(string value, dynamic parameters)

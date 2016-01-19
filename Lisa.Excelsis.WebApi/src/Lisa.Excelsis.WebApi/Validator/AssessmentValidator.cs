@@ -30,9 +30,15 @@ namespace Lisa.Excelsis.WebApi
                     Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"), validateValue: ValueIsDateTime)                              
                 };
 
-                errors.AddRange(_errors);
-                errors.AddRange(SetRemainingPatchError(patches));
+                errors.AddRange(_errors);                
             }
+
+            var patchErrors = SetRemainingPatchError(patches);
+            if (patchErrors != null)
+            {
+                errors.AddRange(patchErrors);
+            }
+
             ResourceId = null;
             return errors;
         }
@@ -51,9 +57,9 @@ namespace Lisa.Excelsis.WebApi
         //Check if resource exists        
         private Error ObservationExists(dynamic parameters)
         {
-            if (_db.ObservationExists(ResourceId, parameters.Parent))
+            if (!_db.ObservationExists(ResourceId, parameters.Id))
             {
-                return new Error(1502, new ErrorProps { Field = "Observations", Value = parameters.Parent, Parent = "Assessment", ParentId = ResourceId.ToString() });
+                return new Error(1502, new ErrorProps { Field = "Observations", Value = parameters.Id, Parent = "Assessment", ParentId = ResourceId.ToString() });
             }
 
             return null;

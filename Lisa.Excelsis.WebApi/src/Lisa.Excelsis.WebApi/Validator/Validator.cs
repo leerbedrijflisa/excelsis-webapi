@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Dynamic;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -18,9 +19,13 @@ namespace Lisa.Excelsis.WebApi
             var match = regex.Match(patch.Field.ToLower());
             if (match.Success)
             {
+                patch.IsValidField = true;
+
                 if (patch.Action.ToLower() == action)
                 {
-                    if(Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
+                    patch.IsValidated = true;
+
+                    if (Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
                     {
                         return new Error(9, new ErrorProps { });
                     }
@@ -29,7 +34,7 @@ namespace Lisa.Excelsis.WebApi
                         return new Error(9, new ErrorProps { });
                     }
 
-                    Dictionary<string, string> fieldParams = new Dictionary<string, string>();
+                    var fieldParams = new ExpandoObject() as IDictionary<string, Object>;
                     foreach (string groupName in regex.GetGroupNames())
                     {
                         fieldParams.Add(groupName, match.Groups[groupName].Value);
@@ -52,12 +57,15 @@ namespace Lisa.Excelsis.WebApi
 
                     if (validateValue != null)
                     {
-                       return validateValue(patch.Value.ToObject<T>(), fieldParams);
+                        try {
+                            return validateValue(patch.Value.ToObject<T>(), fieldParams);
+                        }
+                        catch(Exception e)
+                        {
+                            return new Error(0, new ErrorProps { });
+                        }
                     }
-
-                    patch.IsValidated = true;
-                }
-                patch.IsValidField = true;          
+                }                     
             }
             return null;
         }
@@ -73,11 +81,18 @@ namespace Lisa.Excelsis.WebApi
                 return null;
             }
 
-            Dictionary<string, string> fieldParams = new Dictionary<string, string>();
+            var fieldParams = new ExpandoObject() as IDictionary<string, Object>;
             fieldParams.Add("Field", field);
             fieldParams.Add("Value", value.ToString());
 
-            return validateValue(value.ToObject<T>(), fieldParams);
+            try
+            {
+                return validateValue(value.ToObject<T>(), fieldParams);
+            }
+            catch (Exception e)
+            {
+                return new Error(0, new ErrorProps { });
+            }
         }
 
         protected IEnumerable<Error> SetRemainingPatchError(IEnumerable<Patch> patches)
@@ -86,13 +101,16 @@ namespace Lisa.Excelsis.WebApi
 
             foreach (var patch in patches)
             {
-                if (!patch.IsValidField)
+                if (!patch.IsValidated)
                 {
-                    errors.Add(new Error(0, new ErrorProps { }));
-                }
-                else if (patch.IsValidField && !patch.IsValidated)
-                {
-                    errors.Add(new Error(0, new ErrorProps { }));
+                    if (!patch.IsValidField)
+                    {
+                        errors.Add(new Error(1500, new ErrorProps { Field = patch.Field }));
+                    }
+                    else if (patch.IsValidField)
+                    {
+                        errors.Add(new Error(1303, new ErrorProps { Value = patch.Action }));
+                    }
                 }
             }
             return (errors.Any())? errors : null;            
