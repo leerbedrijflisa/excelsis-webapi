@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -14,41 +15,41 @@ namespace Lisa.Excelsis.WebApi
             {
                 var _errors = new Error[] {
                     //Add Category
-                    Allow<CategoryAdd>(patch, "add", @"^categories$", validateValue: ValueIsCategoryObject),
+                    Allow<CategoryAdd>(patch, "add",    new Regex(@"^categories$"), validateValue: ValueIsCategoryObject),
                     //Add Criterion
-                    Allow<CriterionAdd>(patch, "add", @"^categories/\d+/criteria$", validateField: CategoryExists,
-                                                                                    validateValue: ValueIsCriteriaObject),
+                    Allow<CriterionAdd>(patch, "add",   new Regex(@"^categories/(?<Id>\d+)/criteria$"), validateField: CategoryExists,
+                                                                                                        validateValue: ValueIsCriteriaObject),
                     //Replace Category
-                    Allow<int>(patch, "replace", @"^categories/\d+/order$", validateField: CategoryExists,
-                                                                            validateValue: ValueIsInt),
-                    Allow<string>(patch, "replace", @"^categories/\d+/name$", validateField: CategoryExists,
-                                                                              validateValue: ValueIsString),
+                    Allow<int>(patch, "replace",        new Regex(@"^categories/(?<Id>\d+)/order$"), validateField: CategoryExists,
+                                                                                                     validateValue: ValueIsInt),
+                    Allow<string>(patch, "replace",     new Regex(@"^categories/(?<Id>\d+)/name$"), validateField: CategoryExists,
+                                                                                                    validateValue: ValueIsString),
                     //Replace Criterion
-                    Allow<int>(patch, "replace", @"^categories/\d+/criteria/\d+/order$", validateField: CriterionExists,
-                                                                                         validateValue: ValueIsInt),
-                    Allow<string>(patch, "replace", @"^categories/\d+/criteria/\d+/title$", validateField: CriterionExists,
-                                                                                            validateValue: ValueIsString),
-                    Allow<string>(patch, "replace", @"^categories/\d+/criteria/\d+/description$", validateField: CriterionExists,
-                                                                                                  validateValue: ValueIsString),
-                    Allow<string>(patch, "replace", @"^categories/\d+/criteria/\d+/description$", validateField: CriterionExists,
-                                                                                                  validateValue: ValueIsString),
-                    Allow<string>(patch, "replace", @"^categories/\d+/criteria/\d+/weight$", validateField: CriterionExists,
-                                                                                             validateValue: ValueIsWeight),
+                    Allow<int>(patch, "replace",        new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/order$"), validateField: CriterionExists,
+                                                                                                                          validateValue: ValueIsInt),
+                    Allow<string>(patch, "replace",     new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/title$"), validateField: CriterionExists,
+                                                                                                                          validateValue: ValueIsString),
+                    Allow<string>(patch, "replace",     new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
+                                                                                                                                validateValue: ValueIsString),
+                    Allow<string>(patch, "replace",     new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
+                                                                                                                                validateValue: ValueIsString),
+                    Allow<string>(patch, "replace",     new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: CriterionExists,
+                                                                                                                           validateValue: ValueIsWeight),
                     //Replace Exam
-                    Allow<string>(patch, "replace", @"^subject$", validateValue: ValueIsString),
-                    Allow<string>(patch, "replace", @"^name$", validateValue: ValueIsString),
-                    Allow<string>(patch, "replace", @"^cohort$", validateValue: ValueIsCohort),
-                    Allow<string>(patch, "replace", @"^crebo$", validateValue: ValueIsCrebo),
-                    Allow<string>(patch, "replace", @"^status$", validateValue: ValueIsStatus),
+                    Allow<string>(patch, "replace",     new Regex(@"^subject$"), validateValue: ValueIsString),
+                    Allow<string>(patch, "replace",     new Regex(@"^name$"), validateValue: ValueIsString),
+                    Allow<string>(patch, "replace",     new Regex(@"^cohort$"), validateValue: ValueIsCohort),
+                    Allow<string>(patch, "replace",     new Regex(@"^crebo$"), validateValue: ValueIsCrebo),
+                    Allow<string>(patch, "replace",     new Regex(@"^status$"), validateValue: ValueIsStatus),
 
                     //Remove Category
-                    Allow<int>(patch, "remove", @"^categories$", validateField: CategoryExists,
-                                                                 validateValue: ValueIsInt),
-                    Allow<int>(patch, "remove", @"^categories/\d+/criteria$", validateField: CriterionExists,
-                                                                              validateValue: ValueIsInt),
+                    Allow<int>(patch, "remove",         new Regex(@"^categories$"), validateField: CategoryExists,
+                                                                                    validateValue: ValueIsInt),
+                    Allow<int>(patch, "remove",         new Regex(@"^categories/(?<Cid>\d+)/criteria$"), validateField: CriterionExists,
+                                                                                                         validateValue: ValueIsInt),
 
                     //Move Criterion
-                    //Allow("move", id, patch, @"^categories/\d+/criteria/\d+$", validateField: CriterionExists, CategoryTargetExists, validateValue: ValueIsInt)
+                    Allow<int>(patch, "move",           new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)$"), null, CriterionExists, CategoryTargetExists)
                 };
                 errors.AddRange(_errors);
                 errors.AddRange(SetRemainingPatchError(patches));
@@ -62,7 +63,10 @@ namespace Lisa.Excelsis.WebApi
         public override IEnumerable<Error> ValidatePost(ExamPost exam)
         {
             return new Error[] {
-               Allow<string>(exam.Name, validateValue: ValueIsString),
+               Allow<string>("name", exam.Name, validateValue: ValueIsString),
+               Allow<string>("subject", exam.Subject, validateValue: ValueIsString),
+               Allow<string>("cohort", exam.Cohort, validateValue: ValueIsCohort),
+               Allow<string>("crebo", exam.Crebo, validateValue: ValueIsCrebo, optional: true),
             };
         }
 
@@ -89,21 +93,26 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private static Error CategoryTargetExists(string value)
+        private Error CategoryTargetExists(dynamic parameters)
         {
-            //var field = patch.Field.Split('/');
-            //var query = @"SELECT count(*) as count FROM Categories 
-            //              WHERE Id = @Id AND ExamId = @Eid";
-            //dynamic result = _db.Execute(query, new { Id = patch.Value, Eid = id });
-            //if (result.count == 0)
-            //{
-            //    _errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = value, Parent = "Exam", ParentId = id.ToString() }));
-            //}
+            Match match = Regex.Match(parameters.Target, @"^categories/(?<Cid>\d+)$");
+            if (!match.Success)
+            {
+                //TODO: return error
+                return new Error(0, new ErrorProps { });
+            }
+
+            dynamic result = _db.CategoryExists(ResourceId, match.Groups["Cid"].Value);
+            if (result.count == 0)
+            {
+                return new Error(1502, new ErrorProps { Field = "Category", Value = match.Groups["Cid"].Value, Parent = "Exam", ParentId = ResourceId.ToString() });
+            }
+
             return null;
         }
 
         //Check if value is valid
-        private Error ValueIsString(string value)
+        private Error ValueIsString(string value, dynamic parameters)
         {
             if (value == null)
             {
@@ -114,7 +123,7 @@ namespace Lisa.Excelsis.WebApi
         }
     
 
-        private Error ValueIsInt(int value)
+        private Error ValueIsInt(int value, dynamic parameters)
         {           
             if (Regex.IsMatch(value.ToString(), @"\d+"))
             {
@@ -124,7 +133,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error TargetIsInt(string value)
+        private Error TargetIsInt(string value, dynamic parameters)
         {
             if (Regex.IsMatch(value, @"\d+"))
             {
@@ -134,7 +143,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsCategoryObject(CategoryAdd value)
+        private Error ValueIsCategoryObject(CategoryAdd value, dynamic parameters)
         {
             //    try
             //    {
@@ -148,7 +157,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsCriteriaObject(CriterionAdd value)
+        private Error ValueIsCriteriaObject(CriterionAdd value, dynamic parameters)
         {
             //    try {
             //        CriterionAdd criterion = patch.Value.ToObject<CriterionAdd>();
@@ -161,7 +170,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsWeight(string value)
+        private Error ValueIsWeight(string value, dynamic parameters)
         {
             if (Regex.IsMatch(value, @"^(fail|pass|excellent)$"))
             {
@@ -171,7 +180,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsCohort(string value)
+        private Error ValueIsCohort(string value, dynamic parameters)
         {
             if (Regex.IsMatch(value, @"^(19|20)\d{2}$"))
             {
@@ -181,7 +190,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsCrebo(string value)
+        private Error ValueIsCrebo(string value, dynamic parameters)
         {
             if (Regex.IsMatch(value, @"^\d{8}$"))
             {
@@ -191,7 +200,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private static Error ValueIsStatus(string value)
+        private static Error ValueIsStatus(string value, dynamic parameters)
         {
             if (Regex.IsMatch(value, @"^(draft|published)$"))
             {
@@ -200,25 +209,6 @@ namespace Lisa.Excelsis.WebApi
 
             return null;
         }
-
-        //private static bool ValueIsNotEmpty(Patch patch)
-        //{
-        //    if (patch.Value == null)
-        //    {
-        //         return new Error(1101, new ErrorProps { Field = "value" }));
-        //    }
-        //    return (patch.Value == null);
-        //}
-
-        //private static bool TargetIsNotEmpty(Patch patch)
-        //{
-        //    if (patch.Target == null)
-        //    {
-        //         return new Error(1101, new ErrorProps { Field = "target" }));
-        //    }
-        //    return (patch.Value != null);
-        //}
-
         private static readonly Database _db = new Database();
     }
 }

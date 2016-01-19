@@ -13,24 +13,46 @@ namespace Lisa.Excelsis.WebApi
 
         public abstract IEnumerable<Error> ValidatePost(T post);
 
-        protected Error Allow<T>(Patch patch, string action, string pattern, Func<dynamic, Error> validateField = null , Func<T, Error> validateValue = null)
+        protected Error Allow<T>(Patch patch, string action, Regex regex, Func<T, object, Error> validateValue, params Func<dynamic, Error>[] validateField)
         {
-            if (Regex.IsMatch(patch.Field.ToLower(), pattern))
+            var match = regex.Match(patch.Field.ToLower());
+            if (match.Success)
             {
                 if (patch.Action.ToLower() == action)
                 {
-                    if (validateField != null)
+                    if(Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
                     {
-                        var field = patch.Field.Split('/');
-                        Dictionary<string, string> fieldParams = new Dictionary<string, string>();
-                        fieldParams["parent"] = field[1] ?? patch.Value.ToString();
-                        fieldParams["child"] = field[3] ?? patch.Value.ToString();
-                        return validateField(fieldParams);
+                        return new Error(9, new ErrorProps { });
+                    }
+                    else if (Regex.IsMatch(patch.Action.ToLower(), @"^(move)$") && patch.Target == null)
+                    {
+                        return new Error(9, new ErrorProps { });
+                    }
+
+                    Dictionary<string, string> fieldParams = new Dictionary<string, string>();
+                    foreach (string groupName in regex.GetGroupNames())
+                    {
+                        fieldParams.Add(groupName, match.Groups[groupName].Value);
+                    }
+                    fieldParams.Add("Field", patch.Field);
+                    fieldParams.Add("Value", patch.Value.ToString());
+                    fieldParams.Add("Target", patch.Target);
+                    
+                    if (validateField != null)
+                    {                       
+                        foreach (var func in validateField)
+                        {
+                            var error = func(fieldParams);
+                            if(error != null)
+                            {
+                                return error;
+                            }
+                        }
                     }
 
                     if (validateValue != null)
                     {
-                       return validateValue(patch.Value.ToObject<T>());
+                       return validateValue(patch.Value.ToObject<T>(), fieldParams);
                     }
 
                     patch.IsValidated = true;
@@ -40,9 +62,22 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        protected Error Allow<T>(dynamic value, Func<T, Error> validateValue)
+        protected Error Allow<T>(string field, dynamic value, Func<T, object, Error> validateValue, bool optional = false)
         {
-            return validateValue(value.ToObject<T>());
+            if (value == null && !optional)
+            {
+                return new Error(1101, new ErrorProps { Field = field });
+            }
+            else if( value == null && optional)
+            {
+                return null;
+            }
+
+            Dictionary<string, string> fieldParams = new Dictionary<string, string>();
+            fieldParams.Add("Field", field);
+            fieldParams.Add("Value", value.ToString());
+
+            return validateValue(value.ToObject<T>(), fieldParams);
         }
 
         protected IEnumerable<Error> SetRemainingPatchError(IEnumerable<Patch> patches)

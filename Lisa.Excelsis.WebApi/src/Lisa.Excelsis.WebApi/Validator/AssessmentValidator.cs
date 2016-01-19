@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -12,22 +13,21 @@ namespace Lisa.Excelsis.WebApi
             ResourceId = id;
 
             foreach (var patch in patches)
-            {
-                //Add Mark
+            {                
                 var _errors = new Error[] {
-                    Allow<string>(patch, "add", @"^observations/\d+/marks$", validateField: ObservationExists,
-                                                                             validateValue: ValueIsMark),
+                    //Add Mark
+                    Allow<string>(patch, "add", new Regex(@"^observations/(?<Id>\d+)/marks$"), validateField: ObservationExists,
+                                                                                               validateValue: ValueIsMark),
+                     //Remove Mark
+                    Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: ObservationExists,
+                                                                                                 validateValue: ValueIsMark),
                     //Replace Observation
-                    Allow<string>(patch, "replace", @"^observations/\d+/result$", validateField: ObservationExists,
-                                                                                  validateValue: ValueIsResult),
+                    Allow<string>(patch, "replace", new Regex(@"^observations/(?<Id>\d+)/result$"), validateField: ObservationExists,
+                                                                                                    validateValue: ValueIsResult),
                     //Replace  Assessment
-                    Allow<string>(patch, "replace", @"^studentname$", validateValue: ValueIsStudentName),
-                    Allow<string>(patch, "replace", @"^studentnumber$", validateValue: ValueIsStudentNumber),
-                    Allow<DateTime>(patch, "replace", @"^assessed$", validateValue: ValueIsDateTime),
-
-                    //Remove Mark
-                    Allow<string>(patch, "remove", @"^observations/\d+/marks", validateField: ObservationExists,
-                                                                               validateValue: ValueIsMark)                   
+                    Allow<string>(patch, "replace", new Regex(@"^studentname$"), validateValue: ValueIsStudentName),
+                    Allow<string>(patch, "replace", new Regex(@"^studentnumber$"), validateValue: ValueIsStudentNumber),
+                    Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"), validateValue: ValueIsDateTime)                              
                 };
 
                 errors.AddRange(_errors);
@@ -41,7 +41,10 @@ namespace Lisa.Excelsis.WebApi
         {
             return new Error[]
             {
-                Allow<string>(assessment.Student.Name, validateValue: ValueIsStudentName),
+                Allow<string>("studentName", assessment.Student.Name, validateValue: ValueIsStudentName, optional: true),
+                Allow<string>("studentNumber", assessment.Student.Number, validateValue: ValueIsStudentNumber, optional: true),
+                Allow<string[]>("assessors", assessment.Assessors, validateValue: ValueIsAssessors),
+                Allow<DateTime>("assessed", assessment.Assessed, validateValue: ValueIsDateTime)
             };
         }
         
@@ -57,7 +60,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         //Check if value is valid
-        private Error ValueIsDateTime(DateTime value)
+        private Error ValueIsDateTime(DateTime value, dynamic parameters)
         {           
             if (value != null)
             {
@@ -67,7 +70,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsResult(string value)
+        private Error ValueIsResult(string value, dynamic parameters)
         {
             if (!Regex.IsMatch(value.ToLower(), @"^(seen|unseen|notrated)$"))
             {
@@ -77,7 +80,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsStudentNumber(string value)
+        private Error ValueIsStudentNumber(string value, dynamic parameters)
         {
             // REGEX : 8 digits (min and max)
             if (!Regex.IsMatch(value.ToLower(), @"^\d{8}$"))
@@ -88,7 +91,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsStudentName(string value)
+        private Error ValueIsStudentName(string value, dynamic parameters)
         {
             // REGEX : words with spaces
             if (!Regex.IsMatch(value, @"^[a-zA-Z\s]*$"))
@@ -99,7 +102,7 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsMark(string value)
+        private Error ValueIsMark(string value, dynamic parameters)
         {
             // REGEX : one word without spaces, lower dashes allowed
             if(!Regex.IsMatch(value, @"^\b[a-zA-Z0-9_]+\b$"))
@@ -110,7 +113,30 @@ namespace Lisa.Excelsis.WebApi
             return null;
         }
 
-        private Error ValueIsString(string value)
+        private Error ValueIsAssessors(string[] value, dynamic parameters)
+        {
+            //var query = @"SELECT Id, UserName
+            //            FROM Assessors
+            //            WHERE UserName IN ( " + string.Join(",", value) + " ) ";
+            //dynamic result = _gateway.SelectMany(query);
+
+
+            //if (result.Count != value.Count)
+            //{
+            //    foreach (var assessor in value)
+            //    {
+            //        if (result.Count == 0 || (result.Count > 0 && !((IEnumerable<dynamic>)result).Any(a => a.UserName == assessor)))
+            //        {
+            //            return new Error(1302, new ErrorProps { Value = assessor });
+            //        }
+            //    }
+            //}
+
+            return null;
+        }
+          
+
+        private Error ValueIsString(string value, dynamic parameters)
         {
             if(string.IsNullOrWhiteSpace(value))
             {
