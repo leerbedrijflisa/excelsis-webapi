@@ -10,12 +10,12 @@ namespace Lisa.Excelsis.WebApi
         public object FetchAssessment(object id)
         {
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@Number, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
-                                  Assessments.Name as Exam_@Name, Assessments.Name as Exam_Name, Assessments.Cohort as Exam_Cohort, Assessments.Crebo as Exam_Crebo, Assessments.Subject as Exam_Subject,
+                                 Assessments.Name as Exam_@Name, Assessments.Name as Exam_Name, Assessments.Cohort as Exam_Cohort, Assessments.Crebo as Exam_Crebo, Assessments.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName,
                                  Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
                                  Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result,
                                  Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
-                                 Observations.Title as #Categories_#Observations_Criterion_Title, Observations.Description as #Categories_#Observations_Criterion_Description, Observations.[Order] as #Categories_#Observations_Criterion_Order, Observations.Weight as #Categories_#Observations_Criterion_Weight
+                                 Observations.[Order] as #Categories_#Observations_Criterion_@Order, Observations.Title as #Categories_#Observations_Criterion_Title, Observations.Description as #Categories_#Observations_Criterion_Description, Observations.[Order] as #Categories_#Observations_Criterion_Order, Observations.Weight as #Categories_#Observations_Criterion_Weight
                           FROM Assessments
                           LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
