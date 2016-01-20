@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -68,7 +69,7 @@ namespace Lisa.Excelsis.WebApi
         {
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Assessments] SET [Assessed] = @Assessed WHERE [Id] = @Aid";
-            data.Parameters = new { Assessed = patch.Value.ToString(), Aid = id };
+            data.Parameters = new { Assessed = ((DateTime)patch.Value).ToString("s") + "Z", Aid = id };
             return data;
         }
 
