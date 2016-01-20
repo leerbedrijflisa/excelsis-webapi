@@ -13,11 +13,12 @@ namespace Lisa.Excelsis.WebApi
                 {
                     foreach (var criterion in category.Criteria)
                     {
-                        observations.Add("(" + criterion.Id + ", " + assessmentResult + ",'')");
+                        observations.Add("(" + assessmentResult + ", " + category.Id + ", " + criterion.Order + @",  
+                            '" + criterion.Title + "', '" + criterion.Description + "',  '" + criterion.Weight + "', '')");
                     }
                 }
 
-                var query = @"INSERT INTO Observations (CriterionId, AssessmentId, Result) VALUES ";
+                var query = @"INSERT INTO Observations (AssessmentId, CategoryId, [Order], Title, Description, Weight, Result) VALUES ";
                 query += string.Join(",", observations);
                 _gateway.Insert(query, null);
             }

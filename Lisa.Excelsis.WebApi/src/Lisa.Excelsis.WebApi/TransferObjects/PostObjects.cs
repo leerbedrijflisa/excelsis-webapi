@@ -7,7 +7,7 @@ namespace Lisa.Excelsis.WebApi
     {
         public Student Student { get; set; }
         [Required]
-        public DateTime? Assessed { get; set; }
+        public DateTime Assessed { get; set; }
         [Required]
         public string[] Assessors { get; set; }
     }

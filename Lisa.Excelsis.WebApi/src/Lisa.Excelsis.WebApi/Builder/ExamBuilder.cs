@@ -134,7 +134,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Subject] = @Subject WHERE [Id] = @Eid;
                            UPDATE [Exams] SET [SubjectId] = @SubjectId WHERE [Id] = @Eid;";
-            data.Parameters = new { Subject = patch.Value.ToString(), SubjectId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
+            data.Parameters = new { Subject = patch.Value.ToString(), SubjectId = Utils.CleanParam(patch.Value.ToString()), Eid = id };
             return data;
         }
 
@@ -143,7 +143,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             data.Query = @"UPDATE [Exams] SET [Name] = @Name WHERE [Id] = @Eid;
                            UPDATE [Exams] SET [NameId] = @NameId WHERE [Id] = @Eid;";
-            data.Parameters = new { Name = patch.Value.ToString(), NameId = Misc.CleanParam(patch.Value.ToString()), Eid = id };
+            data.Parameters = new { Name = patch.Value.ToString(), NameId = Utils.CleanParam(patch.Value.ToString()), Eid = id };
             return data;
         }
 

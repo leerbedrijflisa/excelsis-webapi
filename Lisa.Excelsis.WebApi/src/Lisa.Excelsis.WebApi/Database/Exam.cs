@@ -50,8 +50,8 @@ namespace Lisa.Excelsis.WebApi
         public object AddExam(ExamPost exam)
         {
             _errors = new List<Error>();
-            string subjectId = Misc.CleanParam(exam.Subject);
-            string nameId = Misc.CleanParam(exam.Name);
+            string subjectId = Utils.CleanParam(exam.Subject);
+            string nameId = Utils.CleanParam(exam.Name);
             exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
 
             if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
@@ -115,8 +115,8 @@ namespace Lisa.Excelsis.WebApi
 
             var parameters = new
             {
-                Name = Misc.CleanParam(exam.Name),
-                Subject = Misc.CleanParam(exam.Subject),
+                Name = Utils.CleanParam(exam.Name),
+                Subject = Utils.CleanParam(exam.Subject),
                 Cohort = exam.Cohort,
                 Crebo = exam.Crebo ?? string.Empty
             };
@@ -164,8 +164,8 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN (	
 	                          SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
 	                          FROM Assessments	
-	                          LEFT JOIN AssessmentsAssessors ON AssessmentsAssessors.AssessmentId = Assessments.Id
-	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentsAssessors.AssessorId
+	                          LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id
+	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
 	                          WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
 	                          AND Assessors.UserName = @Assessor
 	                          GROUP BY ExamId

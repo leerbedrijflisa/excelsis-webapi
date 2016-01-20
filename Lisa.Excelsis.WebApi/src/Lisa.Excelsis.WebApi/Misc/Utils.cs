@@ -4,7 +4,7 @@ using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
-    public static class Misc
+    public static class Utils
     {
         public static string CleanParam(string name)
         {

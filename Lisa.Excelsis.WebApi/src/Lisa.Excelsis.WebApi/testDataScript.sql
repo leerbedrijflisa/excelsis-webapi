@@ -41,7 +41,7 @@ CREATE TABLE [dbo].[Assessors] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-CREATE TABLE [dbo].[AssessmentsAssessors] (
+CREATE TABLE [dbo].[AssessmentAssessors] (
     [Id]            INT				IDENTITY (1, 1) NOT NULL,
     [AssessmentId]	INT				NULL,
     [AssessorId]	INT				NULL,
@@ -53,16 +53,23 @@ CREATE TABLE [dbo].[Assessments] (
     [StudentName]   NVARCHAR (MAX)	NULL,
     [StudentNumber] NVARCHAR (MAX)	NULL,
     [Assessed]      NVARCHAR (MAX)	NULL,
-    [ExamId]		INT				NULL,
+    [Name]          NVARCHAR (MAX)	NULL,   
+    [Cohort]        NVARCHAR (MAX)	NULL,
+    [Crebo]         NVARCHAR (MAX)	NULL,
+    [Subject]       NVARCHAR (MAX)	NULL,
     [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Observations] (
     [Id]            INT				IDENTITY (1, 1) NOT NULL,
-    [CriterionId]	INT				NULL,
-    [Result]        NVARCHAR (MAX)	NULL,
-    [AssessmentId]	INT				NULL,
+	[AssessmentId]	INT				NULL,
+    [CategoryId]	INT				NULL,
+	[Order]			INT				NULL,
+    [Title]			NVARCHAR (MAX)	NULL,
+    [Description]	NVARCHAR (MAX)	NULL,
+    [Weight]		NVARCHAR (MAX)	NULL,
+    [Result]        NVARCHAR (MAX)	NULL,    
     [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
@@ -76,7 +83,6 @@ CREATE TABLE [dbo].[Marks] (
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-
 CREATE TABLE [dbo].[Categories]
 (
     [Id]            INT				NOT NULL PRIMARY KEY IDENTITY, 
@@ -85,6 +91,16 @@ CREATE TABLE [dbo].[Categories]
 	[ExamId]        INT				NULL,
 	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
 )
+
+CREATE TABLE [dbo].[AssessmentCategories]
+(
+    [Id]            INT				NOT NULL PRIMARY KEY IDENTITY, 
+    [Order]         INT				NULL, 
+    [Name]          NVARCHAR (MAX)	NULL,
+	[AssessmentId]  INT				NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
+)
+
 
 GO
 INSERT INTO Assessors ([UserName], [Email])

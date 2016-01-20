@@ -14,24 +14,21 @@ namespace Lisa.Excelsis.WebApi
 
         public abstract IEnumerable<Error> ValidatePost(T post);
 
-        protected Error Allow<T>(Patch patch, string action, Regex regex, Func<T, object, Error> validateValue, params Func<dynamic, Error>[] validateField)
+        protected IEnumerable<Error> Allow<T>(Patch patch, string action, Regex regex, Action<T, object> validateValue, params Action<dynamic>[] validateField)
         {
+            errors = new List<Error>();
             var match = regex.Match(patch.Field.ToLower());
             if (match.Success)
-            {
-                patch.IsValidField = true;
-
+            {   
                 if (patch.Action.ToLower() == action)
-                {
-                    patch.IsValidated = true;
-
+                {                    
                     if (Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
                     {
-                        return new Error(9, new ErrorProps { });
+                        errors.Add(new Error(9, new ErrorProps { }));
                     }
                     else if (Regex.IsMatch(patch.Action.ToLower(), @"^(move)$") && patch.Target == null)
                     {
-                        return new Error(9, new ErrorProps { });
+                        errors.Add(new Error(9, new ErrorProps { }));
                     }
 
                     var fieldParams = new ExpandoObject() as IDictionary<string, Object>;
@@ -47,34 +44,34 @@ namespace Lisa.Excelsis.WebApi
                     {                       
                         foreach (var func in validateField)
                         {
-                            var error = func(fieldParams);
-                            if(error != null)
-                            {
-                                return error;
-                            }
+                            func(fieldParams);                           
                         }
                     }
 
                     if (validateValue != null)
                     {
                         try {
-                            return validateValue(patch.Value.ToObject<T>(), fieldParams);
+                            validateValue(patch.Value.ToObject<T>(), fieldParams);
                         }
                         catch(Exception e)
                         {
-                            return new Error(0, new ErrorProps { });
+                            errors.Add(new Error(0, new ErrorProps { }));
                         }
                     }
-                }                     
+                    patch.IsValidated = true;
+                }
+                patch.IsValidField = true;
             }
-            return null;
+            return errors;
         }
 
-        protected Error Allow<T>(string field, dynamic value, Func<T, object, Error> validateValue, bool optional = false)
+        protected IEnumerable<Error> Allow<T>(string field, dynamic value, Action<T, object> validateValue, bool optional = false)
         {
+            errors = new List<Error>();
+
             if (value == null && !optional)
             {
-                return new Error(1101, new ErrorProps { Field = field });
+                errors.Add(new Error(1101, new ErrorProps { Field = field }));
             }
             else if( value == null && optional)
             {
@@ -87,17 +84,19 @@ namespace Lisa.Excelsis.WebApi
 
             try
             {
-                return validateValue(value.ToObject<T>(), fieldParams);
+                validateValue(value, fieldParams);
             }
             catch (Exception e)
             {
-                return new Error(0, new ErrorProps { });
+                errors.Add(new Error(0, new ErrorProps { }));
             }
+
+            return errors;
         }
 
         protected IEnumerable<Error> SetRemainingPatchError(IEnumerable<Patch> patches)
         {
-            List<Error> errors = new List<Error>();
+            errors = new List<Error>();
 
             foreach (var patch in patches)
             {
@@ -115,5 +114,7 @@ namespace Lisa.Excelsis.WebApi
             }
             return (errors.Any())? errors : null;            
         }
+
+        protected List<Error> errors = new List<Error>();
     }
 }

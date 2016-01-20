@@ -1,4 +1,6 @@
-﻿namespace Lisa.Excelsis.WebApi
+﻿using System.Collections.Generic;
+
+namespace Lisa.Excelsis.WebApi
 {
     partial class Database
     {
@@ -9,7 +11,23 @@
                           WHERE Categories.Id = @Id AND Categories.ExamId = @ExamId";
             return _gateway.SelectSingle(query, new { Id = id, ExamId = examId });
         }
-        
+
+        public void AddCategories(dynamic assessmentResult, dynamic examResult)
+        {
+            List<string> categories = new List<string>();
+            if (examResult.Categories.Count > 0)
+            {
+                foreach (var category in examResult.Categories)
+                {
+                    categories.Add("(" + category.Order + ", '" + category.Name + "', " + assessmentResult + ")");
+                }
+
+                var query = @"INSERT INTO AssessmentCategories ([Order], Name, AssessmentId) VALUES ";
+                query += string.Join(",", categories);
+                _gateway.Insert(query, null);
+            }
+        }
+
         public bool CategoryExists(object examId, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Categories

@@ -62,8 +62,8 @@ namespace Lisa.Excelsis.WebApi
             AssessmentValidator validator = new AssessmentValidator();
             List<Error> errors = new List<Error>();
 
-            subject = Misc.CleanParam(subject);
-            name = Misc.CleanParam(name);
+            subject = Utils.CleanParam(subject);
+            name = Utils.CleanParam(name);
 
             dynamic examResult = _db.FetchExam(subject, name, cohort);
             if (examResult == null)

@@ -37,6 +37,15 @@ namespace Lisa.Excelsis.WebApi
             return _gateway.SelectSingle(query, parameters);
         }
 
+        public bool HasChildren(string field, string property, object value)
+        {
+            var query = @"SELECT COUNT(*) as count FROM $Field
+                          WHERE $Property = $Value";
+            dynamic result = _gateway.SelectSingle(query, new { Field = field, Property = property, Value = value});
+
+            return (result.count > 0);
+        }
+
         public IActionResult ModelStateErrors { get; private set; }
 
         public bool IsModelStateValid(ModelStateDictionary ModelState, dynamic model)
