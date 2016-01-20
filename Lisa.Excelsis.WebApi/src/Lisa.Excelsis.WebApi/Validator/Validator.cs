@@ -16,7 +16,6 @@ namespace Lisa.Excelsis.WebApi
 
         protected IEnumerable<Error> Allow<T>(Patch patch, string action, Regex regex, Action<T, object> validateValue, params Action<dynamic>[] validateField)
         {
-            errors = new List<Error>();
             var match = regex.Match(patch.Field.ToLower());
             if (match.Success)
             {   
@@ -67,8 +66,6 @@ namespace Lisa.Excelsis.WebApi
 
         protected IEnumerable<Error> Allow<T>(string field, dynamic value, Action<T, object> validateValue, bool optional = false)
         {
-            errors = new List<Error>();
-
             if (value == null && !optional)
             {
                 errors.Add(new Error(1101, new ErrorProps { Field = field }));
@@ -96,8 +93,6 @@ namespace Lisa.Excelsis.WebApi
 
         protected IEnumerable<Error> SetRemainingPatchError(IEnumerable<Patch> patches)
         {
-            errors = new List<Error>();
-
             foreach (var patch in patches)
             {
                 if (!patch.IsValidated)
