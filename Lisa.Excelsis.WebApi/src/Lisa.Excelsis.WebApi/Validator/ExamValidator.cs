@@ -80,7 +80,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void CategoryExists(dynamic parameters)
         {
-            if (!_db.CategoryExists(ResourceId, parameters.Parent))
+            if (!_db.CategoryExists(ResourceId, parameters.Id))
             {
                  errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = parameters.Id, Parent = "Exam", ParentId = ResourceId.ToString() }));
             }
@@ -121,7 +121,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsInt(int value, dynamic parameters)
         {           
-            if (Regex.IsMatch(value.ToString(), @"\d+"))
+            if (!Regex.IsMatch(value.ToString(), @"^\d+$"))
             {
                  errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = value.ToString()}));
             }
@@ -129,7 +129,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void TargetIsInt(string value, dynamic parameters)
         {
-            if (Regex.IsMatch(value, @"\d+"))
+            if (!Regex.IsMatch(value, @"^\d+$"))
             {
                  errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = value }));
             }
@@ -143,7 +143,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsCriteriaObject(CriterionAdd value, dynamic parameters)
         {
-            Allow<string>("order", value.Order, validateValue: ValueIsString);
+            Allow<int>("order", value.Order, validateValue: ValueIsInt);
             Allow<string>("title", value.Title, validateValue: ValueIsString);
             Allow<string>("description", value.Description, validateValue: ValueIsString);
             Allow<string>("weight", value.Weight, validateValue: ValueIsWeight);
@@ -151,15 +151,15 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsWeight(string value, dynamic parameters)
         {
-            if (Regex.IsMatch(value, @"^(fail|pass|excellent)$"))
+            if (!Regex.IsMatch(value, @"^(fail|pass|excellent)$"))
             {
-                 errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = value, Type = "string" }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted1 = "fail", Permitted2 = "pass", Permitted3 = "excellent" }));
             }
         }
 
         private void ValueIsCohort(string value, dynamic parameters)
         {
-            if (Regex.IsMatch(value, @"^(19|20)\d{2}$"))
+            if (!Regex.IsMatch(value, @"^(19|20)\d{2}$"))
             {
                  errors.Add(new Error(1207, new ErrorProps { Field = "value", Value = value, Count = 4, Min = 1900, Max = 2099 }));
             }
@@ -167,7 +167,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsCrebo(string value, dynamic parameters)
         {
-            if (Regex.IsMatch(value, @"^\d{8}$"))
+            if (!Regex.IsMatch(value, @"^\d{8}$"))
             {
                  errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 8}));
             }
@@ -175,7 +175,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsStatus(string value, dynamic parameters)
         {
-            if (Regex.IsMatch(value, @"^(draft|published)$"))
+            if (!Regex.IsMatch(value, @"^(draft|published)$"))
             {
                 errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted1 = "draft", Permitted2 = "published", Permitted3 = "" }));
             }
