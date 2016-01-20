@@ -6,8 +6,7 @@ namespace Lisa.Excelsis.WebApi
     {
         public IEnumerable<object> FetchAssessors()
         {
-            var query = @"SELECT Id, UserName
-                          FROM Assessors";
+            var query = @"SELECT Id, UserName, FirstName, LastName FROM Assessors";
             return _gateway.SelectMany(query);
         }
     }
