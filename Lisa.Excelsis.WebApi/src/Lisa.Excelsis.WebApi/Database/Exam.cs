@@ -48,53 +48,17 @@ namespace Lisa.Excelsis.WebApi
         }
 
         public object AddExam(ExamPost exam)
-        {
-            _errors = new List<Error>();
-            string subjectId = Utils.CleanParam(exam.Subject);
-            string nameId = Utils.CleanParam(exam.Name);
-            exam.Crebo = (exam.Crebo == null) ? string.Empty : exam.Crebo;
-
-            if (!Regex.IsMatch(exam.Crebo, @"^$|^\d{5}$"))
-            {
-                _errors.Add(new Error(1203, new ErrorProps { Field = "crebo", Value = exam.Crebo, Count = 5 }));
-            }
-
-            if (!Regex.IsMatch(exam.Cohort, @"^(19|20)\d{2}$"))
-            {
-                _errors.Add(new Error(1207, new ErrorProps { Field = "cohort", Value = exam.Cohort, Count = 4 , Min = 1900, Max = 2099 }));
-            }
-
-            if (subjectId == string.Empty)
-            {
-                _errors.Add(new Error(1206, new ErrorProps { Field = "Subject", Value = exam.Subject }));
-            }
-
-            if (nameId == string.Empty)
-            {
-                _errors.Add(new Error(1206, new ErrorProps { Field = "Name", Value = exam.Name }));
-            }
-
-            if(!Regex.IsMatch(exam.Status, @"^(draft|published)$"))
-            {
-                _errors.Add(new Error(1204, new ErrorProps { Field = "status", Value = exam.Status, Permitted1 = "draft", Permitted2 = "published" }));
-            }
-
-            if (_errors.Any())
-            {
-                return null;
-            }
-
+        {               
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
-                        VALUES (@Name, @NameId, @Cohort, @Crebo, @subject, @SubjectId, @Status);";
+                        VALUES (@Name, @NameId, @Cohort, @Crebo, @Subject, @SubjectId, 'draft');";
             var parameters = new
             {
                 Name = exam.Name,
-                NameId = nameId,
+                NameId = Utils.CleanParam(exam.Name),
                 Cohort = exam.Cohort,
-                Crebo = exam.Crebo,
+                Crebo = exam.Crebo?? string.Empty,
                 Subject = exam.Subject,
-                SubjectId = subjectId,
-                Status = exam.Status
+                SubjectId = Utils.CleanParam(exam.Subject)
             };
             return _gateway.Insert(query, parameters);
         }
