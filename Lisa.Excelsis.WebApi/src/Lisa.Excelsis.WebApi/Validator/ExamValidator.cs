@@ -36,8 +36,8 @@ namespace Lisa.Excelsis.WebApi
                 Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: CriterionExists,
                                                                                                                        validateValue: ValueIsWeight);
                 //Replace Exam
-                Allow<string>(patch, "replace", new Regex(@"^subject$"), validateValue: ValueIsString);
-                Allow<string>(patch, "replace", new Regex(@"^name$"), validateValue: ValueIsString);
+                Allow<string>(patch, "replace", new Regex(@"^subject$"), validateValue: ValueIsExamUrlParam);
+                Allow<string>(patch, "replace", new Regex(@"^name$"), validateValue: ValueIsExamUrlParam);
                 Allow<string>(patch, "replace", new Regex(@"^cohort$"), validateValue: ValueIsCohort);
                 Allow<string>(patch, "replace", new Regex(@"^crebo$"), validateValue: ValueIsCrebo);
                 Allow<string>(patch, "replace", new Regex(@"^status$"), validateValue: ValueIsStatus);
@@ -61,8 +61,8 @@ namespace Lisa.Excelsis.WebApi
 
         public override IEnumerable<Error> ValidatePost(ExamPost exam)
         {
-            Allow<string>("name", exam.Name, validateValue: ValueIsString);
-            Allow<string>("subject", exam.Subject, validateValue: ValueIsString);
+            Allow<string>("name", exam.Name, validateValue: ValueIsExamUrlParam);
+            Allow<string>("subject", exam.Subject, validateValue: ValueIsExamUrlParam);
             Allow<string>("cohort", exam.Cohort, validateValue: ValueIsCohort);
             Allow<string>("crebo", exam.Crebo, validateValue: ValueIsCrebo, optional: true);
 
@@ -147,6 +147,15 @@ namespace Lisa.Excelsis.WebApi
             Allow<string>("title", value.Title, validateValue: ValueIsString);
             Allow<string>("description", value.Description, validateValue: ValueIsString);
             Allow<string>("weight", value.Weight, validateValue: ValueIsWeight);
+        }
+
+        private void ValueIsExamUrlParam(string value, dynamic parameters)
+        {
+            var cleaned = Utils.CleanParam(value);
+            if (string.IsNullOrWhiteSpace(cleaned))
+            {
+                errors.Add(new Error(0, new ErrorProps { }));
+            }
         }
 
         private void ValueIsWeight(string value, dynamic parameters)
