@@ -50,6 +50,7 @@ CREATE TABLE [dbo].[AssessmentAssessors] (
 
 CREATE TABLE [dbo].[Assessments] (
     [Id]            INT				IDENTITY (1, 1) NOT NULL,
+	[ExamId]		INT				NULL,
     [StudentName]   NVARCHAR (MAX)	NULL,
     [StudentNumber] NVARCHAR (MAX)	NULL,
     [Assessed]      NVARCHAR (MAX)	NULL,

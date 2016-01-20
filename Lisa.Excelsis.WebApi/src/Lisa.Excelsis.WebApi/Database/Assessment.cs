@@ -155,14 +155,15 @@ namespace Lisa.Excelsis.WebApi
 
         private object InsertAssessment(AssessmentPost assessment, dynamic examResult)
         {
-            var query = @"INSERT INTO Assessments (StudentName, StudentNumber, Assessed, Name, Cohort, Crebo, Subject)
-                          VALUES (@StudentName, @StudentNumber, @Assessed, @Name, @Cohort, @Crebo, @Subject);";
+            var query = @"INSERT INTO Assessments (ExamId, StudentName, StudentNumber, Assessed, Name, Cohort, Crebo, Subject)
+                          VALUES (@ExamId, @StudentName, @StudentNumber, @Assessed, @Name, @Cohort, @Crebo, @Subject);";
             
             var parameters = new
             {
+                ExamId = examResult.Id,
                 StudentName = assessment.Student?.Name ?? string.Empty,
                 StudentNumber = assessment.Student?.Number ?? string.Empty,
-                Assessed = assessment.Assessed.ToString("s") + "Z",
+                Assessed = assessment.Assessed?.ToString("s") + "Z",
                 Name = examResult.Name,
                 Cohort = examResult.Cohort,
                 Crebo = examResult.Crebo,
