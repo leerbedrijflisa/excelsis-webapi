@@ -17,7 +17,7 @@ namespace Lisa.Excelsis.WebApi
                 //Add Mark
                 Allow<string>(patch, "add", new Regex(@"^observations/(?<Id>\d+)/marks$"), validateField: ObservationExists,
                                                                                             validateValue: ValueIsMark);
-                    //Remove Mark
+                //Remove Mark
                 Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: ObservationExists,
                                                                                                 validateValue: ValueIsMark);
                 //Replace Observation
@@ -50,7 +50,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!_db.ObservationExists(ResourceId, parameters.Id))
             {
-                errors.Add(new Error(1502, new ErrorProps { Field = "Observations", Value = parameters.Id, Parent = "Assessment", ParentId = ResourceId.ToString() }));
+                errors.Add(new Error(1305, new ErrorProps { Field = "Observations", Value = parameters.Id, Parent = "Assessment", ParentId = ResourceId.ToString() }));
             }
         }
 
@@ -59,7 +59,7 @@ namespace Lisa.Excelsis.WebApi
         {           
             if (value == null)
             {
-               errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = "", Type = "datetime"}));
+               errors.Add(new Error(1211, new ErrorProps { Field = "value", Example = "{YY}-{MM}-{DD}T{HH}:{mm}:{ss}Z"}));
             }        
         }
 
@@ -94,7 +94,7 @@ namespace Lisa.Excelsis.WebApi
             // REGEX : one word without spaces, lower dashes allowed
             if(!Regex.IsMatch(value, @"^\b[a-zA-Z0-9_]+\b$"))
             {
-                errors.Add(new Error(1200, new ErrorProps { Field = "value", Value = value}));
+                errors.Add(new Error(1212, new ErrorProps { Field = "value", Value = value}));
             }
         }
 

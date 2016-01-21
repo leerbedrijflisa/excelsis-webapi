@@ -38,5 +38,8 @@
         public string ParentId { get; set; }
         public string SubField { get; set; }
         public string Regex { get; set; }
+        public string Exception { get; set; }
+        public string Example { get; set; }
+        public string Message { get; set; }
     }
 }

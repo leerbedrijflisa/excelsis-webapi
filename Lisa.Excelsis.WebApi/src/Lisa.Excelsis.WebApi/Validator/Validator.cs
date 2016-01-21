@@ -23,11 +23,11 @@ namespace Lisa.Excelsis.WebApi
                 {                    
                     if (Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
                     {
-                        errors.Add(new Error(9, new ErrorProps { }));
+                        errors.Add(new Error(1101, new ErrorProps { Field = "Value" }));
                     }
                     else if (Regex.IsMatch(patch.Action.ToLower(), @"^(move)$") && patch.Target == null)
                     {
-                        errors.Add(new Error(9, new ErrorProps { }));
+                        errors.Add(new Error(1101, new ErrorProps { Field = "Target" }));
                     }
 
                     var fieldParams = new ExpandoObject() as IDictionary<string, Object>;
@@ -59,7 +59,7 @@ namespace Lisa.Excelsis.WebApi
                         }
                         catch(Exception e)
                         {
-                            errors.Add(new Error(0, new ErrorProps { }));
+                            errors.Add(new Error(1500, new ErrorProps { Exception = e.Message }));
                         }
                     }
                     patch.IsValidated = true;
@@ -90,7 +90,7 @@ namespace Lisa.Excelsis.WebApi
             }
             catch (Exception e)
             {
-                errors.Add(new Error(0, new ErrorProps { }));
+                errors.Add(new Error(1500, new ErrorProps { Exception = e.Message }));
             }
 
             return errors;
@@ -104,7 +104,7 @@ namespace Lisa.Excelsis.WebApi
                 {
                     if (!patch.IsValidField)
                     {
-                        errors.Add(new Error(1500, new ErrorProps { Field = patch.Field }));
+                        errors.Add(new Error(1209, new ErrorProps { Field = patch.Field }));
                     }
                     else if (patch.IsValidField)
                     {

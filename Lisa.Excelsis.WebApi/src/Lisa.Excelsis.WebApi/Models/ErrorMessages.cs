@@ -51,6 +51,18 @@
                 case 1208:
                         message = string.Format("The field '{0}' with value '{1}' must be an {2}.", obj.Field, obj.Value, obj. Type);
                     break;
+                case 1209:
+                        message = string.Format("The field '{0}' is not correct therefore it cannot be patched.", obj.Field);
+                    break;
+                case 1210:
+                        message = string.Format("The field '{0}' with value '{1}' can only contain {2} or {3}.", obj.Field, obj.Value, obj.Permitted1, obj.Permitted2);
+                    break;
+                case 1211:
+                        message = string.Format("The field '{0}' must be a valid datetime format.", obj.Field, obj.Value, obj.Example);
+                    break;
+                case 1212:
+                        message = string.Format("The field '{0}' with value '{1}' can only contain letters, numbers and underscores.", obj.Field, obj.Value);
+                    break;
 
                 // 13XX CODES
                 case 1300:
@@ -63,22 +75,26 @@
                         message = string.Format("The assessor with username '{0}' was not found.", obj.Value);
                     break;
                 case 1303:
-                        message = string.Format("The action '{0}' doesn't exist.", obj.Value);
+                        message = string.Format("The action '{0}' is not correct.", obj.Action);
                     break;
                 case 1304:
                         message = string.Format("The field {0} is not found.", obj.Field);
                     break;
+                case 1305:
+                    message = string.Format("The resource '{0}' with value '{1}' was not found inside the parent '{2} with value '{3}'.", obj.Field, obj.Value, obj.Parent, obj.ParentId);
+                    break;
+                case 1306:
+                    message = string.Format("The resource '{0}' with value '{1}' can only be removed if it has no children.", obj.Field, obj.Value);
+                    break;
 
                 // 15XX CODES
                 case 1500:
-                    message = string.Format("The field '{0}' is not correct therefore it cannot be patched.", obj.Field);
+                    message = string.Format("Exception: {0}", obj.Exception);
                     break;
                 case 1501:
-                    message = string.Format("The resource '{0}' with value '{1}' was not found.", obj.Field, obj.Value);
+                    message = string.Format("Message: {0}", obj.Message);
                     break;
-                case 1502:
-                    message = string.Format("The resource '{0}' with value '{1}' was not found inside the parent '{2} with value '{3}'.", obj.Field, obj.Value, obj.Parent, obj.ParentId);
-                    break;
+                
             }
             return message;
         }
