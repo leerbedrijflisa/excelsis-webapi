@@ -39,9 +39,9 @@ namespace Lisa.Excelsis.WebApi
 
         public bool HasChildren(string field, string property, object value)
         {
-            var query = @"SELECT COUNT(*) as count FROM $Field
-                          WHERE $Property = $Value";
-            dynamic result = _gateway.SelectSingle(query, new { Field = field, Property = property, Value = value});
+            var query = @"SELECT COUNT(*) as count FROM " + field + @"
+                          WHERE " + property + @" = @Value";
+            dynamic result = _gateway.SelectSingle(query, new { Value = value});
 
             return (result.count > 0);
         }
