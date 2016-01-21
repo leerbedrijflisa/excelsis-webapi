@@ -2,7 +2,7 @@
 {
     public class ErrorMessages
     {
-        public static string Get(int code, dynamic obj)
+        public static string Get(int code, ErrorProps obj)
         {
             string message = string.Empty;
             switch (code)
@@ -17,7 +17,7 @@
                         message = string.Format("Field '{0}' is required.", obj.Field);
                     break;
                 case 1102:
-                        message = string.Format("Subfield '{0}' is required in the {1} named '{2}'.", obj.subField, obj. Type, obj.Field);
+                        message = string.Format("Subfield '{0}' is required in the {1} named '{2}'.", obj.SubField, obj. Type, obj.Field);
                     break;
                 case 1103:
                         message = string.Format("Field '{0}' is not allowed in the request body.", obj.Field);
@@ -69,7 +69,7 @@
                         message = string.Format("The field '{0}' with id '{1}' doesn't exists.", obj.Field, obj.Value);
                     break;
                 case 1301:
-                        message = string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", obj.subject, obj.cohort, obj.name, obj.crebo);
+                        message = string.Format("The exam with subject '{0}', cohort '{1}', name '{2}' and crebo '{3}' already exists.", obj.Subject, obj.Cohort, obj.Name, obj.Crebo);
                     break;
                 case 1302:
                         message = string.Format("The assessor with username '{0}' was not found.", obj.Value);

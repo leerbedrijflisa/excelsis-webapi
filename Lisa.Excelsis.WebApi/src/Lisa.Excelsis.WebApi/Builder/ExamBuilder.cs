@@ -98,7 +98,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Order] = @Order WHERE [Id] = @Cid";
-            data.Parameters = new { Name = patch.Value.ToString(), Cid = field[3] };
+            data.Parameters = new { Order = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 

@@ -31,8 +31,6 @@ namespace Lisa.Excelsis.WebApi
                                                                                                                       validateValue: ValueIsString);
                 Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
                                                                                                                                 validateValue: ValueIsString);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
-                                                                                                                            validateValue: ValueIsString);
                 Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: CriterionExists,
                                                                                                                        validateValue: ValueIsWeight);
                 //Replace Exam
