@@ -52,12 +52,6 @@ namespace Lisa.Excelsis.WebApi
         {
             _errors = new List<Error>();
 
-            if (model == null)
-            {               
-                ModelStateErrors = new BadRequestResult();
-                return false;
-            }
-
             if (!ModelState.IsValid)
             {                                
                 var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
@@ -87,6 +81,13 @@ namespace Lisa.Excelsis.WebApi
                 ModelStateErrors = new UnprocessableEntityObjectResult(_errors);
                 return false;
             }
+
+            if (model == null)
+            {
+                ModelStateErrors = new BadRequestResult();
+                return false;
+            }
+
             return true;
         }
               
