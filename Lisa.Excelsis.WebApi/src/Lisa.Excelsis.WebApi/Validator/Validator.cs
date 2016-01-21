@@ -36,7 +36,7 @@ namespace Lisa.Excelsis.WebApi
                         fieldParams.Add(groupName, match.Groups[groupName].Value);
                     }
                     fieldParams.Add("Field", patch.Field);
-                    fieldParams.Add("Value", patch.Value.ToString());
+                    fieldParams.Add("Value", patch.Value?.ToString());
                     fieldParams.Add("Target", patch.Target);
 
                     if (!fieldParams.ContainsKey("Id"))
