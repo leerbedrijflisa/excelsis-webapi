@@ -41,5 +41,6 @@
         public string Exception { get; set; }
         public string Example { get; set; }
         public string Message { get; set; }
+        public string Action { get; set; }
     }
 }

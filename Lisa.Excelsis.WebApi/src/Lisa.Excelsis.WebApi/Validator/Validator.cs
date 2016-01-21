@@ -108,7 +108,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                     else if (patch.IsValidField)
                     {
-                        errors.Add(new Error(1303, new ErrorProps { Value = patch.Action }));
+                        errors.Add(new Error(1303, new ErrorProps { Action = patch.Action }));
                     }
                 }
             }
