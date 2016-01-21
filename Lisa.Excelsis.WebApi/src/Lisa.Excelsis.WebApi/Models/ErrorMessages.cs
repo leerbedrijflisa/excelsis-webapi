@@ -34,7 +34,7 @@
                         message = string.Format("The field '{0}' with value '{1}' can only contain numbers.", obj.Field, obj.Value);
                     break;
                 case 1203:
-                        message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digits.", obj.Field, obj.Value, obj.Count);
+                        message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digit number.", obj.Field, obj.Value, obj.Count);
                     break;
                 case 1204:                        
                         message = string.Format("The field '{0}' with value '{1}' can only contain {2}, {3} or {4}.", obj.Field, obj.Value, obj.Permitted1, obj.Permitted2, obj.Permitted3);

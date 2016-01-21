@@ -174,9 +174,9 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsCrebo(string value, dynamic parameters)
         {
-            if (!Regex.IsMatch(value, @"^\d{8}$"))
+            if (!Regex.IsMatch(value, @"^\d{5}$"))
             {
-                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 8}));
+                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 5}));
             }
         }
 
