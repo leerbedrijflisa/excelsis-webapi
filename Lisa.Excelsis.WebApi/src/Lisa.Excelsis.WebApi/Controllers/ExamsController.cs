@@ -37,13 +37,17 @@ namespace Lisa.Excelsis.WebApi
 
             return new HttpOkObjectResult(result);
         }
-        [HttpPatch("{id}")]
-        public IActionResult Patch([FromBody] List<Patch> patches, int id)
+        [HttpPatch("{subject}/{cohort}/{name}")]
+        public IActionResult Patch([FromBody] List<Patch> patches, string subject, string cohort, string name)
         {
             ExamValidator validator = new ExamValidator();
             List<Error> errors = new List<Error>();
 
-            if (!_db.ExamExists(id))
+            subject = Utils.CleanParam(subject);
+            name = Utils.CleanParam(name);
+
+            dynamic exam = _db.FetchExam(subject, name, cohort);
+            if (exam == null)
             {
                 return new HttpNotFoundResult();
             }
@@ -53,15 +57,15 @@ namespace Lisa.Excelsis.WebApi
                 return _db.ModelStateErrors;
             }
 
-            errors.AddRange(validator.ValidatePatches(id, patches));
+            errors.AddRange(validator.ValidatePatches(exam.Id, patches));
             if (errors.Any())
             {
                 return new UnprocessableEntityObjectResult(errors);
             }
 
-            _db.PatchExam(patches, id);
+            _db.PatchExam(patches, exam.Id);
 
-            var result = _db.FetchExam(id);
+            var result = _db.FetchExam(exam.Id);
             return new HttpOkObjectResult(result);
         }
 

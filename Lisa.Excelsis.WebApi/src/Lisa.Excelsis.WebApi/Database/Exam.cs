@@ -102,7 +102,7 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Exams.Id AS [@], Exams.Id, Exams.Name, Cohort, Crebo, Subject, Status,
+                return @"SELECT Exams.Id AS [@], Exams.Id, Exams.Name, NameId, Cohort, Crebo, Subject, SubjectId, Status,
                                 Categories.Id as #Categories_@Id,
                                 Categories.Id as #Categories_Id,
                                 Categories.[Order] as #Categories_Order,
@@ -123,7 +123,7 @@ namespace Lisa.Excelsis.WebApi
         {
             get
             {
-                return @"SELECT Id, Name, Cohort, Crebo, Subject, Status
+                return @"SELECT Id, Name, NameId, Cohort, Crebo, Subject, SubjectId, Status
                           FROM Exams
                           LEFT JOIN (	
 	                          SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
