@@ -31,8 +31,6 @@ namespace Lisa.Excelsis.WebApi
                                                                                                                       validateValue: ValueIsString);
                 Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
                                                                                                                                 validateValue: ValueIsString);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
-                                                                                                                            validateValue: ValueIsString);
                 Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: CriterionExists,
                                                                                                                        validateValue: ValueIsWeight);
                 //Replace Exam
@@ -88,7 +86,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!_db.CriterionExists(ResourceId, parameters.Cid, parameters.Id))
             {
-                 errors.Add(new Error(1502, new ErrorProps { Field = "Criterion", Value = parameters.Id, Parent = "Category", ParentId = parameters.Cid }));
+                 errors.Add(new Error(1305, new ErrorProps { Field = "Criterion", Value = parameters.Id, Parent = "Category", ParentId = parameters.Cid }));
             }
         }
 
@@ -96,7 +94,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!_db.CategoryExists(ResourceId, parameters.Id))
             {
-                 errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = parameters.Id, Parent = "Exam", ParentId = ResourceId.ToString() }));
+                 errors.Add(new Error(1305, new ErrorProps { Field = "Category", Value = parameters.Id, Parent = "Exam", ParentId = ResourceId.ToString() }));
             }
         }
 
@@ -105,13 +103,12 @@ namespace Lisa.Excelsis.WebApi
             Match match = Regex.Match(parameters.Target, @"^categories/(?<Cid>\d+)$");
             if (!match.Success)
             {
-                //TODO: return error
-                 errors.Add(new Error(0, new ErrorProps { }));
+                 errors.Add(new Error(1209, new ErrorProps { Field = "Target"}));
             }
             
             if (!_db.CategoryExists(ResourceId, match.Groups["Cid"].Value))
             {
-                 errors.Add(new Error(1502, new ErrorProps { Field = "Category", Value = match.Groups["Cid"].Value, Parent = "Exam", ParentId = ResourceId.ToString() }));
+                 errors.Add(new Error(1305, new ErrorProps { Field = "Category", Value = match.Groups["Cid"].Value, Parent = "Exam", ParentId = ResourceId.ToString() }));
             }
         }
 
@@ -119,7 +116,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if(_db.HasChildren("Criteria", "CategoryId", parameters.Value))
             {
-                errors.Add(new Error(0, new ErrorProps { }));
+                errors.Add(new Error(1306, new ErrorProps { Field = "Category", Value = parameters.Value}));
             }
         }
 
@@ -154,7 +151,8 @@ namespace Lisa.Excelsis.WebApi
             var cleaned = Utils.CleanParam(value);
             if (string.IsNullOrWhiteSpace(cleaned))
             {
-                errors.Add(new Error(0, new ErrorProps { }));
+                //TODO:  set error
+                errors.Add(new Error(1501, new ErrorProps { Message = "After stripping the value there was nothing left to show." }));
             }
         }
 
@@ -176,9 +174,9 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsCrebo(string value, dynamic parameters)
         {
-            if (!Regex.IsMatch(value, @"^\d{8}$"))
+            if (!Regex.IsMatch(value, @"^\d{5}$"))
             {
-                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 8}));
+                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 5}));
             }
         }
 
@@ -186,7 +184,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(draft|published)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted1 = "draft", Permitted2 = "published", Permitted3 = "" }));
+                errors.Add(new Error(1210, new ErrorProps { Field = "value", Value = value, Permitted1 = "draft", Permitted2 = "published" }));
             }
         }
         private static readonly Database _db = new Database();

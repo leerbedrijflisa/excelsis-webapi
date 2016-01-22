@@ -54,7 +54,6 @@ namespace Lisa.Excelsis.WebApi
             }
 
             errors.AddRange(validator.ValidatePatches(id, patches));
-            errors.RemoveAll(item => item == null);
             if (errors.Any())
             {
                 return new UnprocessableEntityObjectResult(errors);
@@ -83,7 +82,6 @@ namespace Lisa.Excelsis.WebApi
             }
 
             errors.AddRange(validator.ValidatePost(exam));
-            errors.RemoveAll(item => item == null);
             if (errors.Any())
             {
                 return new UnprocessableEntityObjectResult(errors);

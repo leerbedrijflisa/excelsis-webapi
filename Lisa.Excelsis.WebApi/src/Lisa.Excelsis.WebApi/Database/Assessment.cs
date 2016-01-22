@@ -52,7 +52,7 @@ namespace Lisa.Excelsis.WebApi
             string assessorQuery = string.Empty;
 
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
-                                 Assessments.Name as Exam_Name, Assessments.Cohort as Exam_Cohort, Assessments.Crebo as Exam_Crebo, Assessments.Subject as Exam_Subject,
+                                 Assessments.Name as Exam_@Name, Assessments.Name as Exam_Name, Assessments.Cohort as Exam_Cohort, Assessments.Crebo as Exam_Crebo, Assessments.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName, Assessors.Firstname as #Assessors_FirstName, Assessors.LastName as #Assessors_LastName
                           FROM Assessments
                           LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id

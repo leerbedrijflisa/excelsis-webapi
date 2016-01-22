@@ -98,7 +98,7 @@ namespace Lisa.Excelsis.WebApi
             QueryData data = new QueryData();
             var field = patch.Field.Split('/');
             data.Query = @"UPDATE [Criteria] SET [Order] = @Order WHERE [Id] = @Cid";
-            data.Parameters = new { Name = patch.Value.ToString(), Cid = field[3] };
+            data.Parameters = new { Order = patch.Value.ToString(), Cid = field[3] };
             return data;
         }
 
@@ -192,9 +192,10 @@ namespace Lisa.Excelsis.WebApi
         private static QueryData MoveCriterion(int id, Patch patch)
         {
             QueryData data = new QueryData();
-            var field = patch.Target.Split('/');
+            var field = patch.Field.Split('/');
+            var targetField = patch.Target.Split('/');
             data.Query = @"UPDATE [Criteria] SET [CategoryId] = @CategoryId WHERE [Id] = @Cid";
-            data.Parameters = new { CategoryId = field[1], Cid = patch.Value.ToString() };
+            data.Parameters = new { CategoryId = targetField[1], Cid = field[3] };
             return data;
         }
     }
