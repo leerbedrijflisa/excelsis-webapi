@@ -69,6 +69,20 @@ namespace Lisa.Excelsis.WebApi
             return errors;
         }
 
+        private void ValueIsCategoryObject(CategoryAdd value, dynamic parameters)
+        {
+            Allow<string>("name", value.Name, validateValue: ValueIsString);
+            Allow<int>("order", value.Order, validateValue: ValueIsInt);
+        }
+
+        private void ValueIsCriteriaObject(CriterionAdd value, dynamic parameters)
+        {
+            Allow<int>("order", value.Order, validateValue: ValueIsInt);
+            Allow<string>("title", value.Title, validateValue: ValueIsString);
+            Allow<string>("description", value.Description, validateValue: ValueIsString);
+            Allow<string>("weight", value.Weight, validateValue: ValueIsWeight);
+        }
+
         //Check if resource exists
         private void CriterionExists(dynamic parameters)
         {
@@ -112,7 +126,7 @@ namespace Lisa.Excelsis.WebApi
         //Check if value is valid
         private void ValueIsString(string value, dynamic parameters)
         {
-            if (value == null)
+            if (string.IsNullOrEmpty(value))
             {
                  errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = value, Type = "string" }));
             }
@@ -133,21 +147,7 @@ namespace Lisa.Excelsis.WebApi
             {
                  errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = value }));
             }
-        }
-
-        private void ValueIsCategoryObject(CategoryAdd value, dynamic parameters)
-        {
-            Allow<string>("name", value.Name, validateValue: ValueIsString);
-            Allow<int>("order", value.Order, validateValue: ValueIsInt);
-        }
-
-        private void ValueIsCriteriaObject(CriterionAdd value, dynamic parameters)
-        {
-            Allow<int>("order", value.Order, validateValue: ValueIsInt);
-            Allow<string>("title", value.Title, validateValue: ValueIsString);
-            Allow<string>("description", value.Description, validateValue: ValueIsString);
-            Allow<string>("weight", value.Weight, validateValue: ValueIsWeight);
-        }
+        }       
 
         private void ValueIsExamUrlParam(string value, dynamic parameters)
         {
