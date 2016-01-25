@@ -6,25 +6,21 @@ namespace Lisa.Excelsis.WebApi
     {
         public object FetchCategory(int id, int examId)
         {
-            var query = @"SELECT Id, [Order], Name
-                          FROM Categories 
+            var query = @"SELECT Id, [Order], Name FROM Categories 
                           WHERE Categories.Id = @Id AND Categories.ExamId = @ExamId";
             return _gateway.SelectSingle(query, new { Id = id, ExamId = examId });
         }
 
         public void AddCategories(dynamic assessmentResult, dynamic examResult)
         {
-            List<string> categories = new List<string>();
             if (examResult.Categories.Count > 0)
             {
                 foreach (var category in examResult.Categories)
                 {
-                    categories.Add("(" + category.Order + ", '" + category.Name + "', " + assessmentResult + ")");
+                    var query = @"INSERT INTO AssessmentCategories ([Order], Name, AssessmentId) 
+                                  VALUES (@Order, @Name, @Assessment)";
+                    _gateway.Insert(query, new { Order = category.Order, Name = category.Name, Assessment = assessmentResult });
                 }
-
-                var query = @"INSERT INTO AssessmentCategories ([Order], Name, AssessmentId) VALUES ";
-                query += string.Join(",", categories);
-                _gateway.Insert(query, null);
             }
         }
 

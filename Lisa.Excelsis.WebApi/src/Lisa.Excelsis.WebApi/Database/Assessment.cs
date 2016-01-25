@@ -144,12 +144,9 @@ namespace Lisa.Excelsis.WebApi
 
         public object SelectAssessors(string[] assessors)
         {
-            var parsedAssessors = assessors.Select(assessor => "'" + assessor + "'");
-
-            var query = @"SELECT Id, UserName
-                        FROM Assessors
-                        WHERE UserName IN ( " + string.Join(",", parsedAssessors) + " ) ";
-            dynamic result = _gateway.SelectMany(query);
+            var query = @"SELECT Id, UserName FROM Assessors
+                        WHERE UserName IN ( @Assessors ) ";
+            dynamic result = _gateway.SelectMany(query, new { Assessors = assessors });
             return result;
         }
 
@@ -175,11 +172,12 @@ namespace Lisa.Excelsis.WebApi
 
         private void AddAssessmentAssessors(AssessmentPost assessment, dynamic assessmentResult, dynamic assessorResult)
         {
-            var assessorAssessments = ((IEnumerable<dynamic>)assessorResult).Select(assessor => "(" + assessmentResult + ", " + assessor.Id + ")");
-
-            var query = @"INSERT INTO AssessmentAssessors (AssessmentId, AssessorId) VALUES ";
-            query += string.Join(",", assessorAssessments);
-            _gateway.Insert(query, null);
+            foreach(dynamic assessor in assessorResult)
+            {
+                var query = @"INSERT INTO AssessmentAssessors (AssessmentId, AssessorId) 
+                              VALUES (@Assessment, @Assessor)";
+                _gateway.Insert(query, new { Assessment = assessorResult, Assessor = assessor.Id });
+            }
         }        
     }
 }

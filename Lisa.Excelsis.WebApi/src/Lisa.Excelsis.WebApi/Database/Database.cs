@@ -16,22 +16,6 @@ namespace Lisa.Excelsis.WebApi
             _gateway?.Dispose();
         }
 
-        public IEnumerable<Error> Errors
-        {
-            get
-            {
-                return _errors;
-            }
-        }
-
-        public string FatalError
-        {
-            get
-            {
-                return _fatalError;
-            }
-        }
-
         public object Execute(string query, object parameters)
         {
             return _gateway.SelectSingle(query, parameters);
@@ -39,9 +23,9 @@ namespace Lisa.Excelsis.WebApi
 
         public bool HasChildren(string field, string property, object value)
         {
-            var query = @"SELECT COUNT(*) as count FROM " + field + @"
-                          WHERE " + property + @" = @Value";
-            dynamic result = _gateway.SelectSingle(query, new { Value = value});
+            var query = @"SELECT COUNT(*) as count FROM $Field 
+                          WHERE $property = @Value";
+            dynamic result = _gateway.SelectSingle(query, new { Field = field, Property = property, Value = value});
 
             return (result.count > 0);
         }
@@ -102,9 +86,7 @@ namespace Lisa.Excelsis.WebApi
             });
         }
 
-        public static List<Error> _errors { get; set; }
-        
-        private string _fatalError { get; set; }
+        private static List<Error> _errors { get; set; }
 
         private Gateway _gateway = new Gateway(Environment.GetEnvironmentVariable("ConnectionString"));
     }
