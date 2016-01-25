@@ -85,13 +85,13 @@ namespace Lisa.Excelsis.WebApi
 
             if (filter.Student != null)
             {
-                assessmentQueryList.Add(" Assessments.StudentNumber = @StudentNumber");
+                assessmentQueryList.Add(" Assessments.StudentNumber LIKE @Student OR  Assessments.StudentName LIKE @Student");
             }
 
             var parameters = new
             {
                 Assessor = filter.Assessors ?? string.Empty,
-                StudentNumber = filter.Student ?? string.Empty
+                Student = filter.Student ?? string.Empty
             };
            
             query += (assessmentQueryList.Count > 0) ? " WHERE " + string.Join(" AND ", assessmentQueryList) : string.Join(" AND ", assessmentQueryList);
