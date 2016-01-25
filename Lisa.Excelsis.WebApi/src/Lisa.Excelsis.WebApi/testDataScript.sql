@@ -9,83 +9,101 @@ GO
 USE ExcelsisDb;
 
 CREATE TABLE [dbo].[Exams] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Name]          NVARCHAR (MAX) NULL,
-    [NameId]        NVARCHAR (MAX) NULL,
-    [Cohort]        NVARCHAR (MAX) NULL,
-    [Crebo]         NVARCHAR (MAX) NULL,
-    [Subject]       NVARCHAR (MAX) NULL,
-    [SubjectId]     NVARCHAR (MAX) NULL,
-	[Status]		NVARCHAR (MAX) Null,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [Name]          NVARCHAR (MAX)	NULL,
+    [NameId]        NVARCHAR (MAX)	NULL,
+    [Cohort]        NVARCHAR (MAX)	NULL,
+    [Crebo]         NVARCHAR (MAX)	NULL,
+    [Subject]       NVARCHAR (MAX)	NULL,
+    [SubjectId]     NVARCHAR (MAX)	NULL,
+	[Status]		NVARCHAR (MAX)	Null,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Criteria] (
-    [Id]          INT            IDENTITY (1, 1) NOT NULL,
-    [Order]       INT            NULL,
-    [Title]       NVARCHAR (MAX) NULL,
-    [Description] NVARCHAR (MAX) NULL,
-    [Weight]       NVARCHAR (MAX) NULL,
-    [ExamId]      INT            NULL,
-    [CategoryId]  INT            NULL,
-    [Created]     DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]			INT				IDENTITY (1, 1) NOT NULL,
+    [Order]			INT				NULL,
+    [Title]			NVARCHAR (MAX)	NULL,
+    [Description]	NVARCHAR (MAX)	NULL,
+    [Weight]		NVARCHAR (MAX)	NULL,
+    [ExamId]		INT				NULL,
+    [CategoryId]	INT				NULL,
+    [Created]		DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Assessors] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [UserName]      NVARCHAR (MAX) NULL,
-	[FirstName]      NVARCHAR (MAX) NULL,
-	[LastName]      NVARCHAR (MAX) NULL,
-    [Email]         NVARCHAR (MAX) NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [UserName]      NVARCHAR (MAX)	NULL,
+	[FirstName]     NVARCHAR (MAX)  NULL,
+	[LastName]      NVARCHAR (MAX)  NULL,
+    [Email]         NVARCHAR (MAX)	NULL,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-CREATE TABLE [dbo].[AssessmentsAssessors] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Assessment_Id] INT            NULL,
-    [Assessor_Id]   INT            NULL,
+CREATE TABLE [dbo].[AssessmentAssessors] (
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+    [AssessmentId]	INT				NULL,
+    [AssessorId]	INT				NULL,
     CONSTRAINT [PK_AssessmentsAssessors] PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Assessments] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [StudentName]   NVARCHAR (MAX) NULL,
-    [StudentNumber] NVARCHAR (MAX) NULL,
-    [Assessed]      DATETIME       NULL,
-    [Exam_Id]       INT            NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+	[ExamId]		INT				NULL,
+    [StudentName]   NVARCHAR (MAX)	NULL,
+    [StudentNumber] NVARCHAR (MAX)	NULL,
+    [Assessed]      NVARCHAR (MAX)	NULL,
+    [Name]          NVARCHAR (MAX)	NULL,   
+    [Cohort]        NVARCHAR (MAX)	NULL,
+    [Crebo]         NVARCHAR (MAX)	NULL,
+    [Subject]       NVARCHAR (MAX)	NULL,
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Observations] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-    [Criterion_Id]  INT            NULL,
-    [Result]        NVARCHAR (MAX) NULL,
-    [Assessment_Id] INT            NULL,
-    [Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+	[AssessmentId]	INT				NULL,
+    [CategoryId]	INT				NULL,
+	[Order]			INT				NULL,
+    [Title]			NVARCHAR (MAX)	NULL,
+    [Description]	NVARCHAR (MAX)	NULL,
+    [Weight]		NVARCHAR (MAX)	NULL,
+    [Result]        NVARCHAR (MAX)	NULL,    
+    [Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
 CREATE TABLE [dbo].[Marks] (
-    [Id]            INT            IDENTITY (1, 1) NOT NULL,
-	[Observation_Id]INT            NULL,
-	[Name]          NVARCHAR (MAX) NULL,
-	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				IDENTITY (1, 1) NOT NULL,
+	[ObservationId]	INT				NULL,
+	[AssessmentId]	INT				NULL,
+	[Name]          NVARCHAR (MAX)	NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
     PRIMARY KEY CLUSTERED ([Id] ASC)
 );
 
-
 CREATE TABLE [dbo].[Categories]
 (
-    [Id]            INT            NOT NULL PRIMARY KEY IDENTITY, 
-    [Order]         INT            NULL, 
-    [Name]          NVARCHAR (MAX) NULL,
-	[ExamId]        INT            NULL,
-	[Created]       DATETIME       DEFAULT (getutcdate()) NULL,
+    [Id]            INT				NOT NULL PRIMARY KEY IDENTITY, 
+    [Order]         INT				NULL, 
+    [Name]          NVARCHAR (MAX)	NULL,
+	[ExamId]        INT				NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
 )
+
+CREATE TABLE [dbo].[AssessmentCategories]
+(
+    [Id]            INT				NOT NULL PRIMARY KEY IDENTITY, 
+    [Order]         INT				NULL, 
+    [Name]          NVARCHAR (MAX)	NULL,
+	[AssessmentId]  INT				NULL,
+	[Created]       DATETIME		DEFAULT (getutcdate()) NULL,
+)
+
 
 GO
 INSERT INTO Assessors ([UserName], [FirstName], [LastName], [Email])
@@ -118,22 +136,18 @@ INSERT INTO Exams ([Name], [Cohort], [Crebo], [Subject], [SubjectId], [NameId], 
     ('Gesprekken voeren','2015','','Engels', 'engels', 'gesprekken-voeren', 'draft'),
     ('Schrijven','2015','','Engels', 'engels', 'schrijven', 'draft'),
     ('Lezen & Luisteren','2015','','Engels', 'engels', 'lezen-luisteren', 'draft'),
-    ('Schrijven','2015','','Engels', 'engels', 'schrijven', 'draft'),
     ('Spreken','2014','','Engels', 'engels', 'spreken', 'published'),
     ('Gesprekken voeren','2014','','Engels', 'engels', 'gesprekken-voeren', 'published'),
     ('Schrijven','2014','','Engels', 'engels', 'schrijven', 'published'),
     ('Lezen & Luisteren','2014','','Engels', 'engels', 'lezen-luisteren', 'published'),
-    ('Schrijven','2014','','Engels', 'engels', 'schrijven', 'published'),
     ('Spreken','2013','','Engels', 'engels', 'spreken', 'published'),
     ('Gesprekken voeren','2013','','Engels', 'engels', 'gesprekken-voeren', 'published'),
     ('Schrijven','2013','','Engels', 'engels', 'schrijven', 'published'),
     ('Lezen & Luisteren','2013','','Engels', 'engels', 'lezen-luisteren', 'published'),
-    ('Schrijven','2013','','Engels', 'engels', 'schrijven', 'published'),
     ('Spreken','2012','','Engels', 'engels', 'spreken', 'published'),
     ('Gesprekken voeren','2012','','Engels', 'engels', 'gesprekken-voeren', 'published'),
     ('Schrijven','2012','','Engels', 'engels', 'schrijven', 'published'),
     ('Lezen & Luisteren','2012','','Engels', 'engels', 'lezen-luisteren', 'published'),
-    ('Schrijven','2012','','Engels', 'engels', 'schrijven', 'published'),
 
     ('Hoofdrekenen','2015','','Rekenen', 'rekenen', 'hoofdrekenen', 'draft'),
     ('Getallen','2015','','Rekenen', 'rekenen', 'getallen', 'draft'),

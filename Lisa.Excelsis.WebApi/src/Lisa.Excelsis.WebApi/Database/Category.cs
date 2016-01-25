@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -11,52 +9,26 @@ namespace Lisa.Excelsis.WebApi
             var query = @"SELECT Id, [Order], Name
                           FROM Categories 
                           WHERE Categories.Id = @Id AND Categories.ExamId = @ExamId";
-
-            var parameters = new
-            {
-                Id = id,
-                ExamId = examId
-            };
-
-            return _gateway.SelectSingle(query, parameters);
+            return _gateway.SelectSingle(query, new { Id = id, ExamId = examId });
         }
 
-        public void AddCategory(int examId, Patch patch)
+        public void AddCategories(dynamic assessmentResult, dynamic examResult)
         {
-            _errors = new List<Error>();
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            var fields = new List<string>() { "order", "name" };
-            var regex = @"^(order|name)$";
-
-            dict = IsPatchable(patch,fields, regex);
-
-            FieldsExists(dict, fields);
-
-            if (_errors.Any())
+            List<string> categories = new List<string>();
+            if (examResult.Categories.Count > 0)
             {
-                return;
-            }
-
-            if (!Regex.IsMatch(dict["order"].ToString(), @"^\d+$"))
-            {
-                _errors.Add(new Error(1202, new { field = "order", value = dict["order"].ToString() }));
-            }
-
-            if (!_errors.Any())
-            {
-                var query = @"INSERT INTO Categories ([Order], Name, ExamId)
-                        VALUES (@Order, @Name ,@ExamId);";
-                var parameters = new
+                foreach (var category in examResult.Categories)
                 {
-                    Order = dict["order"],
-                    Name = dict["name"],
-                    ExamId = examId
-                };
-                _gateway.Insert(query, parameters);
+                    categories.Add("(" + category.Order + ", '" + category.Name + "', " + assessmentResult + ")");
+                }
+
+                var query = @"INSERT INTO AssessmentCategories ([Order], Name, AssessmentId) VALUES ";
+                query += string.Join(",", categories);
+                _gateway.Insert(query, null);
             }
         }
 
-        public bool CategoryExists(int examId, object id)
+        public bool CategoryExists(object examId, object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Categories
                           WHERE ExamId = @ExamId AND Id = @Id";

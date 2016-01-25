@@ -17,4 +17,15 @@ namespace Lisa.Excelsis.WebApi
         public string Name { get; set; }
         public string Number { get; set; }
     }
+
+    public class ExamPost
+    {
+        [Required]
+        public string Name { get; set; }
+        [Required]
+        public string Subject { get; set; }
+        [Required]
+        public string Cohort { get; set; }
+        public string Crebo { get; set; }
+    }
 }

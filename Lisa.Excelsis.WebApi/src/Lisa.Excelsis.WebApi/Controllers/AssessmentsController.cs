@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNet.Mvc;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -30,36 +29,26 @@ namespace Lisa.Excelsis.WebApi
         [HttpPatch("{id}")]
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
+            AssessmentValidator validator = new AssessmentValidator();
             List<Error> errors = new List<Error>();
-
-            if (!ModelState.IsValid)
-            {
-                if (_db.GetModelStateErrors(ModelState))
-                {
-                    return new BadRequestObjectResult(_db.FatalError);
-                }
-                else
-                {
-                    return new UnprocessableEntityObjectResult(_db.Errors);
-                }
-            }
-
-            if (patches == null)
-            {
-                return new UnprocessableEntityObjectResult(new Error(1100));
-            }
 
             if (!_db.AssessmentExists(id))
             {
                 return new HttpNotFoundResult();
             }
 
-            _db.PatchAssessment(patches, id);
-
-            if (_db.Errors.Any())
+            if (!_db.IsModelStateValid(ModelState, patches))
             {
-                return new UnprocessableEntityObjectResult(_db.Errors);
+                return _db.ModelStateErrors;
             }
+
+            errors.AddRange(validator.ValidatePatches(id, patches));
+            if (errors.Any())
+            {
+                return new UnprocessableEntityObjectResult(errors);
+            }
+
+            _db.PatchAssessment(patches, id);
 
             var result = _db.FetchAssessment(id);
             return new HttpOkObjectResult(result);
@@ -69,39 +58,30 @@ namespace Lisa.Excelsis.WebApi
         [HttpPost("{subject}/{cohort}/{name}")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
-            subject = _db.CleanParam(subject);
-            name = _db.CleanParam(name);
+            AssessmentValidator validator = new AssessmentValidator();
+            List<Error> errors = new List<Error>();
 
-            if (!ModelState.IsValid)
-            {
-                if (_db.GetModelStateErrors(ModelState))
-                {
-                    return new BadRequestObjectResult(_db.FatalError);
-                }
-                else
-                {
-                    return new UnprocessableEntityObjectResult(_db.Errors);
-                }
-            }
-
-            if (assessment == null)
-            {
-                return new UnprocessableEntityObjectResult(new Error(1100));
-            }
+            subject = Utils.CleanParam(subject);
+            name = Utils.CleanParam(name);
 
             dynamic examResult = _db.FetchExam(subject, name, cohort);
-            if(examResult == null)
+            if (examResult == null)
             {
                 return new HttpNotFoundResult();
             }
 
-            var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);
-
-            if (_db.Errors.Any())
+            if (!_db.IsModelStateValid(ModelState, assessment))
             {
-                return new UnprocessableEntityObjectResult(_db.Errors);
+                return _db.ModelStateErrors;
             }
 
+            errors.AddRange(validator.ValidatePost(assessment));
+            if (errors.Any())
+            {
+                return new UnprocessableEntityObjectResult(errors);
+            }
+
+            var id = _db.AddAssessment(assessment, subject, name, cohort, examResult);           
             var result = _db.FetchAssessment(id);
             string location = Url.RouteUrl("assessment", new { id = id }, Request.Scheme);
             return new CreatedResult(location, result);

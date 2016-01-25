@@ -2,10 +2,10 @@
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Newtonsoft.Json.Linq;
 using Microsoft.AspNet.Mvc.ModelBinding;
 using System.Linq;
 using Newtonsoft.Json;
+using Microsoft.AspNet.Mvc;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -23,6 +23,7 @@ namespace Lisa.Excelsis.WebApi
                 return _errors;
             }
         }
+
         public string FatalError
         {
             get
@@ -31,86 +32,78 @@ namespace Lisa.Excelsis.WebApi
             }
         }
 
-        public string CleanParam(string name)
+        public object Execute(string query, object parameters)
         {
-            List<string> nameParts = new List<string>();
-            Regex regex = new Regex(@"[\w\d\.]+");
-            var matches = regex.Matches(name.ToLower());
-            foreach(Match match in matches)
-            {
-                nameParts.Add(match.Value);
-            }
-            return string.Join("-", nameParts);
+            return _gateway.SelectSingle(query, parameters);
         }
 
-        public Dictionary<string, string> IsPatchable (Patch patch, List<string> fields, string regex)
+        public bool HasChildren(string field, string property, object value)
         {
-            Dictionary<string, string> dict = new Dictionary<string, string>();
-            var value = patch.Value as JObject;
-            if (value != null)
-            {
-                foreach (var property in value)
-                {
-                    if (Regex.IsMatch(property.Key.ToLower(), regex))
-                    {
-                        dict.Add(property.Key.ToLower(), property.Value.ToString());
-                    }
-                    else
-                    {
-                        _errors.Add(new Error(1205, new { field = property.Key, value = property.Value.ToString() }));
-                    }
-                }
-            }
-            else
-            {
-                _errors.Add(new Error(1208, new { field = "value", value = patch.Value, type = "object" }));
-            }
-            return dict;
+            var query = @"SELECT COUNT(*) as count FROM " + field + @"
+                          WHERE " + property + @" = @Value";
+            dynamic result = _gateway.SelectSingle(query, new { Value = value});
+
+            return (result.count > 0);
         }
 
-        public void FieldsExists (Dictionary<string,string> dict, List<string> fields)
-        {
-            foreach (var field in fields)
-            {
-                if (!dict.ContainsKey(field))
-                {
-                    _errors.Add(new Error(1102, new { subField = field, field = "value", type = "object"}));
-                }
-            }
-        }
+        public IActionResult ModelStateErrors { get; private set; }
 
-        public bool GetModelStateErrors(ModelStateDictionary ModelState)
+        public bool IsModelStateValid(ModelStateDictionary ModelState, dynamic model)
         {
-            bool fatalError = false;
             _errors = new List<Error>();
-            var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
-            foreach (var property in modelStateErrors)
-            {
-                foreach (var error in property.Value.Errors)
+
+            if (!ModelState.IsValid)
+            {                                
+                var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
+                foreach (var property in modelStateErrors)
                 {
-                    if (error.Exception == null)
+                    foreach (var error in property.Value.Errors)
                     {
-                        _errors.Add(new Error(1101, new { field = property.Key }));
-                    }
-                    else
-                    {
-                        if(Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                        if (error.Exception == null)
                         {
-                            _errors.Add(new Error(1103, new { field = property.Key } ));
+                            _errors.Add(new Error(1101, new ErrorProps { Field = property.Key }));
                         }
                         else
                         {
-                            fatalError = true;
-                            _fatalError = JsonConvert.SerializeObject(error.Exception.Message);
+                            if (Regex.IsMatch(error.Exception.Message, @"^Could not find member"))
+                            {
+                                _errors.Add(new Error(1103, new ErrorProps { Field = property.Key }));
+                            }
+                            else
+                            {
+                                ModelStateErrors = new BadRequestObjectResult(JsonConvert.SerializeObject(error.Exception.Message));
+                                return false;
+                            }
                         }
                     }
                 }
+
+                ModelStateErrors = new UnprocessableEntityObjectResult(_errors);
+                return false;
             }
-            return (fatalError);
+
+            if (model == null)
+            {
+                ModelStateErrors = new BadRequestResult();
+                return false;
+            }
+
+            return true;
+        }
+              
+        public void ProcessTransactions(IEnumerable<QueryData> transactions)
+        {
+            _gateway.ProcessTransaction(() =>
+            {
+                foreach(QueryData transaction in transactions)
+                {
+                    Execute(transaction.Query, transaction.Parameters);
+                }                
+            });
         }
 
-        private List<Error> _errors { get; set; }
-
+        public static List<Error> _errors { get; set; }
+        
         private string _fatalError { get; set; }
 
         private Gateway _gateway = new Gateway(Environment.GetEnvironmentVariable("ConnectionString"));
