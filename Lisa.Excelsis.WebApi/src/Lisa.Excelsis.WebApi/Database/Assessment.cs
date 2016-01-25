@@ -176,7 +176,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 var query = @"INSERT INTO AssessmentAssessors (AssessmentId, AssessorId) 
                               VALUES (@Assessment, @Assessor)";
-                _gateway.Insert(query, new { Assessment = assessorResult, Assessor = assessor.Id });
+                _gateway.Insert(query, new { Assessment = assessmentResult, Assessor = assessor.Id });
             }
         }        
     }

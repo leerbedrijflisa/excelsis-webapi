@@ -13,8 +13,8 @@ namespace Lisa.Excelsis.WebApi
                 {
                     foreach (var criterion in category.Criteria)
                     {
-                        var query = @"INSERT INTO Observations (AssessmentId, CategoryId, [Order], Title, Description, Weight)
-                                      VALUES (@Assessment, @Category, @Order, @Title, @Description, @Weight)";
+                        var query = @"INSERT INTO Observations (AssessmentId, CategoryId, [Order], Title, Description, Weight, Result)
+                                      VALUES (@Assessment, @Category, @Order, @Title, @Description, @Weight, '')";
                         var parameters = new
                         {
                             Assessment = assessmentResult,

@@ -1,21 +1,20 @@
 {
-  "webroot": "wwwroot",
-  "version": "1.0.0-*",
-
+  "commands": {
+    "web": "Microsoft.AspNet.Server.Kestrel"
+  },
   "dependencies": {
-    "Lisa.Common.Sql": "1.0.0-alpha-4",
+    "Lisa.Common.Sql": "1.0.0-alpha-5",
     "Microsoft.AspNet.Cors": "6.0.0-rc1-final",
     "Microsoft.AspNet.IISPlatformHandler": "1.0.0-rc1-final",
     "Microsoft.AspNet.Mvc": "6.0.0-rc1-final",
     "Microsoft.AspNet.Server.Kestrel": "1.0.0-rc1-final",
     "Microsoft.AspNet.StaticFiles": "1.0.0-rc1-final"
   },
-
-  "commands": {
-    "web": "Microsoft.AspNet.Server.Kestrel"
-  },
-
- "frameworks": {
+  "exclude": [
+    "wwwroot",
+    "node_modules"
+  ],
+  "frameworks": {
     "dnx451": {
       "frameworkAssemblies": {
         "System.Data": "4.0.0.0"
@@ -27,13 +26,10 @@
       }
     }
   },
-
-  "exclude": [
-    "wwwroot",
-    "node_modules"
-  ],
   "publishExclude": [
     "**.user",
     "**.vspscc"
-  ]
+  ],
+  "version": "1.0.0-*",
+  "webroot": "wwwroot"
 }
