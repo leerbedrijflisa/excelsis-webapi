@@ -1,6 +1,4 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
-using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -51,6 +49,7 @@ namespace Lisa.Excelsis.WebApi
         {               
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
                         VALUES (@Name, @NameId, @Cohort, @Crebo, @Subject, @SubjectId, 'draft');";
+
             var parameters = new
             {
                 Name = exam.Name,

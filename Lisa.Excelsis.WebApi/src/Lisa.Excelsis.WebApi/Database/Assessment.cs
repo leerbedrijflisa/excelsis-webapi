@@ -12,7 +12,7 @@ namespace Lisa.Excelsis.WebApi
             var query = @"SELECT Assessments.Id as [@], Assessments.Id, StudentNumber as Student_@Number, StudentName as Student_Name, StudentNumber as Student_Number, Assessed,
                                  Assessments.Name as Exam_@Name, Assessments.Name as Exam_Name, Assessments.Cohort as Exam_Cohort, Assessments.Crebo as Exam_Crebo, Assessments.Subject as Exam_Subject,
                                  Assessors.Id as #Assessors_@Id, Assessors.UserName as #Assessors_UserName, Assessors.Firstname as #Assessors_FirstName, Assessors.LastName as #Assessors_LastName,
-                                 Categories.Id as #Categories_@Id, Categories.Id as #Categories_Id, Categories.[Order] as #Categories_Order, Categories.Name as #Categories_Name,
+                                 AssessmentCategories.Id as #Categories_@Id, AssessmentCategories.Id as #Categories_Id, AssessmentCategories.[Order] as #Categories_Order, AssessmentCategories.Name as #Categories_Name,
                                  Observations.Id as #Categories_#Observations_@Id, Observations.Id as #Categories_#Observations_Id, Observations.Result as #Categories_#Observations_Result,
                                  Marks.Id as #Categories_#Observations_#Marks_@Id, Marks.Name as #Categories_#Observations_#Marks_Name,
                                  Observations.[Order] as #Categories_#Observations_Criterion_@Order, Observations.Title as #Categories_#Observations_Criterion_Title, Observations.Description as #Categories_#Observations_Criterion_Description, Observations.[Order] as #Categories_#Observations_Criterion_Order, Observations.Weight as #Categories_#Observations_Criterion_Weight
@@ -21,7 +21,7 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
                           LEFT JOIN Observations ON Observations.AssessmentId = Assessments.Id
                           LEFT JOIN Marks ON Marks.ObservationId = Observations.Id                         
-                          LEFT JOIN Categories ON Categories.Id = Observations.CategoryId
+                          LEFT JOIN AssessmentCategories ON AssessmentCategories.Id = Observations.CategoryId
                           WHERE Assessments.Id = @Id";
 
             dynamic result = _gateway.SelectSingle(query, new { Id = id });
