@@ -67,7 +67,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value.ToLower(), @"^(seen|unseen|notrated)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted1 = "seen", Permitted2 = "unseen", Permitted3 = "notrated"}));
+                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "seen", "unseen", "notrated" } }));
             }
         }
 

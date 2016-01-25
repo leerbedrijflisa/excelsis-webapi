@@ -160,7 +160,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(fail|pass|excellent)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted1 = "fail", Permitted2 = "pass", Permitted3 = "excellent" }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "fail", "pass", "excellent" } }));
             }
         }
 
@@ -184,7 +184,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(draft|published)$"))
             {
-                errors.Add(new Error(1210, new ErrorProps { Field = "value", Value = value, Permitted1 = "draft", Permitted2 = "published" }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "draft", "published" } }));
             }
         }
         private static readonly Database _db = new Database();

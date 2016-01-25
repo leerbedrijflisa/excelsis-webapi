@@ -27,9 +27,7 @@
         public int Count { get; set; }
         public int Min { get; set; }
         public int Max { get; set; }
-        public string Permitted1 { get; set; }
-        public string Permitted2 { get; set; }
-        public string Permitted3 { get; set; }
+        public string[] Permitted { get; set; }
         public string Name { get; set; }
         public string Subject { get; set; }
         public string Cohort { get; set; }

@@ -1,4 +1,7 @@
-﻿namespace Lisa.Excelsis.WebApi
+﻿using System.Collections.Generic;
+using System.Linq;
+
+namespace Lisa.Excelsis.WebApi
 {
     public class ErrorMessages
     {
@@ -36,8 +39,10 @@
                 case 1203:
                         message = string.Format("The field '{0}' with value '{1}' doesn't meet the requirements of {2} digit number.", obj.Field, obj.Value, obj.Count);
                     break;
-                case 1204:                        
-                        message = string.Format("The field '{0}' with value '{1}' can only contain {2}, {3} or {4}.", obj.Field, obj.Value, obj.Permitted1, obj.Permitted2, obj.Permitted3);
+                case 1204:
+                        List<string> permitted = new List<string>(obj.Permitted);
+                        var values = permitted.Count() > 1 ? string.Join(", ", permitted.Take(permitted.Count() - 1)) + " or " + permitted.Last() : permitted.FirstOrDefault();
+                        message = string.Format("The field '{0}' with value '{1}' can only contain {2}.", obj.Field, obj.Value, values);
                     break;
                 case 1205:
                         message = string.Format("The field '{0}' with value '{1}' is not patchable.", obj.Field, obj.Value);
@@ -55,7 +60,9 @@
                         message = string.Format("The field '{0}' is not correct therefore it cannot be patched.", obj.Field);
                     break;
                 case 1210:
-                        message = string.Format("The field '{0}' with value '{1}' can only contain {2} or {3}.", obj.Field, obj.Value, obj.Permitted1, obj.Permitted2);
+                        permitted = new List<string>(obj.Permitted);
+                        values = permitted.Count() > 1 ? string.Join(", ", permitted.Take(permitted.Count() - 1)) + " or " + permitted.Last() : permitted.FirstOrDefault();
+                        message = string.Format("The field '{0}' with value '{1}' can only contain {2}.", obj.Field, obj.Value, values);
                     break;
                 case 1211:
                         message = string.Format("The field '{0}' must be a valid datetime format.", obj.Field, obj.Value, obj.Example);
