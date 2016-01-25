@@ -13373,7 +13373,7 @@
     "System.Data.SqlClient/4.0.0-beta-23225": {
       "type": "package",
       "serviceable": true,
-      "sha512": "+mzC5sT3PSz4LG+XptK0ybroByDRf+3wAzsgrKY7FzwPq5YIAsuuQEHZoH8xfBHoZjtt007uqFoHXW3rouZUfA==",
+      "sha512": "Gja/sCVUzqXsk0R3efmK6vgEitbzb2vpG4+5ivjdiPbPivMKHs5ufQyko7/Naz8xEEK439sHcIJQQjvJa7D+Jw==",
       "files": [
         "lib/DNXCore50/System.Data.SqlClient.dll",
         "lib/MonoAndroid10/_._",
@@ -14119,7 +14119,7 @@
     "System.Net.Security/4.0.0-beta-23225": {
       "type": "package",
       "serviceable": true,
-      "sha512": "uBIzXbOaLKu1NNezv9C/X2RTnbAJHspRmkguMNkr0KfzhznG68kw/1LUpNxfrkMLUTv3UqPoj0cIH4tWPQvqhA==",
+      "sha512": "L1KaeuRgF2ncTb5Z49nI8qyESWgDfqlHTuVrCiFiKjDjhsKaNSNkS2hcToQ1dYR7jvHfOb3r3OcMkdZMDKYIOA==",
       "files": [
         "lib/DNXCore50/System.Net.Security.dll",
         "lib/MonoAndroid10/_._",
@@ -14141,7 +14141,7 @@
     "System.Net.Sockets/4.1.0-beta-23225": {
       "type": "package",
       "serviceable": true,
-      "sha512": "ZB+ZE/Bo52Zr38mIX4Wb1mrq9zHCbl7Oz9iv8IL3dQ2RZqMdUZpPI/PLTRI+/BgUNnycK53VY8kp8QGJIzqTiQ==",
+      "sha512": "9wupz6i8AONzdzaLglcYImU25ivdcKmBXnf9GxE0eS1QqRGWQcWkKyv4dyxMc9E0gt4UuTIktn2FLjrz8ir6sw==",
       "files": [
         "lib/DNXCore50/System.Net.Sockets.dll",
         "lib/MonoAndroid10/_._",
