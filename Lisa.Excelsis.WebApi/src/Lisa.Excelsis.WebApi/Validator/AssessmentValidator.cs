@@ -74,7 +74,7 @@ namespace Lisa.Excelsis.WebApi
         private void ValueIsStudentNumber(string value, dynamic parameters)
         {
             // REGEX : 8 digits (min and max)
-            if (!Regex.IsMatch(value.ToLower(), @"^\d{8}$"))
+            if (!Regex.IsMatch(value.ToLower(), @"(^$|^\d{8}$)"))
             {
                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 8}));
             }
