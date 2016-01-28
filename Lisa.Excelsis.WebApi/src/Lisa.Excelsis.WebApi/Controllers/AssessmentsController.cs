@@ -70,6 +70,13 @@ namespace Lisa.Excelsis.WebApi
                 return new HttpNotFoundResult();
             }
 
+            var exam = _db.FetchExam(subject, name, cohort);
+            if (exam != "published")
+            {
+                string breakpoint = "testBreakpoint";
+                //return new UnprocessableEntityObjectResult(new Error(1213, new ErrorProps { Value = exam }));
+            }
+
             if (!_db.IsModelStateValid(ModelState, assessment))
             {
                 return _db.ModelStateErrors;
