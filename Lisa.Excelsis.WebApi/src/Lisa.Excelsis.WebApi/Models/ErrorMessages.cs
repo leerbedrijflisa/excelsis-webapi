@@ -63,6 +63,9 @@
                 case 1212:
                         message = string.Format("The field '{0}' with value '{1}' can only contain letters, numbers and underscores.", obj.Field, obj.Value);
                     break;
+                case 1213:
+                        message = string.Format("You are not allowed to start an assessment from an exam with status {0}, the exam must be published first.", obj.Value);
+                    break;
 
                 // 13XX CODES
                 case 1300:
