@@ -1,13 +1,16 @@
-﻿using Microsoft.AspNet.Mvc;
+﻿using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Mvc;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace Lisa.Excelsis.WebApi
 {
     [Route("[controller]")]
+    [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher,student")]
     public class AssessmentsController : Controller
     {
         [HttpGet]
+        [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher,student")]
         public IActionResult Get([FromQuery] Filter filter)
         {
             IEnumerable<object> result = _db.FetchAssessments(filter);
@@ -15,6 +18,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         [HttpGet("{id}", Name = "assessment")]
+        [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher,student")]
         public IActionResult Get(int id)
         {
             var result = _db.FetchAssessment(id);
@@ -27,6 +31,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         [HttpPatch("{id}")]
+        [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher")]
         public IActionResult Patch([FromBody] IEnumerable<Patch> patches, int id)
         {
             AssessmentValidator validator = new AssessmentValidator();
@@ -56,6 +61,7 @@ namespace Lisa.Excelsis.WebApi
 
 
         [HttpPost("{subject}/{cohort}/{name}")]
+        [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher")]
         public IActionResult Post([FromBody] AssessmentPost assessment, string subject, string cohort, string name)
         {
             AssessmentValidator validator = new AssessmentValidator();

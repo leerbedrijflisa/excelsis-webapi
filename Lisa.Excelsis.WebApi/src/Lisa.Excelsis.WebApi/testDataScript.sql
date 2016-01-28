@@ -108,10 +108,8 @@ CREATE TABLE [dbo].[AssessmentCategories]
 GO
 INSERT INTO Assessors ([UserName], [FirstName], [LastName], [Email])
     VALUES
-    ('joostronkesagerbeek', 'Joost', 'Ronkes Agerbeek', 'joostronkesagerbeek@davinci.nl'),
-    ('petersnoek', 'Peter', 'Snoek', 'petersnoek@davinci.nl'),
-    ('fritssilano', 'Frits', 'Silano', 'fritssilano@davinci.nl'),
-    ('chantaltouw', 'Chantal', 'Touw', 'chantaltouw@davinci.nl');
+    ('joostronkesagerbeek', 'Joost', 'Ronkes Agerbeek', 'raj@davinci.nl'),
+    ('petersnoek', 'Peter', 'Snoek', 'petersnoek@davinci.nl');
 
 INSERT INTO Exams ([Name], [Cohort], [Crebo], [Subject], [SubjectId], [NameId], [Status])
     VALUES 

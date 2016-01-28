@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNet.Mvc;
+﻿using Microsoft.AspNet.Authorization;
+using Microsoft.AspNet.Mvc;
 
 namespace Lisa.Excelsis.WebApi.Controllers
 {
     [Route("[controller]")]
+    [Authorize(ActiveAuthenticationSchemes = "Bearer", Roles = "teacher")]
     public class ValuesController : Controller
     {
         [HttpGet("marks")]

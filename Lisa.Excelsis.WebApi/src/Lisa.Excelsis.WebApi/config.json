@@ -1,6 +1,6 @@
 ﻿{
   "Auth0": {
-    "ClientId": "excelsis.eu.auth0.com",
-    "Domain": "2G3tqKN5dC5kbdf0OusqJPO6tBburnrD"
+    "ClientId": "2G3tqKN5dC5kbdf0OusqJPO6tBburnrD",
+    "Domain": "excelsis.eu.auth0.com"
   }
 }
