@@ -182,9 +182,9 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsStatus(string value, dynamic parameters)
         {
-            if (!Regex.IsMatch(value, @"^(draft|published)$"))
+            if (!Regex.IsMatch(value, @"^(draft|published|inactive)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "draft", "published" } }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "draft", "published", "inactive" } }));
             }
         }
         private static readonly Database _db = new Database();
