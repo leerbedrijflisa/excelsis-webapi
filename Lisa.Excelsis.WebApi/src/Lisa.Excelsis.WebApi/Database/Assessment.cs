@@ -24,7 +24,13 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN AssessmentCategories ON AssessmentCategories.Id = Observations.CategoryId
                           WHERE Assessments.Id = @Id";
 
-            dynamic result = _gateway.SelectSingle(query, new { Id = id });
+            if (Startup.Profile.IsInRole("student"))
+            {
+                query += " AND Assessments.StudentNumber = @Profile";
+            }
+
+            dynamic result = _gateway.SelectSingle(query, new { Id = id, Profile = Startup.Profile.Number });
+                       
             if (result == null)
             {
                 return null;
@@ -88,10 +94,16 @@ namespace Lisa.Excelsis.WebApi
                 assessmentQueryList.Add(" Assessments.StudentNumber LIKE @Student OR  Assessments.StudentName LIKE @Student");
             }
 
+            if(Startup.Profile.IsInRole("student"))
+            {
+                assessmentQueryList.Add(" Assessments.StudentNumber = @Profile");
+            }
+
             var parameters = new
             {
                 Assessor = filter.Assessors ?? string.Empty,
-                Student = filter.Student ?? string.Empty
+                Student = filter.Student ?? string.Empty,
+                Profile = Startup.Profile.Number
             };
            
             query += (assessmentQueryList.Count > 0) ? " WHERE " + string.Join(" AND ", assessmentQueryList) : string.Join(" AND ", assessmentQueryList);

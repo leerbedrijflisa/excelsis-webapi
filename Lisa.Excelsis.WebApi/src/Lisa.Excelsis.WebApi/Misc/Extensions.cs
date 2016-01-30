@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 
 namespace Lisa.Excelsis.WebApi
 {
@@ -33,6 +34,11 @@ namespace Lisa.Excelsis.WebApi
                     destination.Add(item);
                 }
             }
+        }
+
+        public static bool IsInRole(this UserProfile profile, string role)
+        {
+            return profile.Roles.Contains(role);
         }
     }
 }
