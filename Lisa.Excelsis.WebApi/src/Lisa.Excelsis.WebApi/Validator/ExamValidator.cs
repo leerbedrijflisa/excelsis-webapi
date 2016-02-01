@@ -11,48 +11,50 @@ namespace Lisa.Excelsis.WebApi
         {
             errors = new List<Error>();
             ResourceId = id;
-
+            
             foreach (Patch patch in patches)
             {
                 //Add Category
-                Allow<CategoryAdd>(patch, "add", new Regex(@"^categories$"), validateValue: ValueIsCategoryObject);
+                Allow<CategoryAdd>(patch, "add", new Regex(@"^categories$"), validateField: new Action<dynamic>[] { ExamIsEditable },
+                                                                             validateValue: new Action<CategoryAdd, object>[] { ValueIsCategoryObject });
                 //Add Criterion
-                Allow<CriterionAdd>(patch, "add", new Regex(@"^categories/(?<Id>\d+)/criteria$"), validateField: CategoryExists,
-                                                                                                    validateValue: ValueIsCriteriaObject);
+                Allow<CriterionAdd>(patch, "add", new Regex(@"^categories/(?<Id>\d+)/criteria$"), validateField: new Action<dynamic>[] { CategoryExists, ExamIsEditable },
+                                                                                                  validateValue: new Action<CriterionAdd, object>[] { ValueIsCriteriaObject });
                 //Replace Category
-                Allow<int>(patch, "replace", new Regex(@"^categories/(?<Id>\d+)/order$"), validateField: CategoryExists,
-                                                                                                 validateValue: ValueIsInt);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Id>\d+)/name$"), validateField: CategoryExists,
-                                                                                                validateValue: ValueIsString);
+                Allow<int>(patch, "replace", new Regex(@"^categories/(?<Id>\d+)/order$"), validateField: new Action<dynamic>[] { CategoryExists, ExamIsEditable },
+                                                                                          validateValue: new Action<int, object>[] { ValueIsInt });
+                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Id>\d+)/name$"), validateField: new Action<dynamic>[] { CategoryExists, ExamIsEditable },
+                                                                                            validateValue: new Action<string, object>[] { ValueIsString });
                 //Replace Criterion
-                Allow<int>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/order$"), validateField: CriterionExists,
-                                                                                                                      validateValue: ValueIsInt);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/title$"), validateField: CriterionExists,
-                                                                                                                      validateValue: ValueIsString);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: CriterionExists,
-                                                                                                                                validateValue: ValueIsString);
-                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: CriterionExists,
-                                                                                                                       validateValue: ValueIsWeight);
+                Allow<int>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/order$"), validateField: new Action<dynamic>[] { CriterionExists, ExamIsEditable },
+                                                                                                               validateValue: new Action<int, object>[] { ValueIsInt });
+                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/title$"), validateField: new Action<dynamic>[] { CriterionExists, ExamIsEditable },
+                                                                                                                  validateValue: new Action<string, object>[] { ValueIsString });
+                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/description$"), validateField: new Action<dynamic>[] { CriterionExists, ExamIsEditable },
+                                                                                                                        validateValue: new Action<string, object>[] { ValueIsString });
+                Allow<string>(patch, "replace", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)/weight$"), validateField: new Action<dynamic>[] { CriterionExists, ExamIsEditable },
+                                                                                                                   validateValue: new Action<string, object>[] { ValueIsWeight });
                 //Replace Exam
-                Allow<string>(patch, "replace", new Regex(@"^subject$"), validateValue: ValueIsExamUrlParam);
-                Allow<string>(patch, "replace", new Regex(@"^name$"), validateValue: ValueIsExamUrlParam);
-                Allow<string>(patch, "replace", new Regex(@"^cohort$"), validateValue: ValueIsCohort);
-                Allow<string>(patch, "replace", new Regex(@"^crebo$"), validateValue: ValueIsCrebo);
-                Allow<string>(patch, "replace", new Regex(@"^status$"), validateValue: ValueIsStatus);
+                Allow<string>(patch, "replace", new Regex(@"^subject$"),validateField: new Action<dynamic>[] { ExamIsEditable }, validateValue: new Action<string, object>[] { ValueIsExamUrlParam });
+                Allow<string>(patch, "replace", new Regex(@"^name$"),   validateField: new Action<dynamic>[] { ExamIsEditable }, validateValue: new Action<string, object>[] { ValueIsExamUrlParam });
+                Allow<string>(patch, "replace", new Regex(@"^cohort$"), validateField: new Action<dynamic>[] { ExamIsEditable }, validateValue: new Action<string, object>[] { ValueIsCohort });
+                Allow<string>(patch, "replace", new Regex(@"^crebo$"),  validateField: new Action<dynamic>[] { ExamIsEditable }, validateValue: new Action<string, object>[] { ValueIsCrebo });
+                Allow<string>(patch, "replace", new Regex(@"^status$"), validateValue: new Action<string, object>[] { ValueIsStatus, ExamHasNoAssessments });
 
                 //Remove Category
-                Allow<int>(patch, "remove", new Regex(@"^(?<Parent>categories)$"), ValueIsInt, CategoryExists, CategoryHasChildren);
-                Allow<int>(patch, "remove", new Regex(@"^categories/(?<Cid>\d+)/criteria$"), validateField: CriterionExists,
-                                                                                                        validateValue: ValueIsInt);
+                Allow<int>(patch, "remove", new Regex(@"^(?<Parent>categories)$"), validateField: new Action<dynamic>[] { CategoryExists, CategoryHasChildren, ExamIsEditable },
+                                                                                   validateValue: new Action<int, object>[] { ValueIsInt });
+                Allow<int>(patch, "remove", new Regex(@"^categories/(?<Cid>\d+)/criteria$"), validateField: new Action<dynamic>[] { CriterionExists, ExamIsEditable },
+                                                                                             validateValue: new Action<int, object>[] { ValueIsInt });
 
                 //Move Criterion
-                Allow<int>(patch, "move", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)$"), null, CriterionExists, CategoryTargetExists);
+                Allow<int>(patch, "move", new Regex(@"^categories/(?<Cid>\d+)/criteria/(?<Id>\d+)$"), validateField: new Action<dynamic>[] { CriterionExists, CategoryTargetExists, ExamIsEditable });
                 
             }
 
             SetRemainingPatchError(patches);
 
-            ResourceId = null;
+            ResourceId = 0;
             return errors;
         }
     
@@ -187,6 +189,25 @@ namespace Lisa.Excelsis.WebApi
                 errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "draft", "published", "inactive" } }));
             }
         }
+
+        private void ExamHasNoAssessments(string value, dynamic parameters)
+        {
+            dynamic result = _db.FetchAssessmentsByExam(ResourceId);
+            if (result.Count > 0 && value == "draft")
+            {
+                errors.Add(new Error(1307, new ErrorProps { Value = parameters.Value, Id = ResourceId }));
+            }
+        }
+
+        private void ExamIsEditable(dynamic value)
+        {
+            dynamic result = _db.FetchExam(ResourceId);
+            if (result.Status != "draft")
+            {
+                errors.Add(new Error(1308, new ErrorProps { Id = ResourceId }));
+            }
+        }
+            
         private static readonly Database _db = new Database();
     }
 }
