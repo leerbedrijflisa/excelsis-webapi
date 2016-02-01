@@ -88,18 +88,24 @@ namespace Lisa.Excelsis.WebApi
                         message = string.Format("The field {0} is not found.", obj.Field);
                     break;
                 case 1305:
-                    message = string.Format("The resource '{0}' with value '{1}' was not found inside the parent '{2} with value '{3}'.", obj.Field, obj.Value, obj.Parent, obj.ParentId);
+                        message = string.Format("The resource '{0}' with value '{1}' was not found inside the parent '{2} with value '{3}'.", obj.Field, obj.Value, obj.Parent, obj.ParentId);
                     break;
                 case 1306:
-                    message = string.Format("The resource '{0}' with value '{1}' can only be removed if it has no children.", obj.Field, obj.Value);
+                        message = string.Format("The resource '{0}' with value '{1}' can only be removed if it has no children.", obj.Field, obj.Value);
+                    break;
+                case 1307:
+                        message = string.Format("You cannot change the status to '{0}' since the exam with id '{1} has assessments.", obj.Value, obj.Id);
+                    break;
+                case 1308:
+                        message = string.Format("The exam with id '{0}' doesn't have the status 'draft'", obj.Id);
                     break;
 
                 // 15XX CODES
                 case 1500:
-                    message = string.Format("Exception: {0}", obj.Exception);
+                        message = string.Format("Exception: {0}", obj.Exception);
                     break;
                 case 1501:
-                    message = string.Format("Message: {0}", obj.Message);
+                        message = string.Format("Message: {0}", obj.Message);
                     break;
                 
             }

@@ -8,13 +8,13 @@ namespace Lisa.Excelsis.WebApi
 {
     abstract class Validator<T>
     {
-        protected int? ResourceId { get; set; }
+        protected int ResourceId { get; set; }
 
         public abstract IEnumerable<Error> ValidatePatches(int id, IEnumerable<Patch> patch);
 
         public abstract IEnumerable<Error> ValidatePost(T post);
 
-        protected IEnumerable<Error> Allow<T>(Patch patch, string action, Regex regex, Action<T, object> validateValue, params Action<dynamic>[] validateField)
+        protected IEnumerable<Error> Allow<T>(Patch patch, string action, Regex regex, Action<T, object>[] validateValue = null, Action<dynamic>[] validateField = null)
         {
             var match = regex.Match(patch.Field.ToLower());
             if (match.Success)
@@ -55,7 +55,10 @@ namespace Lisa.Excelsis.WebApi
                     if (validateValue != null)
                     {
                         try {
-                            validateValue(patch.Value.ToObject<T>(), fieldParams);
+                            foreach (var func in validateValue)
+                            {
+                                func(patch.Value.ToObject<T>(), fieldParams);
+                            }                           
                         }
                         catch(Exception e)
                         {

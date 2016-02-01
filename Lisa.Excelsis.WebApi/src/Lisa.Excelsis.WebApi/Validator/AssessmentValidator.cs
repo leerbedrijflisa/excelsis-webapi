@@ -15,23 +15,23 @@ namespace Lisa.Excelsis.WebApi
             foreach (var patch in patches)
             {
                 //Add Mark
-                Allow<string>(patch, "add", new Regex(@"^observations/(?<Id>\d+)/marks$"), validateField: ObservationExists,
-                                                                                            validateValue: ValueIsMark);
+                Allow<string>(patch, "add", new Regex(@"^observations/(?<Id>\d+)/marks$"), validateField: new Action<dynamic>[] { ObservationExists },
+                                                                                            validateValue: new Action<string, object>[] { ValueIsMark });
                 //Remove Mark
-                Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: ObservationExists,
-                                                                                                validateValue: ValueIsMark);
+                Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: new Action<dynamic>[] { ObservationExists },
+                                                                                                validateValue: new Action<string, object>[] { ValueIsMark });
                 //Replace Observation
-                Allow<string>(patch, "replace", new Regex(@"^observations/(?<Id>\d+)/result$"), validateField: ObservationExists,
-                                                                                                validateValue: ValueIsResult);
+                Allow<string>(patch, "replace", new Regex(@"^observations/(?<Id>\d+)/result$"), validateField: new Action<dynamic>[] { ObservationExists },
+                                                                                                validateValue: new Action<string, object>[] { ValueIsResult });
                 //Replace  Assessment
-                Allow<string>(patch, "replace", new Regex(@"^studentname$"), validateValue: ValueIsStudentName);
-                Allow<string>(patch, "replace", new Regex(@"^studentnumber$"), validateValue: ValueIsStudentNumber);
-                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"), validateValue: ValueIsDateTime);                              
+                Allow<string>(patch, "replace", new Regex(@"^studentname$"),    validateValue: new Action<string, object>[] { ValueIsStudentName });
+                Allow<string>(patch, "replace", new Regex(@"^studentnumber$"),  validateValue: new Action<string, object>[] { ValueIsStudentNumber });
+                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"),     validateValue: new Action<DateTime, object>[] { ValueIsDateTime });                              
             }
 
             SetRemainingPatchError(patches);
 
-            ResourceId = null;
+            ResourceId = 0;
             return errors;
         }
 
