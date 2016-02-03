@@ -57,7 +57,7 @@ namespace Lisa.Excelsis.WebApi
             }
             return new QueryData();
         }
-        
+
         private static QueryData AddCriterion(int id, Patch patch)
         {
             QueryData data = new QueryData();

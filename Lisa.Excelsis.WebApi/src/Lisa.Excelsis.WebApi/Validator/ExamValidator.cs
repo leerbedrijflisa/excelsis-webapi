@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Lisa.Excelsis.WebApi
@@ -57,7 +56,6 @@ namespace Lisa.Excelsis.WebApi
             ResourceId = 0;
             return errors;
         }
-    
 
         public override IEnumerable<Error> ValidatePost(ExamPost exam)
         {
@@ -107,7 +105,7 @@ namespace Lisa.Excelsis.WebApi
             {
                  errors.Add(new Error(1209, new ErrorProps { Field = "Target"}));
             }
-            
+
             if (!_db.CategoryExists(ResourceId, match.Groups["Cid"].Value))
             {
                  errors.Add(new Error(1305, new ErrorProps { Field = "Category", Value = match.Groups["Cid"].Value, Parent = "Exam", ParentId = ResourceId.ToString() }));
@@ -116,7 +114,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void CategoryHasChildren(dynamic parameters)
         {
-            if(_db.HasChildren("Criteria", "CategoryId", parameters.Value))
+            if (_db.HasChildren("Criteria", "CategoryId", parameters.Value))
             {
                 errors.Add(new Error(1306, new ErrorProps { Field = "Category", Value = parameters.Value}));
             }
@@ -133,7 +131,7 @@ namespace Lisa.Excelsis.WebApi
     
 
         private void ValueIsInt(int value, dynamic parameters)
-        {           
+        {
             if (!Regex.IsMatch(value.ToString(), @"^\d+$"))
             {
                  errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = value.ToString()}));
@@ -146,14 +144,13 @@ namespace Lisa.Excelsis.WebApi
             {
                  errors.Add(new Error(1202, new ErrorProps { Field = "target", Value = value }));
             }
-        }       
+        }
 
         private void ValueIsExamUrlParam(string value, dynamic parameters)
         {
             var cleaned = Utils.CleanParam(value);
             if (string.IsNullOrWhiteSpace(cleaned))
             {
-                //TODO:  set error
                 errors.Add(new Error(1501, new ErrorProps { Message = "After stripping the value there was nothing left to show." }));
             }
         }
@@ -207,7 +204,7 @@ namespace Lisa.Excelsis.WebApi
                 errors.Add(new Error(1308, new ErrorProps { Id = ResourceId }));
             }
         }
-            
+
         private static readonly Database _db = new Database();
     }
 }

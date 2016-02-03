@@ -30,7 +30,7 @@ namespace Lisa.Excelsis.WebApi
                 query += " WHERE Exams.[Status] = @Status";
             }
             query += @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-           
+
             return _gateway.SelectMany(query, new { Assessor = filter.Assessors ?? string.Empty, Status = filter.Status ?? string.Empty });
         }
 
@@ -44,7 +44,7 @@ namespace Lisa.Excelsis.WebApi
                 query += " AND Exams.[Status] = @Status";
             }
             query += @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-           
+
             var parameters = new {
                 Subject = subject,
                 Cohort = cohort,
@@ -56,7 +56,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         public object AddExam(ExamPost exam)
-        {               
+        {
             var query = @"INSERT INTO Exams (Name, NameId, Cohort, Crebo, Subject, SubjectId, Status)
                         VALUES (@Name, @NameId, @Cohort, @Crebo, @Subject, @SubjectId, 'draft');";
 
@@ -77,7 +77,7 @@ namespace Lisa.Excelsis.WebApi
             ExamBuilder builder = new ExamBuilder();
             builder.BuildPatches(id, patches);
         }
-        
+
         public bool ExamExists(ExamPost exam)
         {
             var query = @"SELECT COUNT(*) as count FROM Exams
@@ -134,14 +134,14 @@ namespace Lisa.Excelsis.WebApi
             {
                 return @"SELECT Id, Name, NameId, Cohort, Crebo, Subject, SubjectId, Status
                           FROM Exams
-                          LEFT JOIN (	
-	                          SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
-	                          FROM Assessments	
-	                          LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id
-	                          LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
-	                          WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
-	                          AND Assessors.UserName = @Assessor
-	                          GROUP BY ExamId
+                          LEFT JOIN (
+                              SELECT TOP 10 ExamId, MAX(Assessments.Assessed) as Assessed
+                              FROM Assessments
+                              LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id
+                              LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
+                              WHERE Assessments.Assessed > DATEADD(Year,-1,GETDATE())
+                              AND Assessors.UserName = @Assessor
+                              GROUP BY ExamId
                           ) Assessments ON Exams.Id = Assessments.ExamId";
             }
         }

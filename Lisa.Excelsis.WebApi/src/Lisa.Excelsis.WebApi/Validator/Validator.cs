@@ -20,7 +20,7 @@ namespace Lisa.Excelsis.WebApi
             if (match.Success)
             {   
                 if (patch.Action.ToLower() == action)
-                {                    
+                {
                     if (Regex.IsMatch(patch.Action.ToLower(), @"^(add|replace|remove)$") && patch.Value == null)
                     {
                         errors.Add(new Error(1101, new ErrorProps { Field = "Value" }));
@@ -45,10 +45,10 @@ namespace Lisa.Excelsis.WebApi
                     }
 
                     if (validateField != null)
-                    {                       
+                    {
                         foreach (var func in validateField)
                         {
-                            func(fieldParams);                           
+                            func(fieldParams);
                         }
                     }
 
@@ -58,7 +58,7 @@ namespace Lisa.Excelsis.WebApi
                             foreach (var func in validateValue)
                             {
                                 func(patch.Value.ToObject<T>(), fieldParams);
-                            }                           
+                            }
                         }
                         catch(Exception e)
                         {
@@ -78,7 +78,7 @@ namespace Lisa.Excelsis.WebApi
             {
                 errors.Add(new Error(1101, new ErrorProps { Field = field }));
             }
-            else if( value == null && optional)
+            else if (value == null && optional)
             {
                 return null;
             }
@@ -115,7 +115,7 @@ namespace Lisa.Excelsis.WebApi
                     }
                 }
             }
-            return (errors.Any())? errors : null;            
+            return (errors.Any())? errors : null;
         }
 
         protected List<Error> errors = new List<Error>();

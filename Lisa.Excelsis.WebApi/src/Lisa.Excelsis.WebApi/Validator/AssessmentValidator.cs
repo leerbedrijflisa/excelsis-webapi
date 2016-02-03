@@ -26,7 +26,7 @@ namespace Lisa.Excelsis.WebApi
                 //Replace  Assessment
                 Allow<string>(patch, "replace", new Regex(@"^studentname$"),    validateValue: new Action<string, object>[] { ValueIsStudentName });
                 Allow<string>(patch, "replace", new Regex(@"^studentnumber$"),  validateValue: new Action<string, object>[] { ValueIsStudentNumber });
-                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"),     validateValue: new Action<DateTime, object>[] { ValueIsAssessed });                              
+                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"),     validateValue: new Action<DateTime, object>[] { ValueIsAssessed });
             }
 
             SetRemainingPatchError(patches);
@@ -44,8 +44,8 @@ namespace Lisa.Excelsis.WebApi
 
             return errors;
         }
-        
-        //Check if resource exists        
+
+        //Check if resource exists
         private void ObservationExists(dynamic parameters)
         {
             if (!_db.ObservationExists(ResourceId, parameters.Id))
@@ -56,11 +56,11 @@ namespace Lisa.Excelsis.WebApi
 
         //Check if value is valid
         private void ValueIsAssessed(DateTime value, dynamic parameters)
-        {           
+        {
             if (value == null)
             {
                errors.Add(new Error(1211, new ErrorProps { Field = "assessed", Example = "{YY}-{MM}-{DD}T{HH}:{mm}:{ss}Z"}));
-            }        
+            }
         }
 
         private void ValueIsResult(string value, dynamic parameters)
@@ -73,7 +73,6 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsStudentNumber(string value, dynamic parameters)
         {
-            // REGEX : 8 digits (min and max)
             if (!Regex.IsMatch(value.ToLower(), @"(^$|^\d{8}$)"))
             {
                 errors.Add(new Error(1203, new ErrorProps { Field = "studentnumber", Value = value, Count = 8}));
@@ -82,7 +81,6 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsStudentName(string value, dynamic parameters)
         {
-            // REGEX : words with spaces
             if (!Regex.IsMatch(value, @"^[a-zA-Z\s]*$"))
             {
                 errors.Add(new Error(1201, new ErrorProps { Field = "studentname", Value = value}));
@@ -91,8 +89,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsMark(string value, dynamic parameters)
         {
-            // REGEX : one word without spaces, lower dashes allowed
-            if(!Regex.IsMatch(value, @"^\b[a-zA-Z0-9_]+\b$"))
+            if (!Regex.IsMatch(value, @"^\b[a-zA-Z0-9_]+\b$"))
             {
                 errors.Add(new Error(1212, new ErrorProps { Field = "marks", Value = value}));
             }
@@ -101,7 +98,6 @@ namespace Lisa.Excelsis.WebApi
         private void ValueIsAssessors(string[] value, dynamic parameters)
         {
             dynamic result = _db.SelectAssessors(value);
-
             if (result.Count != value.Count())
             {
                 foreach (var assessor in value)
@@ -113,18 +109,18 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
         }
-        
+
         private void MarkCanBeRemoved(string value, dynamic parameters)
         {
             if (!_db.MarkExists(value))
             {
                 errors.Add(new Error(1309, new ErrorProps { Value = value }));
             }
-        }  
+        }
 
         private void ValueIsString(string value, dynamic parameters)
         {
-            if(string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value))
             {
                 errors.Add(new Error(1208, new ErrorProps { Field = "value", Value = value, Type = "string" }));
             }

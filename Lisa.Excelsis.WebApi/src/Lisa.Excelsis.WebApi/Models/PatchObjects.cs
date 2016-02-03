@@ -4,10 +4,10 @@ namespace Lisa.Excelsis.WebApi
 {
     public class CategoryAdd
     {
-        [Required]        
+        [Required]
         public int? Order { get; set; }
 
-        [Required]       
+        [Required]
         public string Name { get; set; }
 
         public int ExamId { get; set; }

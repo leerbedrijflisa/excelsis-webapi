@@ -37,7 +37,7 @@ namespace Lisa.Excelsis.WebApi
             _errors = new List<Error>();
 
             if (!ModelState.IsValid)
-            {                                
+            {
                 var modelStateErrors = ModelState.Select(M => M).Where(X => X.Value.Errors.Count > 0);
                 foreach (var property in modelStateErrors)
                 {
@@ -74,7 +74,7 @@ namespace Lisa.Excelsis.WebApi
 
             return true;
         }
-              
+
         public void ProcessTransactions(IEnumerable<QueryData> transactions)
         {
             _gateway.ProcessTransaction(() =>
@@ -82,7 +82,7 @@ namespace Lisa.Excelsis.WebApi
                 foreach(QueryData transaction in transactions)
                 {
                     Execute(transaction.Query, transaction.Parameters);
-                }                
+                }
             });
         }
 

@@ -20,7 +20,7 @@ namespace Lisa.Excelsis.WebApi
                           LEFT JOIN AssessmentAssessors ON AssessmentAssessors.AssessmentId = Assessments.Id
                           LEFT JOIN Assessors ON Assessors.Id = AssessmentAssessors.AssessorId
                           LEFT JOIN Observations ON Observations.AssessmentId = Assessments.Id
-                          LEFT JOIN Marks ON Marks.ObservationId = Observations.Id                         
+                          LEFT JOIN Marks ON Marks.ObservationId = Observations.Id
                           LEFT JOIN AssessmentCategories ON AssessmentCategories.Id = Observations.CategoryId
                           WHERE Assessments.Id = @Id";
 
@@ -30,7 +30,6 @@ namespace Lisa.Excelsis.WebApi
             }
 
             dynamic result = _gateway.SelectSingle(query, new { Id = id, Profile = Startup.Profile.Number });
-                       
             if (result == null)
             {
                 return null;
@@ -70,13 +69,13 @@ namespace Lisa.Excelsis.WebApi
                 {
                     assessorQuery = @" Assessors.UserName = '" + filter.Assessors + "'";
                 }
-                else if(Regex.IsMatch(filter.Assessors, @"^([ |A-Za-z]+)$"))
+                else if (Regex.IsMatch(filter.Assessors, @"^([ |A-Za-z]+)$"))
                 {
                     string assessors = string.Join(",", Regex.Split(filter.Assessors, @" "));
                     assessorQuery = @" Assessors.UserName IN('" + assessors.Replace(",", "','") + "')";
                     multipleAssessors = true;
                 }
-                else if(Regex.IsMatch(filter.Assessors, @"^([,|A-Za-z]+)$"))
+                else if (Regex.IsMatch(filter.Assessors, @"^([,|A-Za-z]+)$"))
                 {
                     assessorQuery = @" Assessors.UserName IN('" + filter.Assessors.Replace(",", "','") + "')";
                 }
@@ -94,7 +93,7 @@ namespace Lisa.Excelsis.WebApi
                 assessmentQueryList.Add(" Assessments.StudentNumber LIKE @Student OR  Assessments.StudentName LIKE @Student");
             }
 
-            if(Startup.Profile.IsInRole("student"))
+            if (Startup.Profile.IsInRole("student"))
             {
                 assessmentQueryList.Add(" Assessments.StudentNumber = @Profile");
             }
@@ -115,7 +114,7 @@ namespace Lisa.Excelsis.WebApi
                 foreach (var assessment in results)
                 {
                     int count = 0;
-                    foreach(var assessor in assessment.Assessors)
+                    foreach (var assessor in assessment.Assessors)
                     {
                         int pos = Array.IndexOf(assessorString, assessor.UserName);
                         if (pos > -1) count++;
@@ -140,7 +139,7 @@ namespace Lisa.Excelsis.WebApi
         }
         public object AddAssessment(AssessmentPost assessment, string subject, string name, string cohort, dynamic examResult)
         {
-            object assessorResult = SelectAssessors(assessment.Assessors);            
+            object assessorResult = SelectAssessors(assessment.Assessors);
             object assessmentResult = InsertAssessment(assessment, examResult);
 
             AddAssessmentAssessors(assessment, assessmentResult, assessorResult);
@@ -155,7 +154,7 @@ namespace Lisa.Excelsis.WebApi
             AssessmentBuilder builder = new AssessmentBuilder();
             builder.BuildPatches(id, patches);
         }
-        
+
         public bool AssessmentExists(object id)
         {
             var query = @"SELECT COUNT(*) as count FROM Assessments
@@ -168,7 +167,7 @@ namespace Lisa.Excelsis.WebApi
         public object SelectAssessors(string[] assessors)
         {
             var query = @"SELECT Id, UserName FROM Assessors
-                        WHERE UserName IN ( @Assessors ) ";
+                        WHERE UserName IN ( @Assessors )";
             dynamic result = _gateway.SelectMany(query, new { Assessors = assessors });
             return result;
         }
@@ -177,7 +176,7 @@ namespace Lisa.Excelsis.WebApi
         {
             var query = @"INSERT INTO Assessments (ExamId, StudentName, StudentNumber, Assessed, Name, Cohort, Crebo, Subject)
                           VALUES (@ExamId, @StudentName, @StudentNumber, @Assessed, @Name, @Cohort, @Crebo, @Subject);";
-            
+
             var parameters = new
             {
                 ExamId = examResult.Id,
@@ -201,6 +200,6 @@ namespace Lisa.Excelsis.WebApi
                               VALUES (@Assessment, @Assessor)";
                 _gateway.Insert(query, new { Assessment = assessmentResult, Assessor = assessor.Id });
             }
-        }        
+        }
     }
 }

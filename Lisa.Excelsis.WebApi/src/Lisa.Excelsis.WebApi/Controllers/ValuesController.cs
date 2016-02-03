@@ -10,7 +10,7 @@ namespace Lisa.Excelsis.WebApi.Controllers
         [HttpGet("marks")]
         public IActionResult GetMarks()
         {
-            string[] marks = new string[] { "maybe", "maybe not", "skip", "unclear", "change" };
+            string[] marks = new string[] { "maybe", "maybe_not", "skip", "unclear", "change" };
             return new HttpOkObjectResult(marks);
         }
     }

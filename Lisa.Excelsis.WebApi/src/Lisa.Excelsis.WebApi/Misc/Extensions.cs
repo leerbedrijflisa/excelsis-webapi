@@ -14,7 +14,7 @@ namespace Lisa.Excelsis.WebApi
                 list.Add(source);
             }
             else
-            {               
+            {
                 destination.Add(source);
             }
         }

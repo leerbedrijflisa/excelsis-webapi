@@ -110,7 +110,6 @@ namespace Lisa.Excelsis.WebApi
                 case 1501:
                         message = string.Format("Message: {0}", obj.Message);
                     break;
-                
             }
             return message;
         }
