@@ -16,17 +16,17 @@ namespace Lisa.Excelsis.WebApi
             {
                 //Add Mark
                 Allow<string>(patch, "add", new Regex(@"^observations/(?<Id>\d+)/marks$"), validateField: new Action<dynamic>[] { ObservationExists },
-                                                                                            validateValue: new Action<string, object>[] { ValueIsMark });
+                                                                                           validateValue: new Action<string, object>[] { ValueIsMark });
                 //Remove Mark
                 Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: new Action<dynamic>[] { ObservationExists },
-                                                                                                validateValue: new Action<string, object>[] { ValueIsMark, MarkCanBeRemoved });
+                                                                                             validateValue: new Action<string, object>[] { ValueIsMark, MarkCanBeRemoved });
                 //Replace Observation
                 Allow<string>(patch, "replace", new Regex(@"^observations/(?<Id>\d+)/result$"), validateField: new Action<dynamic>[] { ObservationExists },
                                                                                                 validateValue: new Action<string, object>[] { ValueIsResult });
                 //Replace  Assessment
                 Allow<string>(patch, "replace", new Regex(@"^studentname$"),    validateValue: new Action<string, object>[] { ValueIsStudentName });
                 Allow<string>(patch, "replace", new Regex(@"^studentnumber$"),  validateValue: new Action<string, object>[] { ValueIsStudentNumber });
-                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"),     validateValue: new Action<DateTime, object>[] { ValueIsDateTime });                              
+                Allow<DateTime>(patch, "replace", new Regex(@"^assessed$"),     validateValue: new Action<DateTime, object>[] { ValueIsAssessed });                              
             }
 
             SetRemainingPatchError(patches);
@@ -40,7 +40,7 @@ namespace Lisa.Excelsis.WebApi
             Allow<string>("studentName", assessment.Student?.Name, validateValue: ValueIsStudentName, optional: true);
             Allow<string>("studentNumber", assessment.Student?.Number, validateValue: ValueIsStudentNumber, optional: true);
             Allow<string[]>("assessors", assessment.Assessors, validateValue: ValueIsAssessors);
-            Allow<DateTime>("assessed", assessment.Assessed, validateValue: ValueIsDateTime);
+            Allow<DateTime>("assessed", assessment.Assessed, validateValue: ValueIsAssessed);
 
             return errors;
         }
@@ -55,7 +55,7 @@ namespace Lisa.Excelsis.WebApi
         }
 
         //Check if value is valid
-        private void ValueIsDateTime(DateTime value, dynamic parameters)
+        private void ValueIsAssessed(DateTime value, dynamic parameters)
         {           
             if (value == null)
             {
