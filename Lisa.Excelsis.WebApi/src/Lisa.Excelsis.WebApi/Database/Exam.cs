@@ -24,32 +24,22 @@ namespace Lisa.Excelsis.WebApi
 
         public IEnumerable<object> FetchExams(Filter filter)
         {
-            var query = FetchExamsQuery;
-            if (filter.Status != null)
-            {
-                query += " WHERE Exams.[Status] = @Status";
-            }
-            query += @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-           
-            return _gateway.SelectMany(query, new { Assessor = filter.Assessors ?? string.Empty, Status = filter.Status ?? string.Empty });
+            var query = FetchExamsQuery +
+                        @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
+            return _gateway.SelectMany(query, new { Assessor = filter.Assessors ?? string.Empty });
         }
 
         public IEnumerable<object> FetchExams(Filter filter, string subject, string cohort)
         {
             var query = FetchExamsQuery +
                         @" WHERE SubjectId = @Subject 
-                             AND Cohort = @Cohort";
-            if (filter.Status != null)
-            {
-                query += " AND Exams.[Status] = @Status";
-            }
-            query += @" ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
-           
+                             AND Cohort = @Cohort
+                           ORDER BY Assessed DESC , Subject, Cohort desc, Exams.Name";
+
             var parameters = new {
                 Subject = subject,
                 Cohort = cohort,
-                Assessor = filter.Assessors ?? string.Empty,
-                Status = filter.Status ?? string.Empty
+                Assessor = filter.Assessors ?? string.Empty
             };
 
             return _gateway.SelectMany(query, parameters);
