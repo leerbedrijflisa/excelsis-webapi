@@ -37,5 +37,13 @@ namespace Lisa.Excelsis.WebApi
             dynamic result = _gateway.SelectSingle(query, new { AssessmentId = assessmentId, Id = id });
             return (result.count > 0);
         }
+
+        public bool MarkExists(string mark)
+        {
+            var query = @"SELECT COUNT(*) as count FROM Marks
+                          WHERE Name = @Mark";
+            dynamic result = _gateway.SelectSingle(query, new { Mark = mark });
+            return (result.count > 0);
+        }
     }
 }

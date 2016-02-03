@@ -19,7 +19,7 @@ namespace Lisa.Excelsis.WebApi
                                                                                             validateValue: new Action<string, object>[] { ValueIsMark });
                 //Remove Mark
                 Allow<string>(patch, "remove", new Regex(@"^observations/(?<Id>\d+)/marks"), validateField: new Action<dynamic>[] { ObservationExists },
-                                                                                                validateValue: new Action<string, object>[] { ValueIsMark });
+                                                                                                validateValue: new Action<string, object>[] { ValueIsMark, MarkCanBeRemoved });
                 //Replace Observation
                 Allow<string>(patch, "replace", new Regex(@"^observations/(?<Id>\d+)/result$"), validateField: new Action<dynamic>[] { ObservationExists },
                                                                                                 validateValue: new Action<string, object>[] { ValueIsResult });
@@ -113,7 +113,14 @@ namespace Lisa.Excelsis.WebApi
                 }
             }
         }
-          
+        
+        private void MarkCanBeRemoved(string value, dynamic parameters)
+        {
+            if (!_db.MarkExists(value))
+            {
+                errors.Add(new Error(1309, new ErrorProps { Value = value }));
+            }
+        }  
 
         private void ValueIsString(string value, dynamic parameters)
         {

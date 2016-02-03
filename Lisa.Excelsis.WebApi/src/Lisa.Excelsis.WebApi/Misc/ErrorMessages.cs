@@ -99,6 +99,9 @@ namespace Lisa.Excelsis.WebApi
                 case 1308:
                         message = string.Format("The exam with id '{0}' doesn't have the status 'draft'", obj.Id);
                     break;
+                case 1309:
+                        message = string.Format("The value '{0}' does not exist and cannot be removed", obj.Value);
+                    break;
 
                 // 15XX CODES
                 case 1500:
