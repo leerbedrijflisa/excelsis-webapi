@@ -4,5 +4,6 @@
     {
         public string Assessors { get; set; }
         public string Student { get; set; }
+        public string Status { get; set; }
     }
 }
