@@ -59,7 +59,7 @@ namespace Lisa.Excelsis.WebApi
         {           
             if (value == null)
             {
-               errors.Add(new Error(1211, new ErrorProps { Field = "value", Example = "{YY}-{MM}-{DD}T{HH}:{mm}:{ss}Z"}));
+               errors.Add(new Error(1211, new ErrorProps { Field = "assessed", Example = "{YY}-{MM}-{DD}T{HH}:{mm}:{ss}Z"}));
             }        
         }
 
@@ -67,7 +67,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value.ToLower(), @"^(seen|unseen|notrated)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "seen", "unseen", "notrated" } }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "result", Value = value, Permitted = new string[] { "seen", "unseen", "notrated" } }));
             }
         }
 
@@ -76,7 +76,7 @@ namespace Lisa.Excelsis.WebApi
             // REGEX : 8 digits (min and max)
             if (!Regex.IsMatch(value.ToLower(), @"(^$|^\d{8}$)"))
             {
-                errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 8}));
+                errors.Add(new Error(1203, new ErrorProps { Field = "studentnumber", Value = value, Count = 8}));
             }
         }
 
@@ -94,7 +94,7 @@ namespace Lisa.Excelsis.WebApi
             // REGEX : one word without spaces, lower dashes allowed
             if(!Regex.IsMatch(value, @"^\b[a-zA-Z0-9_]+\b$"))
             {
-                errors.Add(new Error(1212, new ErrorProps { Field = "value", Value = value}));
+                errors.Add(new Error(1212, new ErrorProps { Field = "marks", Value = value}));
             }
         }
 

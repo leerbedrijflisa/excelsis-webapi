@@ -144,7 +144,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^\d+$"))
             {
-                 errors.Add(new Error(1202, new ErrorProps { Field = "value", Value = value }));
+                 errors.Add(new Error(1202, new ErrorProps { Field = "target", Value = value }));
             }
         }       
 
@@ -162,7 +162,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(fail|pass|excellent)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "fail", "pass", "excellent" } }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "weight", Value = value, Permitted = new string[] { "fail", "pass", "excellent" } }));
             }
         }
 
@@ -170,7 +170,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(19|20)\d{2}$"))
             {
-                 errors.Add(new Error(1207, new ErrorProps { Field = "value", Value = value, Count = 4, Min = 1900, Max = 2099 }));
+                 errors.Add(new Error(1207, new ErrorProps { Field = "cohort", Value = value, Count = 4, Min = 1900, Max = 2099 }));
             }
         }
 
@@ -178,7 +178,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^\d{5}$"))
             {
-                 errors.Add(new Error(1203, new ErrorProps { Field = "value", Value = value, Count = 5}));
+                 errors.Add(new Error(1203, new ErrorProps { Field = "crebo", Value = value, Count = 5}));
             }
         }
 
@@ -186,7 +186,7 @@ namespace Lisa.Excelsis.WebApi
         {
             if (!Regex.IsMatch(value, @"^(draft|published|inactive)$"))
             {
-                errors.Add(new Error(1204, new ErrorProps { Field = "value", Value = value, Permitted = new string[] { "draft", "published", "inactive" } }));
+                errors.Add(new Error(1204, new ErrorProps { Field = "status", Value = value, Permitted = new string[] { "draft", "published", "inactive" } }));
             }
         }
 
