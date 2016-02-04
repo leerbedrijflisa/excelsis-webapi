@@ -12,7 +12,6 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Linq;
 using WebApiSample.Properties;
-using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System;
 
@@ -128,8 +127,6 @@ namespace Lisa.Excelsis.WebApi
             }
             Profile = (UserProfile)obj;
         }
-
-        
 
         private static string FirstCharToUpper(string input)
         {
