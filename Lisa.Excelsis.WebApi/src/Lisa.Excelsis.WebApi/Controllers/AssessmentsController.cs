@@ -76,6 +76,11 @@ namespace Lisa.Excelsis.WebApi
                 return new HttpNotFoundResult();
             }
 
+            if (examResult.Status != "published")
+            {
+                return new UnprocessableEntityObjectResult(new Error(1213, new ErrorProps { Value = examResult.Status }));
+            }
+
             if (!_db.IsModelStateValid(ModelState, assessment))
             {
                 return _db.ModelStateErrors;
