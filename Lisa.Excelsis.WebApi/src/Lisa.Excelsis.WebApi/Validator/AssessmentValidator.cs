@@ -81,7 +81,7 @@ namespace Lisa.Excelsis.WebApi
 
         private void ValueIsStudentName(string value, dynamic parameters)
         {
-            if (!Regex.IsMatch(value, @"^[a-zA-Z\s]*$"))
+            if (!Regex.IsMatch(value, @"^[\w\s'-/\.]*$"))
             {
                 errors.Add(new Error(1201, new ErrorProps { Field = "studentname", Value = value}));
             }
