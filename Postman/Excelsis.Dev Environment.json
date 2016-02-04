@@ -1,0 +1,23 @@
+{
+	"id": "5300e775-891b-8b47-683a-cb3d1ee24906",
+	"name": "Excelsis.Dev",
+	"values": [
+		{
+			"key": "url",
+			"value": "http://localhost:2927",
+			"type": "text",
+			"name": "url",
+			"enabled": true
+		},
+		{
+			"key": "AuthenticationToken",
+			"value": "Bearer eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IlJFRTJPRVZCTnpFeU1EbERNVFk1UWpVM09ERkRNVVF3UlRaQlF6UTBSakEyTTBZeU5qQkdRUSJ9.eyJlbWFpbCI6InJhakBkYXZpbmNpLm5sIiwicGljdHVyZSI6Imh0dHBzOi8vcy5ncmF2YXRhci5jb20vYXZhdGFyLzZkMWJmZmVlYmQwZWIxNzI3OGJhYTZkOTU5NzM4Yjc2P3M9NDgwJnI9cGcmZD1odHRwcyUzQSUyRiUyRmNkbi5hdXRoMC5jb20lMkZhdmF0YXJzJTJGcmEucG5nIiwibmlja25hbWUiOiJyYWoiLCJuYW1lIjoicmFqQGRhdmluY2kubmwiLCJ1c2VyX21ldGFkYXRhIjp7InVzZXJuYW1lIjoiam9vc3Ryb25rZXNhZ2VyYmVlayIsImZpcnN0bmFtZSI6Ikpvb3N0IiwibGFzdG5hbWUiOiJSb25rZXMgQWdlcmJlZWsiLCJuYW1lIjoiSm9vc3QgUm9ua2VzIEFnZXJiZWVrIn0sImFwcF9tZXRhZGF0YSI6eyJyb2xlcyI6WyJ0ZWFjaGVyIl19LCJyb2xlcyI6WyJ0ZWFjaGVyIl0sIl9pZCI6IjVkYWI2OTNkMTk3NTMyN2JlNDI2ODk0YjBlY2M5N2ExIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImNsaWVudElEIjoiMkczdHFLTjVkQzVrYmRmME91c3FKUE82dEJidXJuckQiLCJ1c2VyX2lkIjoiYXV0aDB8NTZhODgxNWNmM2UwYzhhMzEwOWU2YjUyIiwiaWRlbnRpdGllcyI6W3sidXNlcl9pZCI6IjU2YTg4MTVjZjNlMGM4YTMxMDllNmI1MiIsInByb3ZpZGVyIjoiYXV0aDAiLCJjb25uZWN0aW9uIjoiVXNlcm5hbWUtUGFzc3dvcmQtQXV0aGVudGljYXRpb24iLCJpc1NvY2lhbCI6ZmFsc2V9XSwidXBkYXRlZF9hdCI6IjIwMTYtMDItMDRUMDg6MTA6MjEuMTc4WiIsImNyZWF0ZWRfYXQiOiIyMDE2LTAxLTI3VDA4OjM1OjQwLjg4N1oiLCJnbG9iYWxfY2xpZW50X2lkIjoibHE2amVzUXphVUFqUnRWaVI4blR2TUFmcXNrT05ERlIiLCJpc3MiOiJodHRwczovL2V4Y2Vsc2lzLmV1LmF1dGgwLmNvbS8iLCJzdWIiOiJhdXRoMHw1NmE4ODE1Y2YzZTBjOGEzMTA5ZTZiNTIiLCJhdWQiOiIyRzN0cUtONWRDNWtiZGYwT3VzcUpQTzZ0QmJ1cm5yRCIsImV4cCI6MTQ1NDYwOTQyMSwiaWF0IjoxNDU0NTczNDIxfQ.bMdAsr4Fmu-ohiuocpku-TFh2C1WphxFAWAa-iuQx8mOvSKcbQTY1cy6wka-FJnnAOt_YFDM6P1DtaACziUqNSGKgHb8lLrC2plj5j2miBJ_F0hfs5H0Iz34aBH6UtauzMq_yTe5mQZmn99vvyvQ9ojkrIpH2yCIQnJrBDgIXwXqJNn34dDp4NGml29lpSx2iJfMaNbrNITDCTkLvRric7aIsSuHjvpWJEPXCiaEXgDAIRzsph17fnQzHXilL8e6z9FDyMYlrJ02CoLoOQ7fbSY8PfppLmsCh73PC36Bj_d3LlbsmwCbUW5UwY98vqWajdowRI9jnxCvY3pTCuWkFg",
+			"type": "text",
+			"name": "AuthenticationToken",
+			"enabled": true
+		}
+	],
+	"timestamp": 1454576720328,
+	"synced": false,
+	"syncedFilename": ""
+}
