@@ -12,6 +12,7 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Linq;
 using WebApiSample.Properties;
+using System.Reflection;
 using Newtonsoft.Json.Linq;
 using System;
 
